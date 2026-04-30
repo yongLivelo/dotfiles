@@ -91,6 +91,9 @@ return {
           end,
         },
       },
+      i = {
+        ["jk"] = { "<Esc>" },
+      },
     },
     -- A custom `on_attach` function to be run after the default `on_attach` function
     -- takes two parameters `client` and `bufnr`  (`:h lsp-attach`)

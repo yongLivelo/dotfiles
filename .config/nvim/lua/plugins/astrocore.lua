@@ -70,15 +70,16 @@ return {
           end,
           desc = "Close buffer from tabline",
         },
-        i = {
-          ["jk"] = { "<Esc>" },
-        },
+
         -- tables with just a `desc` key will be registered with which-key if it's installed
         -- this is useful for naming menus
         -- ["<Leader>b"] = { desc = "Buffers" },
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
+      },
+      i = {
+        ["jk"] = { "<Esc>" },
       },
     },
   },
