@@ -654,6 +654,5 @@ spawn-at-startup "qs" "-c" "noctalia-shell"
 
 
 
-
 include "./noctalia.kdl"
 
