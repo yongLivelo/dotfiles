@@ -1,0 +1,23 @@
+[general]
+import = [
+    "~/.config/alacritty/themes/noctalia.toml"
+]
+
+[font]
+size = 12.0
+
+[font.normal]
+# Note the space and the full name
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[window]
+decorations = "none"
+
+[window.padding]
+x = 10
+y = 10
+
+[colors.primary]
+background = '#181818'  # Replace with your desired hex code
+foreground = '#d8d8d8'
