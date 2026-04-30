@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "alignment": "left",
+      "leading_diamond": "<#7eb8da>\u250f</>",
+      "segments": [
+        {
+          "foreground": "#7eb8da",
+          "style": "plain",
+          "template": "[<#ffffff>\ueb99</> {{ .UserName }} :: <#ffffff>\uf108</> {{ .HostName }}]",
+          "type": "session"
+        },
+
+        {
+          "foreground": "#7eb8da",
+          "options": {
+            "style": "full"
+          },
+          "style": "diamond",
+          "template": "[<#ffffff>\uf115</> <#98bfad>{{ .Path }}</>]",
+          "type": "path"
+        },
+        {
+          "foreground": "#ffa5d8",
+          "options": {
+            "fetch_status": true,
+            "fetch_upstream_icon": true
+          },
+          "style": "plain",
+          "template": "[<#ffffff>{{ .UpstreamIcon }} </>{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#ffffff>\uf044</> {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} <#ffffff>\uf046</> {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} <#ffffff>\ueb4b</> {{ .StashCount }}{{ end }}]",
+          "type": "git"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "final_space": true,
+  "secondary_prompt": {
+    "background": "transparent",
+    "template": " "
+  },
+  "valid_line": {
+    "background": "transparent",
+    "template": "> "
+  },
+  "error_line": {
+    "background": "transparent",
+    "template": "<#ff0000>\uea87</> "
+  },
+  "version": 4
+}

@@ -4,12 +4,10 @@ import = [
 ]
 
 [font]
-size = 12.0
+size = 10.0
 
 [font.normal]
-# Note the space and the full name
 family = "JetBrainsMono Nerd Font"
-style = "Regular"
 
 [window]
 decorations = "none"
@@ -18,6 +16,3 @@ decorations = "none"
 x = 10
 y = 10
 
-[colors.primary]
-background = '#181818'  # Replace with your desired hex code
-foreground = '#d8d8d8'
