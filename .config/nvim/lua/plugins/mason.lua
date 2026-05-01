@@ -16,6 +16,7 @@ return {
         "ast-grep",
         "jdtls",
         "pyright",
+        "gdtoolkit",
         -- install formatters
         "stylua",
         "prettierd",
