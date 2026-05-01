@@ -649,9 +649,12 @@ output "DP-1" {
     mode "1920x1080@120.000"
 }
 
+layer-rule {
+  match namespace="^noctalia-overview*"
+  place-within-backdrop true
+}
+
 spawn-at-startup "qs" "-c" "noctalia-shell"
-
-
 
 include "./noctalia.kdl"
 
