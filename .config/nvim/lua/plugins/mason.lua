@@ -20,6 +20,7 @@ return {
         -- install formatters
         "stylua",
         "prettierd",
+        "black",
         -- install debuggers
         "debugpy",
 

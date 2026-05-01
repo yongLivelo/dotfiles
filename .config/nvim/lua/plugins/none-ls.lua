@@ -16,6 +16,7 @@ return {
     opts.sources = require("astrocore").list_insert_unique(opts.sources, {
       null_ls.builtins.formatting.gdformat,
       null_ls.builtins.diagnostics.gdlint,
+      null_ls.builtins.formatting.black,
       -- Set a formatter
       -- null_ls.builtins.formatting.stylua,
       -- null_ls.builtins.formatting.prettier,

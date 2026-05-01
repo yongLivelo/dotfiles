@@ -21,6 +21,7 @@ return {
     --     })
     -- end
   },
+
   -- == Examples of Adding Plugins ==
 
   "andweeb/presence.nvim",
