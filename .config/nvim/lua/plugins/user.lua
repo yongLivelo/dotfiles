@@ -4,6 +4,13 @@
 
 ---@type LazySpec
 return {
+  {
+    "gbprod/cutlass.nvim",
+    opts = {
+      -- or don't set opts to use the default settings
+      -- refer to the configuration section below
+    },
+  },
 
   {
     "folke/tokyonight.nvim",
