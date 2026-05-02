@@ -5,8 +5,20 @@
 ---@type LazySpec
 return {
   {
+    "nvim-neo-tree/neo-tree.nvim",
+    opts = {
+      filesystem = {
+        filtered_items = {
+          hide_dotfiles = false, -- Whether to hide dotfiles
+          -- hide_gitignored = false, -- Whether to hide gitignored files
+        },
+      },
+    },
+  },
+  {
     "gbprod/cutlass.nvim",
     opts = {
+
       cut_key = "m",
       -- or don't set opts to use the default settings
       -- refer to the configuration section below

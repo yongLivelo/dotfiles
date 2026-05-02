@@ -24,6 +24,7 @@ return {
     },
     -- passed to `vim.filetype.add`
     filetypes = {
+
       -- see `:h vim.filetype.add` for usage
       extension = {
         foo = "fooscript",
@@ -34,8 +35,7 @@ return {
       pattern = {
         [".*/etc/foo/.*"] = "fooscript",
       },
-    },
-    -- vim options can be configured here
+    }, -- vim options can be configured here
     options = {
       opt = { -- vim.opt.<key>
         relativenumber = true, -- sets vim.opt.relativenumber
@@ -56,7 +56,6 @@ return {
       -- first key is the mode
       n = {
         -- second key is the lefthand side of the map
-
         -- navigate buffer tabs
         ["]b"] = { function() require("astrocore.buffer").nav(vim.v.count1) end, desc = "Next buffer" },
         ["[b"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Previous buffer" },

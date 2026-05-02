@@ -42,6 +42,17 @@ return {
     -- customize language server configuration passed to `vim.lsp.config`
     -- client specific configuration can also go in `lsp/` in your configuration root (see `:h lsp-config`)
     config = {
+      vtsls = {
+        settings = {
+          typescript = {
+            preferences = {
+              includeCompletionsForModuleExports = true,
+              includeCompletionsForImportStatements = true,
+              importModuleSpecifier = "non-relative",
+            },
+          },
+        },
+      },
       -- ["*"] = { capabilities = {} }, -- modify default LSP client settings such as capabilities
     },
     -- customize how language servers are attached
@@ -65,6 +76,7 @@ return {
         -- list of auto commands to set
         {
           -- events to trigger
+
           event = { "InsertLeave", "BufEnter" },
           -- the rest of the autocmd options (:h nvim_create_autocmd)
           desc = "Refresh codelens (buffer)",
@@ -91,10 +103,8 @@ return {
           end,
         },
       },
-      i = {
-        ["jk"] = { "<Esc>" },
-      },
     },
+
     -- A custom `on_attach` function to be run after the default `on_attach` function
     -- takes two parameters `client` and `bufnr`  (`:h lsp-attach`)
     on_attach = function(client, bufnr)
