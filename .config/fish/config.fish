@@ -5,5 +5,4 @@ if status is-interactive
     bind -M insert -m default jk backward-char force-repaint
     fish_config theme choose tomorrow-night-bright
     set -g fish_greeting
-    fish_ssh_agent
 end
