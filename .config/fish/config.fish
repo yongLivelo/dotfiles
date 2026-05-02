@@ -5,4 +5,8 @@ if status is-interactive
     bind -M insert -m default jk backward-char force-repaint
     fish_config theme choose tomorrow-night-bright
     set -g fish_greeting
+    if type -q keychain
+        SHELL=(which fish) keychain --quiet --eval id_ed25519 | source
+    end
+
 end
