@@ -13,17 +13,16 @@ return {
         "lua-language-server",
         "vtsls",
         "emmet-language-server",
-        "ast-grep",
         "jdtls",
         "pyright",
         "gdtoolkit",
+        "rust-analyzer",
         -- install formatters
         "stylua",
         "prettierd",
         "black",
         -- install debuggers
         "debugpy",
-
         -- install any other package
         "tree-sitter-cli",
       },
