@@ -74,6 +74,7 @@ return {
         cond = "textDocument/codeLens",
         -- cond = function(client, bufnr) return client.name == "lua_ls" end,
         -- list of auto commands to set
+
         {
           -- events to trigger
 
