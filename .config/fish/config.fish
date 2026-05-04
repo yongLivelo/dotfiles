@@ -21,4 +21,6 @@ if status is-interactive
         end
         rm -f -- "$tmp"
     end
+
+    alias n='nvim'
 end
