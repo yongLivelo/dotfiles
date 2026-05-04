@@ -1,6 +1,9 @@
 if status is-interactive
     oh-my-posh init fish --config ~/.config/fish/theme.json | source
-    set -g fish_key_bindings fish_hybrid_key_bindings
+    set -g fish_key_bindings fish_vi_key_bindings
+    bind -M insert \cp up-or-search
+    bind -M insert \cn down-or-search
+    bind -M insert \cf forward-char
     fzf_key_bindings
     bind -M insert -m default jk backward-char force-repaint
     fish_config theme choose tomorrow-night-bright

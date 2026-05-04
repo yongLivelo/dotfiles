@@ -5,6 +5,10 @@
 ---@type LazySpec
 return {
   {
+    "karb94/neoscroll.nvim",
+    opts = {},
+  },
+  {
     "kdheepak/lazygit.nvim",
     lazy = true,
     cmd = {
@@ -156,12 +160,10 @@ return {
       require "astronvim.plugins.configs.luasnip"(plugin, opts)
     end,
   },
-
   {
     "windwp/nvim-autopairs",
     config = function(plugin, opts)
-      require "astronvim.plugins.configs.nvim-autopairs"(plugin, opts) -- include the default astronvim config that calls the setup call
-      -- add more custom autopairs configuration such as custom rules
+      require "astronvim.plugins.configs.nvim-autopairs"(plugin, opts) -- include the default astronvim config that calls the setup call add more custom autopairs configuration such as custom rules
       local npairs = require "nvim-autopairs"
       local Rule = require "nvim-autopairs.rule"
       local cond = require "nvim-autopairs.conds"
