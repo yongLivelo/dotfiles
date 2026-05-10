@@ -344,7 +344,7 @@ window-rule {
 }
 
 binds {
-    Mod+B hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
+    Mod+B hotkey-overlay-title="Open a Browser: zen" { spawn "zen-browser"; }
     Mod+Space hotkey-overlay-title="Open launcher" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
 
 
