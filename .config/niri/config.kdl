@@ -344,7 +344,7 @@ window-rule {
 }
 
 binds {
-    Mod+B hotkey-overlay-title="Open a Browser: zen" { spawn "zen-browser"; }
+    Mod+B hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
     Mod+Space hotkey-overlay-title="Open launcher" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
 
 
@@ -650,6 +650,10 @@ output "DP-1" {
 layer-rule {
   match namespace="^noctalia-overview*"
   place-within-backdrop true
+}
+
+environment {
+  QT_QPA_PLATFORMTHEME "qt6ct"
 }
 
 spawn-at-startup "qs" "-c" "noctalia-shell"
