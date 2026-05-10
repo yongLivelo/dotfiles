@@ -6,7 +6,33 @@
 return {
   {
     "karb94/neoscroll.nvim",
-    opts = {},
+    config = function()
+      local neoscroll = require "neoscroll"
+
+      local easing = "sine"
+      local zz_time_ms = 100
+      local jump_time_ms = 200
+
+      neoscroll.setup {
+        post_hook = function(info)
+          if info ~= "center" then return end
+
+          -- The `defer_fn` is a bit of a hack.
+          -- We use it so that `neoscroll.init.scroll` will be false when we call `neoscroll.zz`
+          -- As long as we don't input another neoscroll mapping in the timeout,
+          -- we should be able to center the cursor.
+          local defer_time_ms = 10
+          vim.defer_fn(function() neoscroll.zz(zz_time_ms, easing) end, defer_time_ms)
+        end,
+      }
+
+      local mappings = {}
+
+      mappings["<C-u>"] = { "scroll", { "-vim.wo.scroll", "true", jump_time_ms, easing, "'center'" } }
+      mappings["<C-d>"] = { "scroll", { "vim.wo.scroll", "true", jump_time_ms, easing, "'center'" } }
+
+      require("neoscroll.config").set_mappings(mappings)
+    end,
   },
   {
     "kdheepak/lazygit.nvim",
@@ -49,11 +75,6 @@ return {
         "<cmd>Yazi cwd<cr>",
         desc = "Open the file manager in nvim's working directory",
       },
-      {
-        "<c-up>",
-        "<cmd>Yazi toggle<cr>",
-        desc = "Resume the last yazi session",
-      },
     },
     ---@type YaziConfig | {}
     opts = {
@@ -86,12 +107,11 @@ return {
     "gbprod/cutlass.nvim",
     opts = {
 
-      cut_key = "m",
+      cut_key = "x",
       -- or don't set opts to use the default settings
       -- refer to the configuration section below
     },
   },
-
   {
     "folke/tokyonight.nvim",
     lazy = false,
@@ -146,7 +166,7 @@ return {
   },
 
   -- You can disable default plugins as follows:
-  { "max397574/better-escape.nvim", enabled = false },
+  { "max397574/better-escape.nvim", enabled = true },
 
   -- You can also easily customize additional setup of plugins that is outside of the plugin's setup call
   {
