@@ -1,0 +1,11 @@
+[[session]]
+name = "apis-cmssi"
+startup_command = "tmuxifier load-window apis-cmssi && sleep 0.5 && tmux kill-window -t :1"
+
+[[session]]
+name = "apis-api"
+startup_command = "tmuxifier load-window apis-api && sleep 0.5 && tmux kill-window -t :1"
+
+[[session]]
+name = "dotfiles"
+startup_command = "tmuxifier load-window dotfiles && sleep 0.5 && tmux kill-window -t :1"
