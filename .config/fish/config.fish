@@ -3,7 +3,7 @@ function fish_user_key_bindings
         bind -M $mode \cp up-or-search
         bind -M $mode \cn down-or-search
         bind -M $mode \cf forward-char
-        bind -M $mode \cz 'commandline -r "sesh connect (sesh list -c --icons | fzf-tmux -p 80%,70% --no-sort --ansi --border-label \" sesh \" --prompt \"⚡ \" --bind \"tab:down,btab:up\" --preview-window \"right:55%\" --bind \"ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list -c --icons)\" --preview \"sesh preview {}\")"; commandline -f execute'
+        bind -M $mode \cs 'commandline -r "sesh connect (sesh list -c --icons | fzf-tmux -p 80%,70% --no-sort --ansi --border-label \" sesh \" --prompt \"⚡ \" --bind \"tab:down,btab:up\" --preview-window \"right:55%\" --bind \"ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list -c --icons)\" --preview \"sesh preview {}\")"; commandline -f execute'
     end
 end
 
