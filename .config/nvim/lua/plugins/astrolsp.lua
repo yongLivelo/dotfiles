@@ -48,7 +48,7 @@ return {
             preferences = {
               includeCompletionsForModuleExports = true,
               includeCompletionsForImportStatements = true,
-              importModuleSpecifier = "non-relative",
+              importModuleSpecifier = "shortest",
             },
           },
         },
