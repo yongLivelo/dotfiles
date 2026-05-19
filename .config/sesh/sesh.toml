@@ -9,3 +9,7 @@ startup_command = "tmuxifier load-window apis-api && sleep 0.5 && tmux kill-wind
 [[session]]
 name = "dotfiles"
 startup_command = "tmuxifier load-window dotfiles && sleep 0.5 && tmux kill-window -t :1"
+
+[[session]]
+name = "manimations"
+startup_command = "tmuxifier load-window manimations && sleep 0.5 && tmux kill-window -t :1"
