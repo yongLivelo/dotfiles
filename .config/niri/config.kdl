@@ -26,6 +26,8 @@ input {
         // drag false
         // drag-lock
         natural-scroll
+
+        accel-profile "flat"
         // accel-speed 0.2
         // accel-profile "flat"
         // scroll-method "two-finger"
@@ -35,7 +37,7 @@ input {
     mouse {
         // off
         // natural-scroll
-        accel-speed -0.1
+        accel-speed -0.09999999999999991
         accel-profile "flat"
         // scroll-method "no-scroll"
     }
@@ -616,10 +618,13 @@ window-rule {
 output "DP-1" {
     mode "1920x1080@120.000"
 
-    scale 1.0
+    scale 1.2
 
     transform "normal"
     position x=0 y=0
+
+    variable-refresh-rate
+
 }
 
 layer-rule {
@@ -638,8 +643,10 @@ include "./noctalia.kdl"
 output "eDP-1" {
     mode "1920x1080@60.003"
 
-    scale 1.0
+    scale 1.5
 
     transform "normal"
-    position x=1920 y=0
+    position x=1600 y=0
+
+    variable-refresh-rate
 }
