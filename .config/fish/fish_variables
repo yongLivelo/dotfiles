@@ -1,5 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR --export SSH_AGENT_PID:3030
-SETUVAR --export SSH_AUTH_SOCK:/home/julio/\x2essh/agent/s\x2elHgXVr00zz\x2eagent\x2eMgnvOboNBB
+SETUVAR --export SSH_AGENT_PID:2191
+SETUVAR --export SSH_AUTH_SOCK:/home/julio/\x2essh/agent/s\x2elHgXVr00zz\x2eagent\x2eANDI8BCFNA
 SETUVAR __fish_initialized:4300
+SETUVAR fish_user_paths:/home/julio/\x2etmux/plugins/tmuxifier/bin

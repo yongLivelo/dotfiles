@@ -3,6 +3,7 @@ function fish_user_key_bindings
         bind -M $mode \cp up-or-search
         bind -M $mode \cn down-or-search
         bind -M $mode \cf forward-char
+        bind -M $mode \cs 'commandline -r "sesh connect (sesh list -c --icons | fzf-tmux -p 80%,70% --no-sort --ansi --border-label \" sesh \" --prompt \"⚡ \" --bind \"tab:down,btab:up\" --preview-window \"right:55%\" --bind \"ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list -c --icons)\" --preview \"sesh preview {}\")"; commandline -f execute'
     end
 end
 
@@ -34,4 +35,12 @@ if status is-interactive
 
     zoxide init --cmd cd fish | source
     alias ls eza
+    fish_add_path "$HOME/.tmux/plugins/tmuxifier/bin"
+    set -gx TMUXIFIER_LAYOUT_PATH "$HOME/dotfiles/.config/sesh/layouts"
+    set -gx FZF_DEFAULT_OPTS "
+        --color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7 
+        --color=fg+:#c0caf5,bg+:#2f334d,hl+:#7dcfff 
+        --color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff 
+        --color=marker:#9ece6a,spinner:#9ece6a,header:#9ece6a
+    "
 end
