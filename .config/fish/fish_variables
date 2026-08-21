@@ -1,0 +1,6 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR --export SSH_AGENT_PID:154433
+SETUVAR --export SSH_AUTH_SOCK:/home/julio/\x2ekeychain/fqOD6RoG\x2es
+SETUVAR fish_user_paths:/home/julio/Android/Sdk/emulator\x1e/home/julio/Android/Sdk/platform\x2dtools\x1e/home/julio/\x2etmux/plugins/tmuxifier/bin\x1e/home/julio/\x2elocal/bin\x1e/home/julio/gen\x2dcommit\x2dmsg
+SETUVAR --export nvm_default_version:latest

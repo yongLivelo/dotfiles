@@ -1,0 +1,11 @@
+[[session]]
+name = "dotfiles"
+startup_command = "tmuxifier load-window dotfiles && tmux kill-window -t :1"
+
+[[session]]
+name = "godot"
+startup_command = "tmuxifier load-window godot && tmux kill-window -t :1"
+
+[[wildcard]]
+pattern = "~/Projects/*"
+startup_command = "nvim"
