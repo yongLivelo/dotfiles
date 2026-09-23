@@ -1,11 +1,11 @@
 if status is-interactive
-    set -gx PATH $JAVA_HOME/bin $PATH
-    set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk/
+    set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
+    fish_add_path $JAVA_HOME/bin
     set -Ux nvm_default_version latest
     set -gx ANDROID_HOME $HOME/Android/Sdk
-    set -gx GCM_SUBJECT_MIN 5
     set -gx EDITOR nvim
     set -gx TMUXIFIER_LAYOUT_PATH "$HOME/.config/sesh/layouts"
+
     set -g fish_greeting
     set -gx FZF_DEFAULT_OPTS " \
         --color=bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5 \
@@ -13,7 +13,6 @@ if status is-interactive
         --color=prompt:#7aa2f7,spinner:#2ac3de,pointer:#bb9af7 \
         --color=border:#3b4261,header:#9ece6a,gutter:#1a1b26 \
         --color=query:#c0caf5,scrollbar:#3b4261"
-
     oh-my-posh init fish --config ~/.config/fish/theme.json | source
     fish_config theme choose tomorrow-night-bright
 
@@ -25,7 +24,7 @@ if status is-interactive
             bind -M $mode \cp up-or-search
             bind -M $mode \cn down-or-search
             bind -M $mode \cf forward-char
-            bind -M $mode \ca sesh
+            bind -M $mode \ca sesh-term
         end
     end
     fish_user_key_bindings
@@ -40,7 +39,6 @@ if status is-interactive
         SHELL=(which fish) keychain --quiet --eval id_ed25519 | source
     end
     zoxide init --cmd cd fish | source
-
     function y
         set tmp (mktemp -t "yazi-cwd.XXXXXX")
         command yazi $argv --cwd-file="$tmp"
@@ -50,7 +48,6 @@ if status is-interactive
         rm -f -- "$tmp"
     end
 
-    fish_add_path "$HOME/gen-commit-msg"
     fish_add_path "$HOME/.cargo/env.fish"
     fish_add_path "$HOME/.local/bin/"
     fish_add_path "$HOME/.tmux/plugins/tmuxifier/bin"

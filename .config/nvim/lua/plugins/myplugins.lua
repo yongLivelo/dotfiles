@@ -32,8 +32,8 @@ return {
     keys = {
       {
         "<leader>y",
-        mode = { "n", "v" },
         "<cmd>Yazi<cr>",
+        mode = { "n", "v" },
         desc = "Open yazi at the current file",
       },
     },
@@ -53,6 +53,35 @@ return {
           files = { hidden = true },
           grep = { hidden = true },
           explore = { hidden = true },
+        },
+      },
+      dashboard = {
+        preset = {
+          pick = function(cmd, opts)
+            return LazyVim.pick(cmd, opts)()
+          end,
+          header = [[
+        ██╗      █████╗ ███████╗██╗   ██╗██╗   ██╗██╗███╗   ███╗          Z
+        ██║     ██╔══██╗╚══███╔╝╚██╗ ██╔╝██║   ██║██║████╗ ████║      Z    
+        ██║     ███████║  ███╔╝  ╚████╔╝ ██║   ██║██║██╔████╔██║   z       
+        ██║     ██╔══██║ ███╔╝    ╚██╔╝  ╚██╗ ██╔╝██║██║╚██╔╝██║ z         
+        ███████╗██║  ██║███████╗   ██║    ╚████╔╝ ██║██║ ╚═╝ ██║           
+        ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝     ╚═══╝  ╚═╝╚═╝     ╚═╝           
+ ]],
+        -- stylua: ignore
+        ---@type snacks.dashboard.Item[]
+        keys = {
+          { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+          { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+          { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+          { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+          { icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
+          { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+          { icon = " ", key = "x", desc = "Lazy Extras", action = ":LazyExtras" },
+          { icon = "󰒲 ", key = "l", desc = "Lazy", action = ":Lazy" },
+          { icon = "󰌢", key = "v", desc = "Leetcode", action = ":Leet" },
+          { icon = "", key = "q", desc = "Quit", action = ":qa" },
+        },
         },
       },
     },
@@ -115,5 +144,47 @@ return {
       end
       return keys
     end,
+  },
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        gdscript = { "gdscript-formatter" },
+      },
+    },
+  },
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        gdscript = { "gdtoolkit" },
+      },
+    },
+  },
+  {
+    "kawre/leetcode.nvim",
+    build = ":TSUpdate html", -- if you have `nvim-treesitter` installed
+    dependencies = {
+      -- include a picker of your choice, see picker section for more details
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+    },
+    opts = {
+      lang = "python3",
+    },
+  },
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        vtsls = {
+          settings = {
+            typescript = {
+              preferences = { importModuleSpecifier = "non-relative" },
+            },
+          },
+        },
+      },
+    },
   },
 }

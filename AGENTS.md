@@ -9,7 +9,7 @@ stow .          # symlink everything into $HOME
 stow --delete . # remove symlinks
 ```
 
-`.stow-local-ignore` excludes `.git`, `AGENTS.md`, `TODO.md`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
+`.stow-local-ignore` excludes `.git`, `AGENTS.md`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
 
 ## Config layout
 
@@ -39,9 +39,6 @@ stow --delete . # remove symlinks
 
 ## OpenCode config
 
-- `.config/opencode/agents/gen-commit-msg.md` is a hidden subagent invoked **programmatically** by an external CLI at `~/gen-commit-msg` (on PATH via fish). Its JSON-only output contract and deny-all-but-read frontmatter permissions are load-bearing — do not loosen them or add prose output.
-- `.config/opencode/.gitignore` intentionally keeps `node_modules/` and package manifests out of git; only `opencode.jsonc`, `agents/`, and `themes/` are tracked.
-
-## Git state
-
-Repo is initialized but has no commits yet — `git log` will fail until the first commit is made.
+- `.config/opencode/opencode.jsonc` is schema-only — no custom instructions, agents, or permission rules live here.
+- `.config/opencode/.gitignore` intentionally keeps `node_modules/` and package manifests (`package.json`, lockfiles) out of git; only `opencode.jsonc` and `themes/` are tracked.
+- Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps under `<leader>o`, defined in `.config/nvim/lua/plugins/opencode-integration.lua`).

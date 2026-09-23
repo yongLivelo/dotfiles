@@ -1,6 +1,10 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR --export SSH_AGENT_PID:154433
+SETUVAR --export SSH_AGENT_PID:8720
 SETUVAR --export SSH_AUTH_SOCK:/home/julio/\x2ekeychain/fqOD6RoG\x2es
-SETUVAR fish_user_paths:/home/julio/Android/Sdk/emulator\x1e/home/julio/Android/Sdk/platform\x2dtools\x1e/home/julio/\x2etmux/plugins/tmuxifier/bin\x1e/home/julio/\x2elocal/bin\x1e/home/julio/gen\x2dcommit\x2dmsg
+SETUVAR _fisher_jorgebucaran_2F_fisher_files:\x7e/\x2econfig/fish/functions/fisher\x2efish\x1e\x7e/\x2econfig/fish/completions/fisher\x2efish
+SETUVAR _fisher_jorgebucaran_2F_nvm_2E_fish_files:\x7e/\x2econfig/fish/functions/_nvm_index_update\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_list\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_activate\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_deactivate\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/nvm\x2efish\x1e\x7e/\x2econfig/fish/completions/nvm\x2efish
+SETUVAR _fisher_plugins:jorgebucaran/fisher\x1ejorgebucaran/nvm\x2efish
+SETUVAR _fisher_upgraded_to_4_4:\x1d
+SETUVAR fish_user_paths:/usr/lib/jvm/java\x2d17\x2dopenjdk/bin\x1e/home/julio/Android/Sdk/emulator\x1e/home/julio/Android/Sdk/platform\x2dtools\x1e/home/julio/\x2etmux/plugins/tmuxifier/bin\x1e/home/julio/\x2elocal/bin
 SETUVAR --export nvm_default_version:latest
