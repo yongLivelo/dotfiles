@@ -90,9 +90,6 @@ widget_order = [ "lockscreen-login-box@DP-1", "lockscreen-login-box@HDMI-A-1", "
 font_family = "JetBrains Mono"
 polkit_agent = true
 
-    [shell.greeter_sync]
-    auto_sync = true
-
     [shell.panel]
     transparency_mode = "glass"
 
@@ -104,7 +101,7 @@ wallpaper_scheme = "m3-content"
 
     [theme.templates]
     builtin_ids = [ "btop", "cava", "gtk4", "kitty", "niri", "qt" ]
-    community_ids = [ "opencode", "pywalfox", "discord", "telegram", "obs", "zathura", "bat", "lazygit", "yazi" ]
+    community_ids = [ "opencode", "pywalfox", "lazygit", "yazi" ]
 
 [wallpaper]
 directory = "/home/julio/dotfiles/others/backgrounds"
@@ -129,7 +126,7 @@ glyph = "hibernate"
 type = "custom_button"
 
     [widget.Hibernate.actions]
-    left = "exec exec pkexec systemctl hibernate"
+    left = "exec pkexec systemctl hibernate"
 
 [widget.clock]
 format = "{:%-I:%M %p, %a %b %d}"
