@@ -3,5 +3,10 @@ use = "boydaihungst/restore"
 rev = "864dd05"
 hash = "3070b579618c4831f5d7ca4293c1c275"
 
+[[plugin.deps]]
+use = "mihem/zoxide-add"
+rev = "fb8a7e5"
+hash = "191daf690be62f4bb39a3e71327476b9"
+
 [flavor]
 deps = []
