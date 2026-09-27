@@ -50,6 +50,5 @@ if status is-interactive
 
     fish_add_path "$HOME/.cargo/env.fish"
     fish_add_path "$HOME/.local/bin/"
-    fish_add_path "$HOME/.tmux/plugins/tmuxifier/bin"
     fish_add_path $ANDROID_HOME/emulator $ANDROID_HOME/platform-tools
 end

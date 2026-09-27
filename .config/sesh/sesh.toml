@@ -1,16 +1,23 @@
+[default_session]
+startup_command = "fish ~/.config/sesh/scripts/general.fish"
+
 [[session]]
 name = "dotfiles"
-startup_command = "tmuxifier load-window dotfiles"
+path = "~/dotfiles/"
 
 [[session]]
 name = "chordstrike"
-startup_command = "tmuxifier load-window chordstrike"
+path = "~/Projects/chordstrike/"
+run = "fish ~/.config/sesh/scripts/godot.fish"
 
 [[session]]
 name = "apis-cmssi"
-startup_command = "tmuxifier load-window apis-cmssi"
-
+path = "~/Projects/apis-cmssi/"
 
 [[session]]
 name = "apis-api"
-startup_command = "tmuxifier load-window apis-api"
+path = "~/Projects/apis-api/"
+
+[[session]]
+name = "cordilink"
+path = "~/Projects/cordilink/"
