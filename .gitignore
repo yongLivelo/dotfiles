@@ -1,0 +1,5 @@
+# Ignore secret files and environment variables
+.config/fish/conf.d/secrets.fish
+.env
+.env.*
+*.secret
