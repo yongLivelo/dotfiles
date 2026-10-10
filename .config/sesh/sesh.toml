@@ -8,7 +8,7 @@ path = "~/dotfiles/"
 [[session]]
 name = "chordstrike"
 path = "~/Projects/chordstrike/"
-run = "fish ~/.config/sesh/scripts/godot.fish"
+startup_command = "fish ~/.config/sesh/scripts/godot.fish"
 
 [[session]]
 name = "apis-cmssi"
