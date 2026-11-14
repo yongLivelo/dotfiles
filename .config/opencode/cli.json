@@ -12,5 +12,6 @@
     "thinking": "hide",
     "new_location": "inherit"
   },
-  "animations": true
+  "animations": true,
+  "plugins": ["./herdr-opencode"]
 }
