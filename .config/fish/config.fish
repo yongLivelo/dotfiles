@@ -29,6 +29,7 @@ if status is-interactive
 
     alias n nvim
     alias ls eza
+    alias imv imv-dir
 
     if type -q keychain
         SHELL=(which fish) keychain --quiet --eval id_ed25519 | source

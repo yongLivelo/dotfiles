@@ -37,6 +37,7 @@ stow --delete . # remove symlinks
 - Sesh sessions are defined in `.config/sesh/sesh.toml`; window layouts are fish scripts in `.config/sesh/scripts/*.fish`
 - `n` aliases `nvim`; `y` opens yazi and auto-cds on exit
 - `ls` aliases `eza`
+- `imv` aliases `imv-dir` (opens directory so arrow keys cycle images)
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
