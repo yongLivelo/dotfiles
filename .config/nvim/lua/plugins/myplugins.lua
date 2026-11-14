@@ -219,4 +219,10 @@ return {
       end, { desc = "Send line to OpenCode", expr = true })
     end,
   },
+  {
+    "pwntester/octo.nvim",
+    keys = {
+      { "<leader>gC", "<cmd>Octo pr create<cr>", desc = "Create PR (Octo)" },
+    },
+  },
 }
