@@ -13,7 +13,7 @@ EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers
 ```bash
 # desktop / WM / terminal
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
+  xdg-desktop-portal-gtk archlinux-xdg-menu alacritty noctalia kitty nvim tmux opencode \
   steam zoxide eza fzf fd git fish btop yazi
 
 # tools, fonts, media
@@ -23,7 +23,7 @@ sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
   lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
-  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still
+  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed
 ```
 
 Grouped, the things that matter:
@@ -31,8 +31,8 @@ Grouped, the things that matter:
 | Category     | Packages                                                                                                                                                                                                            |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
-| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                                                   |
-| Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                               |
+| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`, `archlinux-xdg-menu`                                             |
+| Dev          | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                        |
 | Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
 | Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
 
@@ -63,7 +63,7 @@ Everything else — fisher, `nvm.fish`, the yazi plugin, the LazyVim config — 
 
 ## 5. Dotfiles (stow)
 
-Repo root mirrors `$HOME`; every config is symlinked in:
+Repo root mirrors `$HOME`; every config is symlinked in (including `.config/niri-mimeapps.list` and `.config/kde-mimeapps.list` for desktop-specific file associations):
 
 ```bash
 cd ~/dotfiles
@@ -106,7 +106,7 @@ Installed from the repos (`firefox` + `firefoxpwa`), then set up by hand:
 
 1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**, **PWAs for Firefox**.
 2. Vimium C → options → custom CSS: copy-paste `others/vimiumc-tokyonight-theme.css`.
-3. Colors come from Noctalia: its native host (`~/.mozilla/native-messaging-hosts/pywalfox.json` → `/usr/bin/noctalia`) feeds the Pywalfox extension, so no daemon to run.
+3. Pywalfox → open the extension UI and click **Fetch Pywal colors** (Noctalia feeds the native host automatically, so no daemon needed).
 4. Web apps (via **PWAs for Firefox**): open [Photopea](https://www.photopea.com/) and install it as a PWA.
 
 ## 10. OpenCode
@@ -121,23 +121,23 @@ Installed from the repo. Two manual steps after that:
 1. Create an SSH key and add it to `ssh-agent` by following [GitHub's SSH key generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed255192.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
 
-## 12. Login Wallpaper (KDE Plasma)
+## 12. KDE Plasma Setup
 
-Change the login screen wallpaper manually:
+Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-integration`, `xdg-desktop-portal-kde`, and `archlinux-xdg-menu` installed so Qt theming and Dolphin file associations work in both sessions). Log in using **KDE Plasma** first (not Niri) and configure the following manually in **System Settings**:
 
-1. Log in using **KDE Plasma** first (not Niri).
-2. Open **System Settings** → **Login Screen** → **Configure Appearance**.
-3. Select a background image from `others/backgrounds/`.
+1. **Login Wallpaper:** Go to **Login Screen** → **Configure Appearance** and select a background image from `others/backgrounds/`.
+2. **Global Theme:** Go to **Appearance & Style** → **Colors & Themes** (or **Global Theme**) and switch to **Breeze Dark**.
+3. **Standard User:** Go to **Users** → **Add New User**, create a **Standard** account named `user` with the password `password`.
 
 ## 13. Rebuild order
 
 1. EndeavourOS ISO → installer defaults.
-2. `stow .` from this repo.
+2. `stow .` from this repo (links configs, `niri-mimeapps.list`, and `kde-mimeapps.list`).
 3. pacman batches (§2), then `yay -S` (§3).
 4. oh-my-posh + herdr scripts, `chsh -s /usr/bin/fish`.
 5. Clone tpm and press `C-a I`; nvim installs LazyVim plugins on first launch.
-6. Firefox add-ons, Vimium C CSS, and Photopea PWA (§9).
+6. Firefox add-ons, Vimium C CSS, Pywalfox colors, and Photopea PWA (§9).
 7. OpenCode: secrets + Graphify skill (§10).
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
-10. Set login wallpaper via KDE Plasma System Settings (§12).
+10. KDE Plasma login wallpaper, Breeze Dark theme, and standard `user` account (§12).
