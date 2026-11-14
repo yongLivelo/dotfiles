@@ -71,7 +71,7 @@ stow .
 stow --delete .   # undo
 ```
 
-`.stow-local-ignore` keeps `.git`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
+`.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
 
 ## 6. Fish
 
