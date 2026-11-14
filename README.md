@@ -121,7 +121,15 @@ Installed from the repo. Two manual steps after that:
 1. Create an SSH key and add it to `ssh-agent` by following [GitHub's SSH key generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed255192.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
 
-## 12. Rebuild order
+## 12. Login Wallpaper (KDE Plasma)
+
+Change the login screen wallpaper manually:
+
+1. Log in using **KDE Plasma** first (not Niri).
+2. Open **System Settings** → **Login Screen** → **Configure Appearance**.
+3. Select a background image from `others/backgrounds/`.
+
+## 13. Rebuild order
 
 1. EndeavourOS ISO → installer defaults.
 2. `stow .` from this repo.
@@ -132,3 +140,4 @@ Installed from the repo. Two manual steps after that:
 7. OpenCode: secrets + Graphify skill (§10).
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
+10. Set login wallpaper via KDE Plasma System Settings (§12).
