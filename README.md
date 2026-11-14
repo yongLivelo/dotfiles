@@ -128,6 +128,7 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 1. **Login Wallpaper:** Go to **Login Screen** → **Configure Appearance** and select a background image from `others/backgrounds/`.
 2. **Global Theme:** Go to **Appearance & Style** → **Colors & Themes** (or **Global Theme**) and switch to **Breeze Dark**.
 3. **Standard User:** Go to **Users** → **Add New User**, create a **Standard** account named `user` with the password `password`.
+4. **Mouse Settings:** Go to **Input & Output** → **Mouse & Touchpad** → **Mouse**, set **Acceleration profile** to **Flat** (disables pointer precision), and set **Pointer speed** to `0.2`.
 
 ## 13. Rebuild order
 
@@ -140,4 +141,4 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 7. OpenCode: secrets + Graphify skill (§10).
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
-10. KDE Plasma login wallpaper, Breeze Dark theme, and standard `user` account (§12).
+10. KDE Plasma login wallpaper, Breeze Dark theme, standard `user` account, and mouse settings (§12).
