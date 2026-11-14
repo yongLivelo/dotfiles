@@ -1,22 +1,34 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "custom-api": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "salamatarchie",
-      "options": {
-        "baseURL": "https://llmrouter.boyemma.com/v1",
-        "apiKey": "{env:BOYEMMA_API_KEY}",
+  "model": "opencode/big-pickle",
+  "plugins": [
+    "superpowers@git+https://github.com/obra/superpowers.git",
+    "@dietrichgebert/ponytail",
+  ],
+  "mcp": {
+    "servers": {
+      // placeholder: needs DATABASE_URL in the env; set disabled to false then
+      "postgres": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "{env:DATABASE_URL}",
+        ],
+        "disabled": true,
       },
-      "models": {
-        "auto": {
-          "name": "auto",
-        },
-        "gemini-3.5-flash": {
-          "name": "Gemini 3.5 Flash",
+      "github": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-github@2025.4.8",
+        ],
+        "environment": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}",
         },
       },
     },
   },
-  "model": "custom-api/gemini-3.5-flash",
 }
