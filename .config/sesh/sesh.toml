@@ -6,5 +6,5 @@ name = "dotfiles"
 path = "~/dotfiles/"
 
 [[session]]
-name = "upsolve.study"
+name = "upsolve-study"
 path = "~/Projects/upsolve.study/"

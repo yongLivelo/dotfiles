@@ -23,18 +23,18 @@ sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
   lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
-  haruna obs-studio jdk-openjdk firefox uv godot libreoffice-still
+  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still
 ```
 
 Grouped, the things that matter:
 
-| Category     | Packages                                                                                                                                                                                              |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                        |
-| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                                     |
-| Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                 |
-| Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `cava` |
-| Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                        |
+| Category     | Packages                                                                                                                                                                                                            |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
+| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                                                   |
+| Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                               |
+| Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
+| Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
 
 ## 3. AUR via yay
 
@@ -102,11 +102,12 @@ Every nvim instance listens on `$XDG_RUNTIME_DIR/nvim-<pid>.sock` and claims the
 
 ## 9. Firefox
 
-Installed from the repos, then set up by hand:
+Installed from the repos (`firefox` + `firefoxpwa`), then set up by hand:
 
-1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**.
+1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**, **PWAs for Firefox**.
 2. Vimium C → options → custom CSS: copy-paste `others/vimiumc-tokyonight-theme.css`.
 3. Colors come from Noctalia: its native host (`~/.mozilla/native-messaging-hosts/pywalfox.json` → `/usr/bin/noctalia`) feeds the Pywalfox extension, so no daemon to run.
+4. Web apps (via **PWAs for Firefox**): open [Photopea](https://www.photopea.com/) and install it as a PWA.
 
 ## 10. OpenCode
 
@@ -127,7 +128,7 @@ Installed from the repo. Two manual steps after that:
 3. pacman batches (§2), then `yay -S` (§3).
 4. oh-my-posh + herdr scripts, `chsh -s /usr/bin/fish`.
 5. Clone tpm and press `C-a I`; nvim installs LazyVim plugins on first launch.
-6. Firefox add-ons + Vimium C CSS (§9).
+6. Firefox add-ons, Vimium C CSS, and Photopea PWA (§9).
 7. OpenCode: secrets + Graphify skill (§10).
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
