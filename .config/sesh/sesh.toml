@@ -6,18 +6,9 @@ name = "dotfiles"
 path = "~/dotfiles/"
 
 [[session]]
-name = "chordstrike"
-path = "~/Projects/chordstrike/"
-startup_command = "fish ~/.config/sesh/scripts/godot.fish"
-
-[[session]]
 name = "apis-cmssi"
 path = "~/Projects/apis-cmssi/"
 
 [[session]]
 name = "apis-api"
 path = "~/Projects/apis-api/"
-
-[[session]]
-name = "cordilink"
-path = "~/Projects/cordilink/"
