@@ -16,6 +16,15 @@ return {
     },
   },
   {
+    "gbprod/yanky.nvim",
+    opts = {
+      system_clipboard = {
+        -- LazyVim defers unnamedplus until VeryLazy; pin "+" so yanky doesn't fall back to "*" (primary)
+        clipboard_register = "+",
+      },
+    },
+  },
+  {
     "max397574/better-escape.nvim",
     opts = {
       mappings = {
