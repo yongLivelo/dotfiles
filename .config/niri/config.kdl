@@ -677,6 +677,7 @@ layer-rule {
 }
 
 spawn-at-startup "noctalia"
+spawn-at-startup "wl-clip-persist" "--clipboard" "regular"
 
 
 include "noctalia.kdl"
