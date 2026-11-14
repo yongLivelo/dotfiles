@@ -24,6 +24,10 @@ stow --delete . # remove symlinks
 | `.config/btop/` | Btop system monitor |
 | `.config/sesh/` | Sesh session manager config + window scripts |
 | `.config/opencode/` | OpenCode config (see below) |
+| `.config/zathura/` | Zathura document viewer (Tokyo-Night theme, recolor mode) |
+| `.config/imv/` | imv image viewer (Tokyo-Night palette, vi binds) |
+| `.config/mpv/` | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD) |
+| `.config/mimeapps.list` | Default applications (imv for images, zathura for PDF, mpv for video) |
 | `.tmux.conf` | Tmux (tpm plugins) |
 
 ## Notable non-defaults

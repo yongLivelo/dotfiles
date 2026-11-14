@@ -18,12 +18,12 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
 
 # tools, fonts, media
 sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
-  kdenlive audacity wl-clipboard telegram-desktop discord stow docker
+  kdenlive audacity mpv wl-clipboard telegram-desktop discord stow docker
 
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
-  lazygit github-cli keychain wl-clip-persist cava rnote zathura haruna \
-  obs-studio jdk-openjdk firefox uv godot
+  lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
+  haruna obs-studio jdk-openjdk firefox uv godot libreoffice-still
 ```
 
 Grouped, the things that matter:
@@ -33,7 +33,7 @@ Grouped, the things that matter:
 | Shell / CLI  | `fish`, `eza`, `fzf`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip` |
 | Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`        |
 | Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`    |
-| Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `zathura`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `cava`             |
+| Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `cava` |
 | Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                           |
 
 ## 3. AUR via yay

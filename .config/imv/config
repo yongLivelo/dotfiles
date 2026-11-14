@@ -1,0 +1,20 @@
+# imv configuration - Tokyo Night theme
+
+[options]
+background = 1a1b26
+overlay_font = JetBrains Mono:12
+overlay_text_color = c0caf5
+overlay_background_color = 16161e
+overlay_background_alpha = c0
+scaling_mode = full
+upscaling_method = linear
+loop_input = true
+
+[binds]
+<Escape> = quit
+q = quit
+x = close
+f = fullscreen
+d = overlay
+c = center
+r = reset
