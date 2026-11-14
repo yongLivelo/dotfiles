@@ -1,7 +1,7 @@
 if status is-interactive
     set -gx JAVA_HOME /usr/lib/jvm/java-27-openjdk
     fish_add_path $JAVA_HOME/bin
-    set -Ux nvm_default_version latest
+    set -gx nvm_default_version latest
     set -gx EDITOR nvim
 
     set -g fish_greeting

@@ -14,7 +14,7 @@ EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers
 # desktop / WM / terminal
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
   xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
-  steam zoxide eza fzf git fish btop yazi
+  steam zoxide eza fzf fd git fish btop yazi
 
 # tools, fonts, media
 sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
@@ -30,7 +30,7 @@ Grouped, the things that matter:
 
 | Category     | Packages                                                                                                                                                 |
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell / CLI  | `fish`, `eza`, `fzf`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip` |
+| Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip` |
 | Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`        |
 | Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`    |
 | Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `cava` |
