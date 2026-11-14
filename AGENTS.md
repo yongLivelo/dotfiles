@@ -22,7 +22,7 @@ stow --delete . # remove symlinks
 | `.config/noctalia/` | Noctalia desktop shell (Tokyo-Night theme) |
 | `.config/yazi/` | Yazi file manager with custom plugins/flavors |
 | `.config/btop/` | Btop system monitor |
-| `.config/sesh/` | Sesh session manager config + tmuxifier layouts |
+| `.config/sesh/` | Sesh session manager config + window scripts |
 | `.config/opencode/` | OpenCode config (see below) |
 | `.tmux.conf` | Tmux (tpm plugins) |
 
@@ -30,7 +30,7 @@ stow --delete . # remove symlinks
 
 - Tmux prefix is `C-a` (not `C-b`); press `C-a C-a` to open the sesh+fzf session picker
 - Outside tmux, Ctrl-A in fish also opens the sesh picker
-- Sesh sessions are defined in `.config/sesh/sesh.toml`; window layouts are tmuxifier shell scripts in `.config/sesh/layouts/*.window.sh` (`TMUXIFIER_LAYOUT_PATH` points there)
+- Sesh sessions are defined in `.config/sesh/sesh.toml`; window layouts are fish scripts in `.config/sesh/scripts/*.fish`
 - `n` aliases `nvim`; `y` opens yazi and auto-cds on exit
 - `ls` aliases `eza`
 - `cd` aliases `zoxide`
@@ -40,5 +40,5 @@ stow --delete . # remove symlinks
 ## OpenCode config
 
 - `.config/opencode/opencode.jsonc` is schema-only — no custom instructions, agents, or permission rules live here.
-- `.config/opencode/.gitignore` intentionally keeps `node_modules/` and package manifests (`package.json`, lockfiles) out of git; only `opencode.jsonc` and `themes/` are tracked.
-- Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps under `<leader>o`, defined in `.config/nvim/lua/plugins/opencode-integration.lua`).
+- `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; only `opencode.jsonc`, `cli.json` and `themes/` are tracked.
+- Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps `<C-o>`, `<C-x>`, `go` and `goo`, defined in `.config/nvim/lua/plugins/myplugins.lua`).
