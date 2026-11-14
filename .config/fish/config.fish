@@ -1,10 +1,8 @@
 if status is-interactive
-    set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
+    set -gx JAVA_HOME /usr/lib/jvm/java-27-openjdk
     fish_add_path $JAVA_HOME/bin
     set -Ux nvm_default_version latest
-    set -gx ANDROID_HOME $HOME/Android/Sdk
     set -gx EDITOR nvim
-    set -gx TMUXIFIER_LAYOUT_PATH "$HOME/.config/sesh/layouts"
 
     set -g fish_greeting
     set -gx FZF_DEFAULT_OPTS " \
@@ -33,9 +31,6 @@ if status is-interactive
     alias ls eza
 
     if type -q keychain
-        if not ssh-add -l >/dev/null 2>&1
-            keychain --stop all 2>/dev/null
-        end
         SHELL=(which fish) keychain --quiet --eval id_ed25519 | source
     end
     zoxide init --cmd cd fish | source
@@ -48,7 +43,5 @@ if status is-interactive
         rm -f -- "$tmp"
     end
 
-    fish_add_path "$HOME/.cargo/env.fish"
     fish_add_path "$HOME/.local/bin/"
-    fish_add_path $ANDROID_HOME/emulator $ANDROID_HOME/platform-tools
 end
