@@ -6,9 +6,5 @@ name = "dotfiles"
 path = "~/dotfiles/"
 
 [[session]]
-name = "apis-cmssi"
-path = "~/Projects/apis-cmssi/"
-
-[[session]]
-name = "apis-api"
-path = "~/Projects/apis-api/"
+name = "upsolve.study"
+path = "~/Projects/upsolve.study/"
