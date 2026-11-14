@@ -1,3 +1,5 @@
 .git
 AGENTS.md
+SETUP.md
+.markdownlint.json
 ^others

@@ -9,7 +9,7 @@ stow .          # symlink everything into $HOME
 stow --delete . # remove symlinks
 ```
 
-`.stow-local-ignore` excludes `.git`, `AGENTS.md`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
+`.stow-local-ignore` excludes `.git`, `AGENTS.md`, `SETUP.md`, `.markdownlint.json`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
 
 ## Config layout
 
