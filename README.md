@@ -32,7 +32,7 @@ Grouped, the things that matter:
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell / CLI  | `fish`, `eza`, `fzf`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip` |
 | Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`        |
-| Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`   |
+| Dev          | `neovim`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`    |
 | Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `zathura`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `cava`             |
 | Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                           |
 
@@ -71,7 +71,7 @@ stow .
 stow --delete .   # undo
 ```
 
-`.stow-local-ignore` keeps `.git`, `AGENTS.md`, `SETUP.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
+`.stow-local-ignore` keeps `.git`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
 
 ## 6. Fish
 
