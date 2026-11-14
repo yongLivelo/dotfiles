@@ -3,3 +3,58 @@
 -- Add any additional options here
 
 vim.g.root_spec = { ".git", "lsp", "cwd" }
+
+-- let external tools (Godot) open files in this instance; see ~/.local/bin/godot-nvim
+local runtime = vim.env.XDG_RUNTIME_DIR or "/tmp"
+local sock = ("%s/nvim-%d.sock"):format(runtime, vim.fn.getpid())
+pcall(vim.fn.serverstart, sock)
+
+-- register this instance for the current Godot project (or cwd), without hijacking a live owner
+local projects = runtime .. "/nvim-projects"
+local function project_root()
+  local cwd = vim.fn.getcwd()
+  return vim.fs.root(cwd, "project.godot") or cwd
+end
+
+local function is_alive(s)
+  if not s or s == "" then
+    return false
+  end
+  if s == sock then
+    return true
+  end
+  if not vim.uv.fs_stat(s) then
+    return false
+  end
+  local ok, ch = pcall(vim.fn.sockconnect, "pipe", s, { rpc = false })
+  if ok and ch > 0 then
+    pcall(vim.fn.chanclose, ch)
+    return true
+  end
+  return false
+end
+
+local function register(force)
+  local root = project_root()
+  local map = ("%s/%s"):format(projects, vim.fn.sha256(root))
+  if not force then
+    local ok, lines = pcall(vim.fn.readfile, map)
+    if ok and is_alive(lines[1]) then
+      return false, root
+    end
+  end
+  vim.fn.mkdir(projects, "p")
+  pcall(vim.fn.writefile, { sock }, map)
+  return true, root
+end
+
+register(false)
+vim.api.nvim_create_autocmd("DirChanged", {
+  callback = function()
+    register(false)
+  end,
+})
+vim.api.nvim_create_user_command("GodotPin", function()
+  local _, root = register(true)
+  vim.notify("Godot pinned to this nvim (" .. root .. ")")
+end, { desc = "Pin this nvim as the Godot target for the current project" })

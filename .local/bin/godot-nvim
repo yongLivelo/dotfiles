@@ -1,0 +1,28 @@
+#!/bin/sh
+# Godot external editor: open the script in the nvim instance registered for that project.
+# Each nvim registers its socket for its cwd in $XDG_RUNTIME_DIR/nvim-projects/<sha256>.
+file=$1
+line=${2:-1}
+dir=${XDG_RUNTIME_DIR:-/tmp}
+
+root=$(dirname -- "$file")
+while [ "$root" != "/" ] && [ ! -f "$root/project.godot" ]; do
+	root=$(dirname -- "$root")
+done
+[ -f "$root/project.godot" ] || root=
+
+sock=
+if [ -n "$root" ]; then
+	map="$dir/nvim-projects/$(printf %s "$root" | sha256sum | cut -d' ' -f1)"
+	[ -f "$map" ] && sock=$(cat "$map")
+fi
+
+if [ -z "$sock" ] || ! nvim --server "$sock" --remote-expr '1' >/dev/null 2>&1; then
+	# no registered instance: one started in the project root will register itself
+	[ -n "$root" ] && cd "$root" && exec kitty nvim "+$line" "$file"
+	sock=$(ls -t "$dir"/nvim-*.sock 2>/dev/null | head -n1)
+	[ -z "$sock" ] && exec kitty nvim "+$line" "$file"
+fi
+
+escaped=$(printf %s "$file" | sed "s/'/''/g")
+nvim --server "$sock" --remote-expr "execute('edit +$line ' . fnameescape('$escaped'))" >/dev/null
