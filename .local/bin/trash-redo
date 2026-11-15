@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Undo a trash-undo: trash the batch it restored last.
+# Repeat to walk forward again. State lives in $XDG_STATE_HOME/trash-redo.
+
+state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
+
+# shellcheck disable=SC2012 # batch files are mktemp names, never weird
+batch=$(ls -t "$state" 2>/dev/null | head -1)
+[ -n "$batch" ] || {
+  echo "nothing to redo"
+  exit 1
+}
+
+while IFS= read -r path; do
+  [ -e "$path" ] || continue
+  gio trash -- "$path" && echo "trashed: $path"
+done <"$state/$batch"
+
+rm -f "$state/$batch"

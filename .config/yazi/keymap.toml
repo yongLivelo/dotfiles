@@ -1,0 +1,9 @@
+[[mgr.prepend_keymap]]
+on   = "u"
+run  = "shell -- trash-undo"
+desc = "Restore the last trashed batch"
+
+[[mgr.prepend_keymap]]
+on   = "U"
+run  = "shell -- trash-redo"
+desc = "Re-trash the batch just restored"

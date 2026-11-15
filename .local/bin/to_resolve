@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# usage: to_resolve [-d]
+#   -d: deletes each original file after a successful conversion
+
+delete=0
+[ "$1" = "-d" ] && delete=1
+
+# Enable case-insensitive globbing (*.MP4, *.Mp4) and ignore unmatched globs
+shopt -s nocaseglob nullglob
+
+# Convert video files to ProRes 422 + PCM (.mov)
+for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
+  # Skip files that have already been converted
+  [[ "$f" == *_resolve.* ]] && continue
+
+  base="${f%.*}"
+  out="${base}_resolve.mov"
+
+  if [ -e "$out" ]; then
+    echo "skip: $out exists"
+    continue
+  fi
+
+  # ProRes 422 + PCM: decodes natively in free Resolve on Linux
+  if ffmpeg -nostdin -n -i "$f" \
+    -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
+    "$out"; then
+    [ "$delete" = 1 ] && rm -- "$f"
+  fi
+done
+
+# Convert audio files to uncompressed 24-bit PCM (.wav)
+for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
+  [[ "$f" == *_resolve.* ]] && continue
+
+  base="${f%.*}"
+  out="${base}_resolve.wav"
+
+  if [ -e "$out" ]; then
+    echo "skip: $out exists"
+    continue
+  fi
+
+  # Uncompressed PCM WAV: avoids AAC decode restrictions in free Resolve on Linux
+  if ffmpeg -nostdin -n -i "$f" \
+    -vn -c:a pcm_s24le \
+    "$out"; then
+    [ "$delete" = 1 ] && rm -- "$f"
+  fi
+done
