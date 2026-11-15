@@ -32,7 +32,7 @@ sudo pacman -Syu nodejs npm ttf-jetbrains-mono easyeffects \
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
   lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
   haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed \
-  meld plasma-login-manager noto-fonts
+  plasma-login-manager
 ```
 
 Grouped, the things that matter:
@@ -40,8 +40,8 @@ Grouped, the things that matter:
 | Category     | Packages                                                                                                                                                                                                            |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
-| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                             |
-| Dev          | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                        |
+| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                                                   |
+| Dev          | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `jdk-openjdk`, `uv`, `godot`                                                                |
 | Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
 | Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
 
@@ -164,6 +164,7 @@ ffmpeg -i in.mp4 -c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a pcm_s16le 
 `.local/bin/to_resolve` runs that conversion over every video (`*.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv`) and audio file (`*.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma`) in the current directory: video becomes `<name>_resolve.mov` (ProRes 422 + PCM), audio becomes `<name>_resolve.wav` (24-bit PCM). Existing outputs are skipped, and `-d` deletes each source after a successful conversion. ProRes plays in both places: free Resolve decodes it, and so does iPadOS on iPad Pro (2018+), iPad Air 5+ and iPad mini 6+.
 
 Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes the iGPU visible — it pulls `libclc` and `spirv-llvm-translator`, which rusticl needs to compile kernels. Without them the log says `No matched GPUs found` / `Unsupported GPU Processing Mode`; with them, `GPUDetect` logs `Detected 1 GPUs` + `Selected compute API: OpenCL`.
+asd
 
 ## 14. Rebuild order
 

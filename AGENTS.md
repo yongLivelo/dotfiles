@@ -13,25 +13,25 @@ stow --delete . # remove symlinks
 
 ## Config layout
 
-| Path                         | What                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| `.config/fish/`              | Fish shell (vi mode, `jk` to exit insert, oh-my-posh, zoxide, fzf, keychain)    |
-| `.config/nvim/`              | Neovim (LazyVim); Lua formatted with stylua (`stylua.toml`)                     |
-| `.config/kitty/`             | Kitty terminal (JetBrains Mono, noctalia theme)                                 |
-| `.config/niri/`              | Niri WM (noctalia bar)                                                          |
-| `.config/noctalia/`          | Noctalia desktop shell (Tokyo-Night theme)                                      |
-| `.config/yazi/`              | Yazi file manager with custom plugins/flavors; `keymap.toml` binds `u`/`U` to trash undo/redo |
-| `.config/btop/`              | Btop system monitor                                                             |
-| `.config/sesh/`              | Sesh session manager config + window scripts                                    |
-| `.config/opencode/`          | OpenCode config (see below)                                                     |
-| `.config/zathura/`           | Zathura document viewer (Tokyo-Night theme, recolor mode)                       |
-| `.config/imv/`               | imv image viewer (Tokyo-Night palette, vi binds)                                |
-| `.config/mpv/`               | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD)               |
-| `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)           |
+| Path                         | What                                                                                                                                                                                                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.config/fish/`              | Fish shell (vi mode, `jk` to exit insert, oh-my-posh, zoxide, fzf, keychain)                                                                                                                                                                             |
+| `.config/nvim/`              | Neovim (LazyVim); Lua formatted with stylua (`stylua.toml`)                                                                                                                                                                                              |
+| `.config/kitty/`             | Kitty terminal (JetBrains Mono, noctalia theme)                                                                                                                                                                                                          |
+| `.config/niri/`              | Niri WM (noctalia bar)                                                                                                                                                                                                                                   |
+| `.config/noctalia/`          | Noctalia desktop shell (Tokyo-Night theme)                                                                                                                                                                                                               |
+| `.config/yazi/`              | Yazi file manager with custom plugins/flavors; `keymap.toml` binds `u`/`U` to trash undo/redo                                                                                                                                                            |
+| `.config/btop/`              | Btop system monitor                                                                                                                                                                                                                                      |
+| `.config/sesh/`              | Sesh session manager config + window scripts                                                                                                                                                                                                             |
+| `.config/opencode/`          | OpenCode config (see below)                                                                                                                                                                                                                              |
+| `.config/zathura/`           | Zathura document viewer (Tokyo-Night theme, recolor mode)                                                                                                                                                                                                |
+| `.config/imv/`               | imv image viewer (Tokyo-Night palette, vi binds)                                                                                                                                                                                                         |
+| `.config/mpv/`               | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD)                                                                                                                                                                                        |
+| `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)                                                                                                                                                                                    |
 | `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (bulk video → ProRes + audio → WAV: Resolve + iPads), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
-| `.local/share/applications/` | Launchers for apps installed outside pacman (`davinci-resolve.desktop`)         |
-| `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off   |
-| `.tmux.conf`                 | Tmux (tpm plugins)                                                              |
+| `.local/share/applications/` | Launchers for apps installed outside pacman (`davinci-resolve.desktop`)                                                                                                                                                                                  |
+| `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off                                                                                                                                                                            |
+| `.tmux.conf`                 | Tmux (tpm plugins)                                                                                                                                                                                                                                       |
 
 ## Notable non-defaults
 
