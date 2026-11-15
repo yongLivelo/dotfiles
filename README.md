@@ -73,6 +73,8 @@ stow --delete .   # undo
 
 `.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
 
+Scripts in `.local/bin/` need the executable bit before committing (`chmod +x .local/bin/<script>`) — stow only creates the symlink, so a `644` file is not runnable from `$HOME`.
+
 ## 6. Fish
 
 Make it the login shell:
@@ -130,7 +132,31 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 3. **Standard User:** Go to **Users** → **Add New User**, create a **Standard** account named `user` with the password `password`.
 4. **Mouse Settings:** Go to **Input & Output** → **Mouse & Touchpad** → **Mouse**, set **Acceleration profile** to **Flat** (disables pointer precision), and set **Pointer speed** to `0.4`.
 
-## 13. Rebuild order
+## 13. DaVinci Resolve
+
+Free version, no package in the repos. Download the Linux `.zip` from [Blackmagic's support page](https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion), then:
+
+```bash
+unzip DaVinci_Resolve_*_Linux.zip
+chmod +x DaVinci_Resolve_*_Linux.run
+sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
+./DaVinci_Resolve_*_Linux.run
+```
+
+The installer unpacks everything into `/opt/resolve`. No desktop entry is created, so the one in this repo (`.local/share/applications/davinci-resolve.desktop`, pointing at `/opt/resolve/bin/resolve`) is what puts it in the launcher.
+
+The **free Linux build ships without the H.264/H.265 and AAC decoders** (licensing), so camera mp4s import with no picture (`Codec (avc1) not Found in Repository` in `/opt/resolve/logs/rollinglog.txt`). Transcode first — ProRes and DNxHR both decode in the free version:
+
+```bash
+ffmpeg -i in.mp4 -c:v prores_ks -profile:v 2 -c:a pcm_s16le out.mov
+ffmpeg -i in.mp4 -c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a pcm_s16le out.mov
+```
+
+`.local/bin/mp4_to_mov` runs the ProRes conversion over every `*.mp4` in the current directory and writes `<name>_prores.mov` next to each.
+
+Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes the iGPU visible — it pulls `libclc` and `spirv-llvm-translator`, which rusticl needs to compile kernels. Without them the log says `No matched GPUs found` / `Unsupported GPU Processing Mode`; with them, `GPUDetect` logs `Detected 1 GPUs` + `Selected compute API: OpenCL`.
+
+## 14. Rebuild order
 
 1. EndeavourOS ISO → installer defaults.
 2. `stow .` from this repo (links configs, `niri-mimeapps.list`, and `kde-mimeapps.list`).
@@ -142,3 +168,4 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
 10. KDE Plasma login wallpaper, Breeze Dark theme, standard `user` account, and mouse settings (§12).
+11. DaVinci Resolve install + `opencl-mesa` (§13).

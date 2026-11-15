@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=DaVinci Resolve
+GenericName=Video Editor
+Comment=Editing, visual effects, color correction and audio post production
+Exec=/opt/resolve/bin/resolve %u
+Path=/opt/resolve
+Icon=/opt/resolve/graphics/DV_Resolve.png
+Terminal=false
+StartupNotify=true
+StartupWMClass=resolve
+MimeType=application/x-resolveproj;
+Categories=AudioVideo;Video;
