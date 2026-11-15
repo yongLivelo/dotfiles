@@ -128,7 +128,7 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 1. **Login Wallpaper:** Go to **Login Screen** → **Configure Appearance** and select a background image from `others/backgrounds/`.
 2. **Global Theme:** Go to **Appearance & Style** → **Colors & Themes** (or **Global Theme**) and switch to **Breeze Dark**.
 3. **Standard User:** Go to **Users** → **Add New User**, create a **Standard** account named `user` with the password `password`.
-4. **Mouse Settings:** Go to **Input & Output** → **Mouse & Touchpad** → **Mouse**, set **Acceleration profile** to **Flat** (disables pointer precision), and set **Pointer speed** to `0.2`.
+4. **Mouse Settings:** Go to **Input & Output** → **Mouse & Touchpad** → **Mouse**, set **Acceleration profile** to **Flat** (disables pointer precision), and set **Pointer speed** to `0.4`.
 
 ## 13. Rebuild order
 

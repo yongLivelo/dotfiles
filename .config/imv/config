@@ -18,3 +18,5 @@ f = fullscreen
 d = overlay
 c = center
 r = reset
+<Shift+J> = next
+<Shift+K> = prev
