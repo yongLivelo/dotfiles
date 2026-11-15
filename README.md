@@ -13,12 +13,12 @@ EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers
 ```bash
 # desktop / WM / terminal
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk archlinux-xdg-menu alacritty noctalia kitty nvim tmux opencode \
+  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
   steam zoxide eza fzf fd git fish btop yazi
 
 # tools, fonts, media
 sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
-  kdenlive audacity mpv wl-clipboard telegram-desktop discord stow docker
+  kdenlive audacity mpv ffmpeg wl-clipboard telegram-desktop discord stow docker
 
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
@@ -31,7 +31,7 @@ Grouped, the things that matter:
 | Category     | Packages                                                                                                                                                                                                            |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
-| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`, `archlinux-xdg-menu`                                             |
+| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                             |
 | Dev          | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `meld`, `jdk-openjdk`, `uv`, `godot`                                                        |
 | Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
 | Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
@@ -125,7 +125,7 @@ Installed from the repo. Two manual steps after that:
 
 ## 12. KDE Plasma Setup
 
-Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-integration`, `xdg-desktop-portal-kde`, and `archlinux-xdg-menu` installed so Qt theming and Dolphin file associations work in both sessions). Log in using **KDE Plasma** first (not Niri) and configure the following manually in **System Settings**:
+Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-integration`, `xdg-desktop-portal-kde` installed so Qt theming and Dolphin file associations work in both sessions). Log in using **KDE Plasma** first (not Niri) and configure the following manually in **System Settings**:
 
 1. **Login Wallpaper:** Go to **Login Screen** → **Configure Appearance** and select a background image from `others/backgrounds/`.
 2. **Global Theme:** Go to **Appearance & Style** → **Colors & Themes** (or **Global Theme**) and switch to **Breeze Dark**.
