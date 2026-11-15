@@ -6,6 +6,14 @@ How this machine is put together, roughly in the order it was built.
 
 EndeavourOS **Titan Nova** (latest release), installed from the live ISO with the graphical installer and its defaults — desktop, partitions, boot loader, dracut and the login manager all came from there.
 
+The installer left the clock unsynced, so set the timezone and turn on NTP before anything else — a wrong clock breaks TLS and pacman signature checks:
+
+```bash
+sudo timedatectl set-timezone Asia/Manila   # only if you actually want PH time
+sudo timedatectl set-ntp true
+timedatectl                                 # expect "System clock synchronized: yes", "NTP service: active"
+```
+
 ## 2. Packages from pacman
 
 EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers, etc.). The rest was installed by hand in a few batches:
@@ -158,7 +166,7 @@ Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes th
 
 ## 14. Rebuild order
 
-1. EndeavourOS ISO → installer defaults.
+1. EndeavourOS ISO → installer defaults, then timezone + NTP (§1).
 2. `stow .` from this repo (links configs, `niri-mimeapps.list`, and `kde-mimeapps.list`).
 3. pacman batches (§2), then `yay -S` (§3).
 4. oh-my-posh + herdr scripts, `chsh -s /usr/bin/fish`.
