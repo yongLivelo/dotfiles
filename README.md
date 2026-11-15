@@ -25,13 +25,14 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
   steam zoxide eza fzf fd git fish btop yazi
 
 # tools, fonts, media
-sudo pacman -Syu nodejs npm python-pywalfox ttf-jetbrains-mono easyeffects \
+sudo pacman -Syu nodejs npm ttf-jetbrains-mono easyeffects \
   kdenlive audacity mpv ffmpeg wl-clipboard telegram-desktop discord stow docker
 
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
   lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
-  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed
+  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed \
+  meld plasma-login-manager noto-fonts
 ```
 
 Grouped, the things that matter:
@@ -98,7 +99,7 @@ Everything else — plugins, prompt, key bindings — comes from `.config/fish`,
 Clone the plugin manager, then install the plugins from `.tmux.conf` (`C-a I`):
 
 ```bash
-git clone [https://github.com/tmux-plugins/tpm](https://github.com/tmux-plugins/tpm) ~/.tmux/plugins/tpm
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
 ## 8. Godot
@@ -129,7 +130,7 @@ Installed from the repo. Two manual steps after that:
 ## 11. Git & GitHub
 
 1. Create an SSH key and add it to `ssh-agent` by following [GitHub's SSH key generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
-2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed255192.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
+2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed25519.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
 
 ## 12. KDE Plasma Setup
 

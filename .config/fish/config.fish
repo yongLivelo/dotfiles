@@ -1,5 +1,5 @@
 if status is-interactive
-    set -gx JAVA_HOME /usr/lib/jvm/java-27-openjdk
+    set -gx JAVA_HOME /usr/lib/jvm/(archlinux-java get)
     fish_add_path $JAVA_HOME/bin
     set -gx nvm_default_version latest
     set -gx EDITOR nvim
@@ -12,7 +12,6 @@ if status is-interactive
         --color=border:#3b4261,header:#9ece6a,gutter:#1a1b26 \
         --color=query:#c0caf5,scrollbar:#3b4261"
     oh-my-posh init fish --config ~/.config/fish/theme.json | source
-    fish_config theme choose tomorrow-night-bright
 
     set -g fish_key_bindings fish_vi_key_bindings
     fzf_key_bindings

@@ -7,6 +7,7 @@
 trash="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
 state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 
+# shortcut: a batch is one DeletionDate second, so deletes a second apart undo separately
 newest=$(grep -h '^DeletionDate=' "$trash"/info/*.trashinfo 2>/dev/null | sort | tail -1)
 [ -n "$newest" ] || {
   echo "trash is empty"

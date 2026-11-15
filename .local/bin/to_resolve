@@ -16,17 +16,23 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
 
   base="${f%.*}"
   out="${base}_resolve.mov"
+  part="$out.part"
 
   if [ -e "$out" ]; then
-    echo "skip: $out exists"
+    echo "skip: $f (already converted to $out)"
     continue
   fi
 
   # ProRes 422 + PCM: decodes natively in free Resolve on Linux
+  # .part hides the extension, so the muxer must be named explicitly
+  rm -f -- "$part"
   if ffmpeg -nostdin -n -i "$f" \
     -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
-    "$out"; then
-    [ "$delete" = 1 ] && rm -- "$f"
+    -f mov "$part"; then
+    mv -f -- "$part" "$out"
+    if [ "$delete" = 1 ]; then rm -- "$f"; fi
+  else
+    rm -f -- "$part"
   fi
 done
 
@@ -36,16 +42,21 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
 
   base="${f%.*}"
   out="${base}_resolve.wav"
+  part="$out.part"
 
   if [ -e "$out" ]; then
-    echo "skip: $out exists"
+    echo "skip: $f (already converted to $out)"
     continue
   fi
 
   # Uncompressed PCM WAV: avoids AAC decode restrictions in free Resolve on Linux
+  rm -f -- "$part"
   if ffmpeg -nostdin -n -i "$f" \
     -vn -c:a pcm_s24le \
-    "$out"; then
-    [ "$delete" = 1 ] && rm -- "$f"
+    -f wav "$part"; then
+    mv -f -- "$part" "$out"
+    if [ "$delete" = 1 ]; then rm -- "$f"; fi
+  else
+    rm -f -- "$part"
   fi
 done

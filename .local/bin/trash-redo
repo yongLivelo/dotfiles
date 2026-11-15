@@ -5,16 +5,31 @@
 
 state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 
-# shellcheck disable=SC2012 # batch files are mktemp names, never weird
-batch=$(ls -t "$state" 2>/dev/null | head -1)
-[ -n "$batch" ] || {
-  echo "nothing to redo"
-  exit 1
-}
+while :; do
+  # shellcheck disable=SC2012 # batch files are mktemp names, never weird
+  batch=$(ls -t "$state" 2>/dev/null | head -1)
+  [ -n "$batch" ] || {
+    echo "nothing to redo"
+    exit 1
+  }
 
-while IFS= read -r path; do
-  [ -e "$path" ] || continue
-  gio trash -- "$path" && echo "trashed: $path"
-done <"$state/$batch"
+  failed=0
+  trashed=0
+  while IFS= read -r path; do
+    [ -e "$path" ] || [ -L "$path" ] || continue
+    if gio trash -- "$path"; then
+      echo "trashed: $path"
+      trashed=$((trashed + 1))
+    else
+      failed=1
+    fi
+  done <"$state/$batch"
 
-rm -f "$state/$batch"
+  # drop the batch only if nothing failed, so a partial redo can be retried
+  if [ "$failed" = 0 ]; then
+    rm -f "$state/$batch" || exit 1
+  fi
+  [ "$trashed" -gt 0 ] && exit 0
+  # nothing left to move: a stale batch is gone now, walk back to the next one
+  [ "$failed" = 0 ] || exit 1
+done
