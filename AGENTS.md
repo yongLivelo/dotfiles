@@ -28,9 +28,9 @@ stow --delete . # remove symlinks
 | `.config/imv/`               | imv image viewer (Tokyo-Night palette, vi binds)                                |
 | `.config/mpv/`               | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD)               |
 | `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)           |
-| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `mp4_to_mov` (bulk mp4 → ProRes) |
+| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `mp4_to_mov` (bulk mp4 → ProRes: Resolve + ProRes-capable iPads) |
 | `.local/share/applications/` | Launchers for apps installed outside pacman (`davinci-resolve.desktop`)         |
-| `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off  |
+| `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off   |
 | `.tmux.conf`                 | Tmux (tpm plugins)                                                              |
 
 ## Notable non-defaults

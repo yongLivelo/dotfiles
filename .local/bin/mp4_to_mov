@@ -8,9 +8,8 @@ for i in *.mp4; do
   # Extract the filename without the extension
   filename="${i%.mp4}"
 
-  # Convert MP4 to ProRes MOV (software encoding for ProRes)
+  # ProRes 422 + PCM: decodes in free Resolve on Linux, plays on iPad Pro 2018+ / Air 5+ / mini 6+
   ffmpeg -i "$i" \
-    -c:v prores_ks -profile:v 3 -qscale:v 9 \
-    -c:a pcm_s16le \
+    -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
     "${filename}_prores.mov"
 done

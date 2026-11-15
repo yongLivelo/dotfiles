@@ -152,7 +152,7 @@ ffmpeg -i in.mp4 -c:v prores_ks -profile:v 2 -c:a pcm_s16le out.mov
 ffmpeg -i in.mp4 -c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a pcm_s16le out.mov
 ```
 
-`.local/bin/mp4_to_mov` runs the ProRes conversion over every `*.mp4` in the current directory and writes `<name>_prores.mov` next to each.
+`.local/bin/mp4_to_mov` runs the ProRes conversion over every `*.mp4` in the current directory and writes `<name>_prores.mov` next to each. One file for both sides: free Resolve decodes ProRes, and iPadOS plays it on iPad Pro (2018+), iPad Air 5+ and iPad mini 6+.
 
 Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes the iGPU visible — it pulls `libclc` and `spirv-llvm-translator`, which rusticl needs to compile kernels. Without them the log says `No matched GPUs found` / `Unsupported GPU Processing Mode`; with them, `GPUDetect` logs `Detected 1 GPUs` + `Selected compute API: OpenCL`.
 
