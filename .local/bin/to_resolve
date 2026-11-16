@@ -29,8 +29,11 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   if ffmpeg -nostdin -n -i "$f" \
     -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
     -f mov "$part"; then
-    mv -f -- "$part" "$out"
-    if [ "$delete" = 1 ]; then rm -- "$f"; fi
+    if mv -f -- "$part" "$out"; then
+      [ "$delete" = 1 ] && rm -- "$f"
+    else
+      rm -f -- "$part"
+    fi
   else
     rm -f -- "$part"
   fi
@@ -54,8 +57,11 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
   if ffmpeg -nostdin -n -i "$f" \
     -vn -c:a pcm_s24le \
     -f wav "$part"; then
-    mv -f -- "$part" "$out"
-    if [ "$delete" = 1 ]; then rm -- "$f"; fi
+    if mv -f -- "$part" "$out"; then
+      [ "$delete" = 1 ] && rm -- "$f"
+    else
+      rm -f -- "$part"
+    fi
   else
     rm -f -- "$part"
   fi
