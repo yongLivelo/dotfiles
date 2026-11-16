@@ -53,7 +53,7 @@ stow --delete . # remove symlinks
 
 ## OpenCode config
 
-- `.config/opencode/opencode.jsonc` is schema-only — no custom instructions, agents, or permission rules live here.
+- `.config/opencode/opencode.jsonc` configures the default model, plugins (superpowers, ponytail), and MCP servers (e.g. GitHub, Postgres) — no custom instructions, agents, or permission rules live here.
 - `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; only `opencode.jsonc`, `cli.json` and `themes/` are tracked.
 - Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps `<C-o>`, `<C-x>`, `go` and `goo`, defined in `.config/nvim/lua/plugins/myplugins.lua`).
 

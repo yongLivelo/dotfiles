@@ -122,6 +122,7 @@ Installed from the repo. Two manual steps after that:
 
 - **Authentication & API Keys:** Log in to your model providers with `opencode auth login` (or restore exported credentials with `opencode auth import < backup.json`). If using environment keys instead of OAuth, place them in `~/.config/opencode/.env` (e.g. `ANTHROPIC_API_KEY=...`, `GEMINI_API_KEY=...`).
 - **Service Password (`service.json`):** Generated automatically by OpenCode on first start (stored with `600` permissions in `~/.config/opencode/service.json`). If restoring a headless daemon, set it with `opencode service set password <password>`.
+- **MCP Servers (Model Context Protocol):** Configured in `.config/opencode/opencode.jsonc` under `"mcp"."servers"` (e.g. `github`, `postgres`). Supply any required tokens (like `GITHUB_PERSONAL_ACCESS_TOKEN` for GitHub MCP) in `~/.config/opencode/.env`. Check status with `opencode mcp list` or add new servers via `opencode mcp add --global <name> -- <command...>`. Remote OAuth MCP servers can be connected with `opencode mcp auth <name>`.
 
 - Install the **Graphify** skill: `uv tool install graphifyy && graphify install` (`sudo pacman -S uv` first if missing; `graphify install` detects the assistant and registers `/graphify`).
 
