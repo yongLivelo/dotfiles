@@ -1,36 +1,67 @@
 #!/bin/bash
 
 # usage: to_resolve [-d]
-#   -d: deletes each original file after a successful conversion
+#   -d: delete the original only when it differs from the output (not used for in-place replace)
 
 delete=0
-[ "$1" = "-d" ] && delete=1
+while getopts ":d" opt; do
+  case $opt in
+    d) delete=1 ;;
+  esac
+done
 
-# Enable case-insensitive globbing (*.MP4, *.Mp4) and ignore unmatched globs
 shopt -s nocaseglob nullglob
 
-# Convert video files to ProRes 422 + PCM (.mov)
+video_fmt() {
+  case "${1,,}" in
+    mp4|m4v) echo mp4 ;;
+    mov|qt) echo mov ;;
+    mkv) echo matroska ;;
+    avi) echo avi ;;
+    ts|m2ts) echo mpegts ;;
+    flv) echo flv ;;
+    webm) echo webm ;;
+    *) echo mov ;;
+  esac
+}
+
+audio_fmt() {
+  case "${1,,}" in
+    wav) echo wav ;;
+    aiff|aif) echo aiff ;;
+    flac) echo flac ;;
+    *) echo ;;
+  esac
+}
+
+already_prores_pcm() {
+  command -v ffprobe >/dev/null 2>&1 || return 1
+  local v a
+  v=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
+  a=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
+  [ "$v" = "prores" ] || return 1
+  [ -z "$a" ] || [[ "$a" == pcm_* ]]
+}
+
+# Re-encode videos to ProRes 422 + PCM, keeping the same filename/extension.
 for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
-  # Skip files that have already been converted
-  [[ "$f" == *_resolve.* ]] && continue
-
-  base="${f%.*}"
-  out="${base}_resolve.mov"
-  part="$out.part"
-
-  if [ -e "$out" ]; then
-    echo "skip: $f (already converted to $out)"
+  [ -f "$f" ] || continue
+  if already_prores_pcm "$f"; then
+    echo "skip: $f (already ProRes/PCM)"
     continue
   fi
 
-  # ProRes 422 + PCM: decodes natively in free Resolve on Linux
-  # .part hides the extension, so the muxer must be named explicitly
+  ext="${f##*.}"
+  fmt=$(video_fmt "$ext")
+  part="$f.part"
+
   rm -f -- "$part"
+  # .part hides the extension, so the muxer must be named explicitly
   if ffmpeg -nostdin -n -i "$f" \
     -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
-    -f mov "$part"; then
-    if mv -f -- "$part" "$out"; then
-      [ "$delete" = 1 ] && rm -- "$f"
+    -f "$fmt" "$part"; then
+    if mv -f -- "$part" "$f"; then
+      :
     else
       rm -f -- "$part"
     fi
@@ -39,26 +70,23 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   fi
 done
 
-# Convert audio files to uncompressed 24-bit PCM (.wav)
+# Re-encode audio to PCM, keeping the same filename/extension when the container supports PCM.
 for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
-  [[ "$f" == *_resolve.* ]] && continue
-
-  base="${f%.*}"
-  out="${base}_resolve.wav"
-  part="$out.part"
-
-  if [ -e "$out" ]; then
-    echo "skip: $f (already converted to $out)"
+  [ -f "$f" ] || continue
+  ext="${f##*.}"
+  fmt=$(audio_fmt "$ext")
+  if [ -z "$fmt" ]; then
+    echo "skip: $f (PCM in .$ext not supported; keeping original)"
     continue
   fi
 
-  # Uncompressed PCM WAV: avoids AAC decode restrictions in free Resolve on Linux
+  part="$f.part"
   rm -f -- "$part"
   if ffmpeg -nostdin -n -i "$f" \
     -vn -c:a pcm_s24le \
-    -f wav "$part"; then
-    if mv -f -- "$part" "$out"; then
-      [ "$delete" = 1 ] && rm -- "$f"
+    -f "$fmt" "$part"; then
+    if mv -f -- "$part" "$f"; then
+      :
     else
       rm -f -- "$part"
     fi
@@ -66,3 +94,4 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
     rm -f -- "$part"
   fi
 done
+
