@@ -28,7 +28,7 @@ stow --delete . # remove symlinks
 | `.config/imv/`               | imv image viewer (Tokyo-Night palette, vi binds)                                                                                                                                                                                                         |
 | `.config/mpv/`               | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD)                                                                                                                                                                                        |
 | `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)                                                                                                                                                                                    |
-| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (bulk video → ProRes + audio → WAV: Resolve + iPads), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
+| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (in-place re-encode to ProRes/PCM for Resolve), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
 | `.local/share/applications/` | Launchers for apps installed outside pacman (`davinci-resolve.desktop`)                                                                                                                                                                                  |
 | `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off                                                                                                                                                                            |
 | `.tmux.conf`                 | Tmux (tpm plugins)                                                                                                                                                                                                                                       |
@@ -45,7 +45,7 @@ stow --delete . # remove symlinks
 - `EDITOR` is `nvim`
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
-- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` rewrites video to ProRes (`*_resolve.mov`) and audio to WAV (`*_resolve.wav`) before importing
+- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media in place (video to ProRes 422 + PCM; audio to PCM where the container allows, e.g. `.wav/.aiff/.flac`) before importing; keep backups because originals are replaced on success
 
 ## OpenCode config
 
