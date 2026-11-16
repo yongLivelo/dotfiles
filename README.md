@@ -1,186 +1,138 @@
 # Setup
 
-How this machine is put together, roughly in the order it was built.
+Machine rebuild guide for EndeavourOS.
 
-## 1. OS installation
+## 1. OS Installation
 
-EndeavourOS **Titan Nova** (latest release), installed from the live ISO with the graphical installer and its defaults — desktop, partitions, boot loader, dracut and the login manager all came from there.
-
-The installer left the clock unsynced, so set the timezone and turn on NTP before anything else — a wrong clock breaks TLS and pacman signature checks:
+Install EndeavourOS (Titan Nova) with graphical defaults. Set timezone and sync clock:
 
 ```bash
-sudo timedatectl set-timezone Asia/Manila   #only if you actually want PH time
+sudo timedatectl set-timezone Asia/Manila
 sudo timedatectl set-ntp true
-timedatectl                                 # expect "System clock synchronized: yes", "NTP service: active"
+timedatectl  # verify NTP service: active
 ```
 
-## 2. Packages from pacman
+## 2. Packages
 
-EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers, etc.). The rest was installed by hand in a few batches:
+### Official Repos (`pacman`)
 
 ```bash
-# desktop / WM / terminal
+# Desktop, terminal, shell & essentials
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
-  steam zoxide eza fzf fd git fish btop yazi
+  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
+  steam zoxide eza fzf fd git fish btop yazi stow docker
 
-# tools, fonts, media
-sudo pacman -Syu nodejs npm ttf-jetbrains-mono easyeffects \
-  kdenlive audacity mpv ffmpeg wl-clipboard telegram-desktop discord stow docker
+# Development & tools
+sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
+  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip
 
-# extras
-sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
-  lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
-  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed unzip \
+# Media, fonts & desktop apps
+sudo pacman -S ttf-jetbrains-mono noto-fonts noto-fonts-cjk noto-fonts-emoji \
+  mpv ffmpeg easyeffects kdenlive audacity obs-studio haruna cava rnote \
+  imv zathura zathura-pdf-mupdf wl-clipboard wl-clip-persist \
+  firefox firefoxpwa telegram-desktop discord libreoffice-still godot
 ```
 
-Grouped, the things that matter:
-
-| Category      | Packages                                                                                                                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell / CLI   | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
-| Desktop       | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `xdg-desktop-portal-*`                                                                                           |
-| Dev           | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `jdk-openjdk`, `uv`, `godot`                                                                |
-| Media / apps  | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
-| Fonts         | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
-
-## 3. AUR via yay
-
-`yay` came with EndeavourOS; these packages are the ones installed from the AUR:
-
-| Package                              | Why                                               |
-| ------------------------------------ | ------------------------------------------------- |
-| `python-pywalfox`                    | Pywalfox CLI, pairs with the Firefox extension    |
-| `sesh-bin`                           | session manager behind the `C-a C-a` tmux picker  |
-| `claude-code`                        | Claude Code CLI                                   |
-| `antigravity-cli`                    | Antigravity CLI                                   |
-| `zoom`                               | video calls                                       |
-| `xdg-desktop-portal-termfilechooser` | Yazi terminal file picker portal backend for Niri |
+### AUR (`yay`)
 
 ```bash
-yay -S python-pywalfox sesh-bin claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
+yay -S sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
 ```
 
-## 4. Apps installed without a package manager
+### Standalone Installers
 
-| App        | Install                                              | Lands in                                                      |
-| ---------- | ---------------------------------------------------- | ------------------------------------------------------------- |
-| oh-my-posh | `curl -s https://ohmyposh.dev/install.sh \| bash -s` | `~/.local/bin/oh-my-posh`, theme in `.config/fish/theme.json` |
-| herdr      | `curl -fsSL https://herdr.dev/install.sh \| sh`      | `~/.local/bin/herdr`, config in `~/.config/herdr/config.toml` |
+```bash
+# oh-my-posh (theme in ~/.config/fish/theme.json)
+curl -s https://ohmyposh.dev/install.sh | bash -s
 
-Everything else — fisher, `nvm.fish`, the yazi plugin, the LazyVim config — is already committed in this repo and arrives with `stow .`; nvim downloads its pinned plugins on first launch.
+# herdr
+curl -fsSL https://herdr.dev/install.sh | sh
+```
 
-## 5. Dotfiles (stow)
+## 3. Dotfiles (stow)
 
-Repo root mirrors `$HOME`; every config is symlinked in (including `.config/niri-mimeapps.list` and `.config/kde-mimeapps.list` for desktop-specific file associations):
+Repo root mirrors `$HOME`. Symlink all configs:
 
 ```bash
 cd ~/dotfiles
-stow .
-stow --delete .   # undo
+stow .           # symlink configs to $HOME
+stow --delete .  # undo
 ```
 
-`.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
+Ensure scripts in `.local/bin/` are executable (`chmod +x .local/bin/*`). Non-stowed assets (wallpapers, vimium theme) live in `others/` and are copied manually.
 
-Scripts in `.local/bin/` need the executable bit before committing (`chmod +x .local/bin/<script>`) — stow only creates the symlink, so a `644` file is not runnable from `$HOME`.
+## 4. Shell & Terminal
 
-## 6. Fish
-
-Make it the login shell:
-
+### Fish
+Set fish as login shell:
 ```bash
 chsh -s /usr/bin/fish
 ```
+Plugins (`fisher`, `nvm.fish`), prompt, and aliases are pre-configured in `.config/fish/`.
 
-Everything else — plugins, prompt, key bindings — comes from `.config/fish`, linked by stow.
-
-## 7. tmux
-
-Clone the plugin manager, then install the plugins from `.tmux.conf` (`C-a I`):
-
+### Tmux
+Install plugins (`C-a I` after cloning):
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-## 8. Godot
+## 5. App Setup
 
-Installed from the repos (`godot`). Scripts open in Neovim via the wrapper in this repo, `.local/bin/godot-nvim`:
+### OpenCode
+1. **Authentication:** Run `opencode auth login` (or import via `opencode auth import < backup.json`). Environment keys go in `~/.config/opencode/.env`.
+2. **Service password:** Generated in `~/.config/opencode/service.json` on first run (or set via `opencode service set password <pass>`).
+3. **MCPs:** Configured in `.config/opencode/opencode.jsonc`. Add tokens (e.g. `GITHUB_PERSONAL_ACCESS_TOKEN`) to `~/.config/opencode/.env`. Check with `opencode mcp list`.
+4. **Graphify skill:** `uv tool install graphifyy && graphify install`.
 
-1. Editor → Editor Settings → **Text Editor → External**
+### Godot
+In Editor → Editor Settings → **Text Editor → External**:
+- Enable **Use External Editor**
+- Exec Path: `~/.local/bin/godot-nvim`
+- Exec Flags: `{file} {line} {col}`
 
-2. ✅ Use External Editor, Exec Path `~/.local/bin/godot-nvim`, Exec Flags `{file} {line} {col}`
+Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance.
 
-Every nvim instance listens on `$XDG_RUNTIME_DIR/nvim-<pid>.sock` and claims the current project (or cwd) in `$XDG_RUNTIME_DIR/nvim-projects/<sha256>` if no live instance already owns it (nvim `config/options.lua`). Opening extra nvims won't hijack it; run `:GodotPin` to switch ownership to the current instance. The wrapper walks up from the script to `project.godot`, finds that project's instance, and sends `:edit +<line> <file>` to it — or opens `kitty nvim` in the project root if none is live.
+### Git & GitHub
+```bash
+gh auth login  # SSH -> ~/.ssh/id_ed25519.pub -> paste token
+```
 
-## 9. Firefox
+### KDE Plasma (Fallback Session)
+Log into Plasma once to configure:
+1. **Login screen:** Select wallpaper from `others/backgrounds/`.
+2. **Theme:** Breeze Dark.
+3. **User:** Create standard account `user` / `password`.
+4. **Mouse:** Acceleration Profile: **Flat**, Speed: `0.4`.
 
-Installed from the repos (`firefox` + `firefoxpwa`). Log in to your Firefox account to sync and sign in to extensions, accounts, bookmarks, settings, history, etc. as needed.
-
-## 10. OpenCode
-
-Installed from the repo. Two manual steps after that:
-
-- **Authentication & API Keys:** Log in to your model providers with `opencode auth login` (or restore exported credentials with `opencode auth import < backup.json`). If using environment keys instead of OAuth, place them in `~/.config/opencode/.env` (e.g. `ANTHROPIC_API_KEY=...`, `GEMINI_API_KEY=...`).
-- **Service Password (`service.json`):** Generated automatically by OpenCode on first start (stored with `600` permissions in `~/.config/opencode/service.json`). If restoring a headless daemon, set it with `opencode service set password <password>`.
-- **MCP Servers (Model Context Protocol):** Configured in `.config/opencode/opencode.jsonc` under `"mcp"."servers"` (e.g. `github`, `postgres`). Supply any required tokens (like `GITHUB_PERSONAL_ACCESS_TOKEN` for GitHub MCP) in `~/.config/opencode/.env`. Check status with `opencode mcp list` or add new servers via `opencode mcp add --global <name> -- <command...>`. Remote OAuth MCP servers can be connected with `opencode mcp auth <name>`.
-
-- Install the **Graphify** skill: `uv tool install graphifyy && graphify install` (`sudo pacman -S uv` first if missing; `graphify install` detects the assistant and registers `/graphify`).
-
-## 11. Git & GitHub
-
-1. Create an SSH key and add it to `ssh-agent` by following [GitHub's SSH key generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
-
-2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed25519.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
-
-## 12. KDE Plasma Setup
-
-Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-integration`, `xdg-desktop-portal-kde` installed so Qt theming and Dolphin file associations work in both sessions). Log in using **KDE Plasma** first (not Niri) and configure the following manually in **System Settings**:
-
-1. **Login Wallpaper:** Go to **Login Screen** → **Configure Appearance** and select a background image from `others/backgrounds/`.
-2. **Global Theme:** Go to **Appearance & Style** → **Colors & Themes** (or **Global Theme**) and switch to **Breeze Dark**.
-3. **Standard User:** Go to **Users** → **Add New User**, create a **Standard** account named `user` with the password `password`.
-4. **Mouse Settings:** Go to **Input & Output** → **Mouse & Touchpad** → **Mouse**, set **Acceleration profile** to **Flat** (disables pointer precision), and set **Pointer speed** to `0.4`.
-
-## 13. DaVinci Resolve
-
-DaVinci Resolve **Studio 21** (cracked/patched license check), no package in the repos. Download the Linux `.zip` from [Blackmagic's support page](https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion), then:
+### DaVinci Resolve Studio 21
+Download Linux `.zip` from Blackmagic support, then install with OpenCL support:
 
 ```bash
 unzip DaVinci_Resolve_*_Linux.zip
 chmod +x DaVinci_Resolve_*_Linux.run
-sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
+sudo pacman -S opencl-mesa
 ./DaVinci_Resolve_*_Linux.run
 ```
 
-The installer unpacks everything into `/opt/resolve`. This repo provides a user launcher override (`.local/share/applications/com.blackmagicdesign.resolve.desktop`, pointing at `/opt/resolve/bin/resolve`) so Resolve appears correctly in the launcher (and avoids duplicate entries if the installer added one). Restow after changes: `stow .`.
-
-Then patch `bin/resolve` to bypass the license check (based on [this guide](https://www.reddit.com/r/LinuxCrackSupport/comments/1vpucp8/davinci_resolve_studio_21xx_bypass_licence_guide/)):
-
+Apply license bypass patches:
 ```bash
 cd /opt/resolve
 sudo perl -pi -e 's/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\x74\x11\x48\x8B\x45\xC8\x8B/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\xEB\x11\x48\x8B\x45\xC8\x8B/g' bin/resolve
-
 sudo perl -pi -e 's/\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00/\xEB\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00/g' bin/resolve
-
 sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\x00\xE8)/$1\x75$2/g' bin/resolve
 ```
 
-Even if Studio supposedly supports a codec, other problems can still come up on Linux, so run `.local/bin/to_resolve` on videos and audio before importing to make sure they work reliably in DaVinci Resolve.
+Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`).
 
-`.local/bin/to_resolve` re-encodes for Resolve. For videos (`*.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv`) it converts to ProRes 422 + PCM s16le in place when the container supports it (`.mov`, `.mkv`), skipping files already ProRes+PCM when `ffprobe` is available; otherwise it creates a same-base `.mov` file (e.g. `.mp4` → `.mov`). For audio (`*.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif`) it writes 24-bit PCM in place when the container supports it (`.wav`, `.aiff/.aif`), skipping files already PCM when `ffprobe` is available; otherwise it creates a same-base `.wav` file (e.g. `.m4a` → `.wav`). With `-d`, the original media file is deleted after a successful conversion when the output is a separate file.
+## 6. Rebuild Checklist
 
-Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes the iGPU visible — it pulls `libclc` and `spirv-llvm-translator`, which rusticl needs to compile kernels. Without them the log says `No matched GPUs found` / `Unsupported GPU Processing Mode`; with them, `GPUDetect` logs `Detected 1 GPUs` + `Selected compute API: OpenCL`.
-
-## 14. Rebuild order
-
-1. EndeavourOS ISO → installer defaults, then timezone + NTP (§1).
-2. `stow .` from this repo (links configs, `niri-mimeapps.list`, and `kde-mimeapps.list`).
-3. pacman batches (§2), then `yay -S` (§3).
-4. oh-my-posh + herdr scripts, `chsh -s /usr/bin/fish`.
-5. Clone tpm and press `C-a I`; nvim installs LazyVim plugins on first launch.
-6. Firefox login and sync/sign-in for extensions, bookmarks, settings, history, etc. (§9).
-7. OpenCode: secrets + Graphify skill (§10).
-8. Godot external editor (§8).
-9. SSH key + `gh auth login` (§11).
-10. KDE Plasma login wallpaper, Breeze Dark theme, standard `user` account, and mouse settings (§12).
-11. DaVinci Resolve install + `opencl-mesa` (§13).
+1. Install OS defaults, timezone & NTP (§1).
+2. Stow dotfiles: `cd ~/dotfiles && stow .` (§3).
+3. Install packages via `pacman` and `yay` (§2).
+4. Run standalone installers (oh-my-posh, herdr) & set `chsh -s /usr/bin/fish` (§2, §4).
+5. Clone TPM and press `C-a I` in tmux (§4).
+6. Log in to Firefox sync.
+7. Configure OpenCode credentials & Graphify (§5).
+8. Authenticate GitHub CLI (`gh auth login`).
+9. Configure KDE Plasma settings (§5).
+10. Install & patch DaVinci Resolve (§5).
