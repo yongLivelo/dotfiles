@@ -80,7 +80,7 @@ stow .
 stow --delete .   # undo
 ```
 
-`.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
+`.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
 
 Scripts in `.local/bin/` need the executable bit before committing (`chmod +x .local/bin/<script>`) — stow only creates the symlink, so a `644` file is not runnable from `$HOME`.
 

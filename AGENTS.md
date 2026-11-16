@@ -9,7 +9,7 @@ stow .          # symlink everything into $HOME
 stow --delete . # remove symlinks
 ```
 
-`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `.markdownlint.json`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
+`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
 
 ## Config layout
 
@@ -33,7 +33,6 @@ stow --delete . # remove symlinks
 | `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)                                                                                                                                                                                    |
 | `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (in-place re-encode to ProRes/PCM for Resolve), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
 | `.local/share/applications/` | Launchers for apps installed outside pacman (`com.blackmagicdesign.resolve.desktop`, `nvim.desktop`)                                                                                                                                                     |
-| `.markdownlint.json`         | markdownlint rules for nvim (`markdownlint-cli2` via Mason): MD013, MD060 off                                                                                                                                                                            |
 | `.tmux.conf`                 | Tmux (tpm plugins)                                                                                                                                                                                                                                       |
 
 ## Notable non-defaults
@@ -47,6 +46,7 @@ stow --delete . # remove symlinks
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
 - In Neovim, `Ctrl-C` in normal mode quits (`<cmd>qa<cr>`)
+- In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
 - Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place; audio to PCM in place for `.wav/.aiff`, otherwise to a same-base `.wav`, with `-d` removing the original in that case) before importing; keep backups because originals may be replaced on success

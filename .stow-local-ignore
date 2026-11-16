@@ -2,6 +2,5 @@
 .gitignore
 AGENTS.md
 README.md
-.markdownlint.json
 ^others
 ^tests
