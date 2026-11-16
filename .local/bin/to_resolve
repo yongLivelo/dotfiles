@@ -14,14 +14,9 @@ shopt -s nocaseglob nullglob
 
 video_fmt() {
   case "${1,,}" in
-    mp4|m4v) echo mp4 ;;
     mov|qt) echo mov ;;
     mkv) echo matroska ;;
-    avi) echo avi ;;
-    ts|m2ts) echo mpegts ;;
-    flv) echo flv ;;
-    webm) echo webm ;;
-    *) echo mov ;;
+    *) echo ;;
   esac
 }
 
@@ -51,25 +46,36 @@ already_pcm_audio() {
   [ -n "$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")" ] && [ -z "$bad" ]
 }
 
-# Re-encode videos to ProRes 422 + PCM, keeping the same filename/extension.
+# Re-encode videos to ProRes 422 + PCM. Keep the same filename/extension when the
+# container supports ProRes (.mov, .mkv); otherwise write a .mov for Resolve compatibility.
 for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   [ -f "$f" ] || continue
-  if already_prores_pcm "$f"; then
-    echo "skip: $f (already ProRes/PCM)"
-    continue
-  fi
-
   ext="${f##*.}"
   fmt=$(video_fmt "$ext")
-  part="$f.part"
+  if [ -n "$fmt" ]; then
+    if already_prores_pcm "$f"; then
+      echo "skip: $f (already ProRes/PCM)"
+      continue
+    fi
+    out="$f"
+    part="$f.part"
+  else
+    base="${f%.*}"
+    out="${base}.mov"
+    part="$out.part"
+    if [ -e "$out" ]; then
+      echo "skip: $f (already converted to $out)"
+      continue
+    fi
+  fi
 
   rm -f -- "$part"
   # .part hides the extension, so the muxer must be named explicitly
   if ffmpeg -nostdin -n -i "$f" \
     -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
-    -f "$fmt" "$part"; then
-    if mv -f -- "$part" "$f"; then
-      :
+    -f "${fmt:-mov}" "$part"; then
+    if mv -f -- "$part" "$out"; then
+      [ "$delete" = 1 ] && [ "$out" != "$f" ] && rm -- "$f"
     else
       rm -f -- "$part"
     fi
@@ -80,7 +86,7 @@ done
 
 # Re-encode audio to PCM. Keep the same filename/extension when the container supports PCM;
 # otherwise write a .wav for Resolve compatibility.
-for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
+for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
   [ -f "$f" ] || continue
   ext="${f##*.}"
   fmt=$(audio_fmt "$ext")

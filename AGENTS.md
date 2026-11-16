@@ -30,8 +30,8 @@ stow --delete . # remove symlinks
 | `.config/environment.d/`     | User session environment variables (`fzf.conf` sets Tokyo-Night `FZF_DEFAULT_OPTS` for portals/GUI-launched apps)                                                                                                                                        |
 | `.config/xdg-desktop-portal/` | Portal backend preferences (`niri-portals.conf` routes `FileChooser` to `termfilechooser`)                                                                                                                                                               |
 | `.config/xdg-desktop-portal-termfilechooser/` | Terminal file chooser config (`config` setting Kitty as terminal for Yazi)                                                                                                                                                                 |
-| `.config/mimeapps.list`      | Default applications (imv for images, zathura for PDF, mpv for video)                                                                                                                                                                                    |
-| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (in-place re-encode to ProRes/PCM for Resolve), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
+| `.config/*-mimeapps.list`    | Default applications (`niri-mimeapps.list` and `kde-mimeapps.list`: imv for images, zathura for PDF, mpv for video)                                                                    |
+| `.local/bin/`                | Scripts: `godot-nvim` (Godot external editor), `to_resolve` (re-encode to ProRes/PCM for Resolve), `trash-undo` / `trash-redo` (restore or re-trash the last deleted batch), `sesh-term` (sesh picker; `--popup` draws it via `fzf-tmux`) |
 | `.local/share/applications/` | Launchers for apps installed outside pacman (`com.blackmagicdesign.resolve.desktop`, `nvim.desktop`)                                                                                                                                                     |
 | `.tmux.conf`                 | Tmux (tpm plugins)                                                                                                                                                                                                                                       |
 
@@ -47,9 +47,9 @@ stow --delete . # remove symlinks
 - `EDITOR` is `nvim`
 - In Neovim, `Ctrl-C` in normal mode quits (`<cmd>qa<cr>`)
 - In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
-- Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
+- Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more (wallpaper path in `.config/noctalia/noctalia-config.toml` points to `others/backgrounds/`)
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
-- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place; audio to PCM in place for `.wav/.aiff`, otherwise to a same-base `.wav`, with `-d` removing the original in that case) before importing; keep backups because originals may be replaced on success
+- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place for `.mov/.mkv`, otherwise to a same-base `.mov`; audio to PCM in place for `.wav/.aiff`, otherwise to a same-base `.wav`, with `-d` removing the original in that case) before importing; keep backups because originals may be replaced on success
 
 ## OpenCode config
 

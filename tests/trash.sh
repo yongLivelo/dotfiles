@@ -73,6 +73,16 @@ check no "$(present "$state/batch.ZZZ")" 'stale batch pruned'
 check no "$(present "$state/batch.AAA")" 'symlink batch consumed'
 case $out in *"trashed: $src/link"*) ;; *) echo "FAIL: redo output: $out"; fails=$((fails + 1)) ;; esac
 
+# an already-existing destination file must be skipped and allow walking back to earlier batch
+trash_one 'blocked.txt' "$src/blocked.txt" '2099-01-02T00:00:00'
+trash_one 'earlier.txt' "$src/earlier.txt" '2099-01-01T00:00:00'
+echo "pre-existing" >"$src/blocked.txt"
+"$repo/.local/bin/trash-undo" >/dev/null
+check yes "$(present "$src/earlier.txt")" 'undo walks back past skipped existing file'
+check yes "$(present "$trash/info/blocked.txt.trashinfo")" 'blocked .trashinfo kept'
+
+"$repo/.local/bin/trash-redo" >/dev/null
+check no "$(present "$src/earlier.txt")" 'redo re-trashes earlier.txt'
 check 'nothing to redo' "$("$repo/.local/bin/trash-redo" 2>&1)" 'empty state reports nothing to redo'
 
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"

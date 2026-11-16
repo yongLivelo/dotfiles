@@ -8,8 +8,8 @@ trash="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
 state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 
 # shortcut: a batch is one DeletionDate second, so deletes a second apart undo separately
-newest=$(grep -h '^DeletionDate=' "$trash"/info/*.trashinfo 2>/dev/null | sort | tail -1)
-[ -n "$newest" ] || {
+dates=$(grep -h '^DeletionDate=' "$trash"/info/*.trashinfo 2>/dev/null | sort -u -r)
+[ -n "$dates" ] || {
   echo "trash is empty"
   exit 1
 }
@@ -17,25 +17,29 @@ newest=$(grep -h '^DeletionDate=' "$trash"/info/*.trashinfo 2>/dev/null | sort |
 mkdir -p "$state"
 batch=$(mktemp "$state/batch.XXXXXX")
 
-for info in "$trash"/info/*.trashinfo; do
-  grep -qxF "$newest" "$info" || continue
-  name=${info##*/}
-  name=${name%.trashinfo}
-  # undo the percent-encoding the trash spec applies to the original path
-  # shortcut: %b also eats a literal backslash in the name; encode paths manually if that ever matters
-  raw=$(sed -n 's/^Path=//p' "$info")
-  printf -v path '%b' "${raw//%/\\x}"
-  # never clobber what is already there (gio does the same)
-  if [ -e "$path" ] || [ -L "$path" ]; then
-    echo "exists, skipped: $path"
-    continue
-  fi
-  mkdir -p -- "$(dirname -- "$path")" || continue
-  mv -- "$trash/files/$name" "$path" || continue
-  rm -f -- "$info"
-  echo "restored: $path"
-  # shortcut: newline-delimited state, so a path containing a newline can't be redone
-  printf '%s\n' "$path" >>"$batch"
-done
+while IFS= read -r date; do
+  [ -n "$date" ] || continue
+  for info in "$trash"/info/*.trashinfo; do
+    grep -qxF "$date" "$info" || continue
+    name=${info##*/}
+    name=${name%.trashinfo}
+    # undo the percent-encoding the trash spec applies to the original path
+    # shortcut: %b also eats a literal backslash in the name; encode paths manually if that ever matters
+    raw=$(sed -n 's/^Path=//p' "$info")
+    printf -v path '%b' "${raw//%/\\x}"
+    # never clobber what is already there (gio does the same)
+    if [ -e "$path" ] || [ -L "$path" ]; then
+      echo "exists, skipped: $path"
+      continue
+    fi
+    mkdir -p -- "$(dirname -- "$path")" || continue
+    mv -- "$trash/files/$name" "$path" || continue
+    rm -f -- "$info"
+    echo "restored: $path"
+    # shortcut: newline-delimited state, so a path containing a newline can't be redone
+    printf '%s\n' "$path" >>"$batch"
+  done
+  [ -s "$batch" ] && break
+done <<<"$dates"
 
 [ -s "$batch" ] || rm -f "$batch"
