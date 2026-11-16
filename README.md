@@ -48,13 +48,13 @@ Grouped, the things that matter:
 
 `yay` came with EndeavourOS; these packages are the ones installed from the AUR:
 
-| Package            | Why                                               |
-| ------------------ | ------------------------------------------------- |
-| `python-pywalfox`  | Pywalfox CLI, pairs with the Firefox extension    |
-| `sesh-bin`         | session manager behind the `C-a C-a` tmux picker  |
-| `claude-code`      | Claude Code CLI                                   |
-| `antigravity-cli`  | Antigravity CLI                                   |
-| `zoom`             | video calls                                       |
+| Package                              | Why                                               |
+| ------------------------------------ | ------------------------------------------------- |
+| `python-pywalfox`                    | Pywalfox CLI, pairs with the Firefox extension    |
+| `sesh-bin`                           | session manager behind the `C-a C-a` tmux picker  |
+| `claude-code`                        | Claude Code CLI                                   |
+| `antigravity-cli`                    | Antigravity CLI                                   |
+| `zoom`                               | video calls                                       |
 | `xdg-desktop-portal-termfilechooser` | Yazi terminal file picker portal backend for Niri |
 
 ```bash
