@@ -120,7 +120,8 @@ Installed from the repos (`firefox` + `firefoxpwa`). Log in to your Firefox acco
 
 Installed from the repo. Two manual steps after that:
 
-- Set up the secrets in `.config/opencode/` (`service.json` and any `.env*`) — those are gitignored.
+- **Authentication & API Keys:** Log in to your model providers with `opencode auth login` (or restore exported credentials with `opencode auth import < backup.json`). If using environment keys instead of OAuth, place them in `~/.config/opencode/.env` (e.g. `ANTHROPIC_API_KEY=...`, `GEMINI_API_KEY=...`).
+- **Service Password (`service.json`):** Generated automatically by OpenCode on first start (stored with `600` permissions in `~/.config/opencode/service.json`). If restoring a headless daemon, set it with `opencode service set password <password>`.
 
 - Install the **Graphify** skill: `uv tool install graphifyy && graphify install` (`sudo pacman -S uv` first if missing; `graphify install` detects the assistant and registers `/graphify`).
 
