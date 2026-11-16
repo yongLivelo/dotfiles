@@ -22,6 +22,7 @@ if status is-interactive
             bind -M $mode \cn down-or-search
             bind -M $mode \cf forward-char
             bind -M $mode \ca sesh-term
+            bind -M $mode \cz cdi
         end
     end
     fish_user_key_bindings
