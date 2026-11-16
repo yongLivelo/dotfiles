@@ -46,6 +46,7 @@ stow --delete . # remove symlinks
 - `imv` aliases `imv-dir` (opens directory so arrow keys cycle images)
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
+- In Neovim, `Ctrl-C` in normal mode quits (`<cmd>qa<cr>`)
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
 - Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place; audio to PCM in place for `.wav/.aiff`, otherwise to a same-base `.wav`, with `-d` removing the original in that case) before importing; keep backups because originals may be replaced on success
