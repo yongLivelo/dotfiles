@@ -8,3 +8,7 @@ path = "~/dotfiles/"
 [[session]]
 name = "upsolve-study"
 path = "~/Projects/upsolve.study/"
+
+[[session]]
+name = "personal"
+path = "~/vaults/personal/"
