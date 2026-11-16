@@ -145,7 +145,7 @@ Keep KDE Plasma installed alongside Niri as a fallback session (keep `plasma-int
 
 ## 13. DaVinci Resolve
 
-Free version, no package in the repos. Download the Linux `.zip` from [Blackmagic's support page](https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion), then:
+DaVinci Resolve Studio 21, no package in the repos. Download the Linux `.zip` from [Blackmagic's support page](https://www.blackmagicdesign.com/support/family/davinci-resolve-and-fusion), then:
 
 ```bash
 unzip DaVinci_Resolve_*_Linux.zip
@@ -155,6 +155,17 @@ sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
 ```
 
 The installer unpacks everything into `/opt/resolve`. This repo provides a user launcher override (`.local/share/applications/com.blackmagicdesign.resolve.desktop`, pointing at `/opt/resolve/bin/resolve`) so Resolve appears correctly in the launcher (and avoids duplicate entries if the installer added one). Restow after changes: `stow .`.
+
+To bypass the license check (based on [this guide](https://www.reddit.com/r/LinuxCrackSupport/comments/1vpucp8/davinci_resolve_studio_21xx_bypass_licence_guide/)):
+
+```bash
+cd /opt/resolve
+sudo perl -pi -e 's/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\x74\x11\x48\x8B\x45\xC8\x8B/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\xEB\x11\x48\x8B\x45\xC8\x8B/g' bin/resolve
+
+sudo perl -pi -e 's/\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00/\xEB\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00\x00/g' bin/resolve
+
+sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\x00\xE8)/$1\x75$2/g' bin/resolve
+```
 
 The **free Linux build ships without the H.264/H.265 and AAC decoders** (licensing), so camera mp4s import with no picture (`Codec (avc1) not Found in Repository` in `/opt/resolve/logs/rollinglog.txt`). Transcode first — ProRes and DNxHR both decode in the free version:
 
