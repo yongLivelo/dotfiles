@@ -8,10 +8,11 @@
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 --
 
--- prose in this repo is full of tool names; the spell squiggles are noise
+-- prose in this repo is full of tool names; spell squiggles and markdown diagnostics are noise
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "markdown", "markdown.mdx" },
-  callback = function()
+  callback = function(event)
     vim.opt_local.spell = false
+    vim.diagnostic.enable(false, { bufnr = event.buf })
   end,
 })

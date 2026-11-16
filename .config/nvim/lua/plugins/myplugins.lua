@@ -54,6 +54,9 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
+      image = {
+        enabled = true,
+      },
       lazygit = {
         configure = false,
       },
@@ -227,7 +230,10 @@ return {
   },
   {
     "obsidian-nvim/obsidian.nvim",
-    version = "*",
+    version = "*", -- use latest release, remove to use latest commit
+    lazy = false,
+    ---@module 'obsidian'
+    ---@type obsidian.config
     opts = {
       legacy_commands = false,
       workspaces = {
@@ -235,6 +241,12 @@ return {
           name = "personal",
           path = "~/vaults/personal/",
         },
+      },
+      daily_notes = {
+        folder = "daily",
+      },
+      attachments = {
+        folder = "attachments",
       },
     },
     keys = {
