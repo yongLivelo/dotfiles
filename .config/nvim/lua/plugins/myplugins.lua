@@ -242,11 +242,8 @@ return {
           path = "~/vaults/personal/",
         },
       },
-      daily_notes = {
-        folder = "daily",
-      },
-      attachments = {
-        folder = "attachments",
+      checkbox = {
+        order = { " ", "x" },
       },
     },
     keys = {
