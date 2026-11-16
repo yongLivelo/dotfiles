@@ -9,9 +9,9 @@ EndeavourOS **Titan Nova** (latest release), installed from the live ISO with th
 The installer left the clock unsynced, so set the timezone and turn on NTP before anything else — a wrong clock breaks TLS and pacman signature checks:
 
 ```bash
-sudo timedatectl set-timezone Asia/Manila   # only if you actually want PH time
+sudo timedatectl set-timezone Asia/Manila   #only if you actually want PH time
 sudo timedatectl set-ntp true
-timedatectl                                 # expect "System clock synchronized: yes", "NTP service: active"
+timedatectl                                 # expect "System clock synchronized: yes", "NTP service: active"
 ```
 
 ## 2. Packages from pacman
@@ -21,41 +21,40 @@ EndeavourOS supplied most of the list (KDE, firmware, filesystem tools, printers
 ```bash
 # desktop / WM / terminal
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
-  steam zoxide eza fzf fd git fish btop yazi
+  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
+  steam zoxide eza fzf fd git fish btop yazi
 
 # tools, fonts, media
 sudo pacman -Syu nodejs npm ttf-jetbrains-mono easyeffects \
-  kdenlive audacity mpv ffmpeg wl-clipboard telegram-desktop discord stow docker
+  kdenlive audacity mpv ffmpeg wl-clipboard telegram-desktop discord stow docker
 
 # extras
 sudo pacman -S base-devel pacman-contrib dbeaver mariadb go rust zig clang \
-  lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
-  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed \
-  plasma-login-manager
+  lazygit github-cli keychain wl-clip-persist cava rnote zathura zathura-pdf-mupdf imv \
+  haruna obs-studio jdk-openjdk firefox firefoxpwa uv godot libreoffice-still zed \
 ```
 
 Grouped, the things that matter:
 
-| Category     | Packages                                                                                                                                                                                                            |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell / CLI  | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
-| Desktop      | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `plasma-login-manager`, `xdg-desktop-portal-*`                                                                   |
-| Dev          | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `jdk-openjdk`, `uv`, `godot`                                                                |
-| Media / apps | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
-| Fonts        | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
+| Category      | Packages                                                                                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell / CLI   | `fish`, `eza`, `fzf`, `fd`, `zoxide`, `btop`, `yazi`, `tmux`, `keychain`, `stow`, `tldr`, `duf`, `glances`, `downgrade`, `pkgfile`, `plocate`, `wget`, `unzip`                                                      |
+| Desktop       | `niri`, `noctalia`, `kitty`, `alacritty`, `xwayland-satellite`, `wl-clipboard`, `wl-clip-persist`, `xdg-desktop-portal-*`                                                                                           |
+| Dev           | `neovim`, `zed`, `nodejs`/`npm`, `go`, `rust`, `zig`, `clang`, `docker`, `lazygit`, `github-cli`, `mariadb`, `dbeaver`, `jdk-openjdk`, `uv`, `godot`                                                                |
+| Media / apps  | `obs-studio`, `kdenlive`, `audacity`, `easyeffects`, `haruna`, `mpv`, `zathura` (`zathura-pdf-mupdf`), `imv`, `libreoffice-still`, `rnote`, `steam`, `discord`, `telegram-desktop`, `firefox`, `firefoxpwa`, `cava` |
+| Fonts         | `ttf-jetbrains-mono`, `noto-fonts` (+ `cjk`, `emoji`, `extra`)                                                                                                                                                      |
 
 ## 3. AUR via yay
 
 `yay` came with EndeavourOS; these packages are the ones installed from the AUR:
 
-| Package           | Why                                              |
-| ----------------- | ------------------------------------------------ |
-| `python-pywalfox` | Pywalfox CLI, pairs with the Firefox extension   |
-| `sesh-bin`        | session manager behind the `C-a C-a` tmux picker |
-| `claude-code`     | Claude Code CLI                                  |
-| `antigravity-cli` | Antigravity CLI                                  |
-| `zoom`            | video calls                                      |
+| Package            | Why                                               |
+| ------------------ | ------------------------------------------------- |
+| `python-pywalfox`  | Pywalfox CLI, pairs with the Firefox extension    |
+| `sesh-bin`         | session manager behind the `C-a C-a` tmux picker  |
+| `claude-code`      | Claude Code CLI                                   |
+| `antigravity-cli`  | Antigravity CLI                                   |
+| `zoom`             | video calls                                       |
 
 ```bash
 yay -S python-pywalfox sesh-bin claude-code antigravity-cli zoom
@@ -63,10 +62,10 @@ yay -S python-pywalfox sesh-bin claude-code antigravity-cli zoom
 
 ## 4. Apps installed without a package manager
 
-| App        | Install                                              | Lands in                                                      |
+| App        | Install                                              | Lands in                                                      |
 | ---------- | ---------------------------------------------------- | ------------------------------------------------------------- |
 | oh-my-posh | `curl -s https://ohmyposh.dev/install.sh \| bash -s` | `~/.local/bin/oh-my-posh`, theme in `.config/fish/theme.json` |
-| herdr      | `curl -fsSL https://herdr.dev/install.sh \| sh`      | `~/.local/bin/herdr`, config in `~/.config/herdr/config.toml` |
+| herdr      | `curl -fsSL https://herdr.dev/install.sh \| sh`      | `~/.local/bin/herdr`, config in `~/.config/herdr/config.toml` |
 
 Everything else — fisher, `nvm.fish`, the yazi plugin, the LazyVim config — is already committed in this repo and arrives with `stow .`; nvim downloads its pinned plugins on first launch.
 
@@ -77,7 +76,7 @@ Repo root mirrors `$HOME`; every config is symlinked in (including `.config/niri
 ```bash
 cd ~/dotfiles
 stow .
-stow --delete .   # undo
+stow --delete .   # undo
 ```
 
 `.stow-local-ignore` keeps `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `.markdownlint.json` and `others/` out of `$HOME` — `others/` holds backgrounds and the Vimium C theme, which are copied by hand, not linked.
@@ -107,6 +106,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 Installed from the repos (`godot`). Scripts open in Neovim via the wrapper in this repo, `.local/bin/godot-nvim`:
 
 1. Editor → Editor Settings → **Text Editor → External**
+
 2. ✅ Use External Editor, Exec Path `~/.local/bin/godot-nvim`, Exec Flags `{file} {line} {col}`
 
 Every nvim instance listens on `$XDG_RUNTIME_DIR/nvim-<pid>.sock` and claims the current project (or cwd) in `$XDG_RUNTIME_DIR/nvim-projects/<sha256>` if no live instance already owns it (nvim `config/options.lua`). Opening extra nvims won't hijack it; run `:GodotPin` to switch ownership to the current instance. The wrapper walks up from the script to `project.godot`, finds that project's instance, and sends `:edit +<line> <file>` to it — or opens `kitty nvim` in the project root if none is live.
@@ -115,7 +115,7 @@ Every nvim instance listens on `$XDG_RUNTIME_DIR/nvim-<pid>.sock` and claims the
 
 Installed from the repos (`firefox` + `firefoxpwa`), then set up by hand:
 
-1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**, **PWAs for Firefox**.
+1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**, **PWAs for Firefox**, **Competitive Companion** (pairs with `competitest.nvim` — pin it to the toolbar; run `:CompetiTest receive problem` / `:CompetiTest receive contest` in Neovim and click the green `+` icon or press `Ctrl+Shift+U` on a problem page).
 2. Vimium C → options → custom CSS: copy-paste `others/vimiumc-tokyonight-theme.css`.
 3. Pywalfox → open the extension UI and click **Fetch Pywal colors** (Noctalia feeds the native host automatically, so no daemon needed).
 4. Web apps (via **PWAs for Firefox**): open [Photopea](https://www.photopea.com/) and install it as a PWA.
@@ -125,11 +125,13 @@ Installed from the repos (`firefox` + `firefoxpwa`), then set up by hand:
 Installed from the repo. Two manual steps after that:
 
 - Set up the secrets in `.config/opencode/` (`service.json` and any `.env*`) — those are gitignored.
+
 - Install the **Graphify** skill: `uv tool install graphifyy && graphify install` (`sudo pacman -S uv` first if missing; `graphify install` detects the assistant and registers `/graphify`).
 
 ## 11. Git & GitHub
 
 1. Create an SSH key and add it to `ssh-agent` by following [GitHub's SSH key generation guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+
 2. Authenticate `gh`: run `gh auth login` → select **SSH** → select `/home/{user}/.ssh/id_ed25519.pub` and press **Enter** when prompted for the SSH key → select **Paste an authentication token** → paste your auth token.
 
 ## 12. KDE Plasma Setup
@@ -148,7 +150,7 @@ Free version, no package in the repos. Download the Linux `.zip` from [Blackmagi
 ```bash
 unzip DaVinci_Resolve_*_Linux.zip
 chmod +x DaVinci_Resolve_*_Linux.run
-sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
+sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
 ./DaVinci_Resolve_*_Linux.run
 ```
 
@@ -164,7 +166,6 @@ ffmpeg -i in.mp4 -c:v dnxhd -profile:v dnxhr_lb -pix_fmt yuv422p -c:a pcm_s16le 
 `.local/bin/to_resolve` runs that conversion over every video (`*.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv`) and audio file (`*.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma`) in the current directory: video becomes `<name>_resolve.mov` (ProRes 422 + PCM), audio becomes `<name>_resolve.wav` (24-bit PCM). Existing outputs are skipped, and `-d` deletes each source after a successful conversion. ProRes plays in both places: free Resolve decodes it, and so does iPadOS on iPad Pro (2018+), iPad Air 5+ and iPad mini 6+.
 
 Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes the iGPU visible — it pulls `libclc` and `spirv-llvm-translator`, which rusticl needs to compile kernels. Without them the log says `No matched GPUs found` / `Unsupported GPU Processing Mode`; with them, `GPUDetect` logs `Detected 1 GPUs` + `Selected compute API: OpenCL`.
-asd
 
 ## 14. Rebuild order
 
