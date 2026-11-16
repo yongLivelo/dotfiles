@@ -55,9 +55,10 @@ Grouped, the things that matter:
 | `claude-code`      | Claude Code CLI                                   |
 | `antigravity-cli`  | Antigravity CLI                                   |
 | `zoom`             | video calls                                       |
+| `xdg-desktop-portal-termfilechooser` | Yazi terminal file picker portal backend for Niri |
 
 ```bash
-yay -S python-pywalfox sesh-bin claude-code antigravity-cli zoom
+yay -S python-pywalfox sesh-bin claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
 ```
 
 ## 4. Apps installed without a package manager
