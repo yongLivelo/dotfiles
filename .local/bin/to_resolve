@@ -70,22 +70,30 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   fi
 done
 
-# Re-encode audio to PCM, keeping the same filename/extension when the container supports PCM.
+# Re-encode audio to PCM. Keep the same filename/extension when the container supports PCM;
+# otherwise write a .wav for Resolve compatibility.
 for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
   [ -f "$f" ] || continue
   ext="${f##*.}"
   fmt=$(audio_fmt "$ext")
-  if [ -z "$fmt" ]; then
-    echo "skip: $f (PCM in .$ext not supported; keeping original)"
-    continue
+  if [ -n "$fmt" ]; then
+    out="$f"
+    part="$f.part"
+  else
+    base="${f%.*}"
+    out="${base}.wav"
+    part="$out.part"
+    if [ -e "$out" ]; then
+      echo "skip: $f (already converted to $out)"
+      continue
+    fi
   fi
 
-  part="$f.part"
   rm -f -- "$part"
   if ffmpeg -nostdin -n -i "$f" \
     -vn -c:a pcm_s24le \
-    -f "$fmt" "$part"; then
-    if mv -f -- "$part" "$f"; then
+    -f "${fmt:-wav}" "$part"; then
+    if mv -f -- "$part" "$out"; then
       :
     else
       rm -f -- "$part"
@@ -94,4 +102,5 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma; do
     rm -f -- "$part"
   fi
 done
+
 

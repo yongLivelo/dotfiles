@@ -45,7 +45,7 @@ stow --delete . # remove symlinks
 - `EDITOR` is `nvim`
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
-- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media in place (video to ProRes 422 + PCM; audio to PCM where the container allows, e.g. `.wav/.aiff/.flac`) before importing; keep backups because originals are replaced on success
+- Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place; audio to PCM in place for `.wav/.aiff/.flac`, otherwise to a same-base `.wav`) before importing; keep backups because originals may be replaced or left alongside a converted `.wav` on success
 
 ## OpenCode config
 
