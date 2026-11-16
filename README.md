@@ -113,12 +113,7 @@ Every nvim instance listens on `$XDG_RUNTIME_DIR/nvim-<pid>.sock` and claims the
 
 ## 9. Firefox
 
-Installed from the repos (`firefox` + `firefoxpwa`), then set up by hand:
-
-1. Extensions: **Vimium C**, **NordPass**, **Pywalfox**, **PWAs for Firefox**, **Competitive Companion** (pairs with `competitest.nvim` — pin it to the toolbar; run `:CompetiTest receive problem` / `:CompetiTest receive contest` in Neovim and click the green `+` icon or press `Ctrl+Shift+U` on a problem page).
-2. Vimium C → options → custom CSS: copy-paste `others/vimiumc-tokyonight-theme.css`.
-3. Pywalfox → open the extension UI and click **Fetch Pywal colors** (Noctalia feeds the native host automatically, so no daemon needed).
-4. Web apps (via **PWAs for Firefox**): open [Photopea](https://www.photopea.com/) and install it as a PWA.
+Installed from the repos (`firefox` + `firefoxpwa`). Log in to your Firefox account to sync and sign in to extensions, accounts, bookmarks, settings, history, etc. as needed.
 
 ## 10. OpenCode
 
@@ -180,7 +175,7 @@ Resolve needs a GPU it recognises. `sudo pacman -S opencl-mesa` is what makes th
 3. pacman batches (§2), then `yay -S` (§3).
 4. oh-my-posh + herdr scripts, `chsh -s /usr/bin/fish`.
 5. Clone tpm and press `C-a I`; nvim installs LazyVim plugins on first launch.
-6. Firefox add-ons, Vimium C CSS, Pywalfox colors, and Photopea PWA (§9).
+6. Firefox login and sync/sign-in for extensions, bookmarks, settings, history, etc. (§9).
 7. OpenCode: secrets + Graphify skill (§10).
 8. Godot external editor (§8).
 9. SSH key + `gh auth login` (§11).
