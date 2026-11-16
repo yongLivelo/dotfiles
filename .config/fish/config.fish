@@ -24,6 +24,7 @@ if status is-interactive
             bind -M $mode \ca sesh-term
         end
     end
+    fish_config theme choose "Tomorrow Night Bright"
     fish_user_key_bindings
 
     alias n nvim
