@@ -154,7 +154,7 @@ sudo pacman -S opencl-mesa   # Resolve needs an OpenCL runtime
 ./DaVinci_Resolve_*_Linux.run
 ```
 
-The installer unpacks everything into `/opt/resolve`. No desktop entry is created, so the one in this repo (`.local/share/applications/davinci-resolve.desktop`, pointing at `/opt/resolve/bin/resolve`) is what puts it in the launcher.
+The installer unpacks everything into `/opt/resolve`. This repo provides a user launcher override (`.local/share/applications/com.blackmagicdesign.resolve.desktop`, pointing at `/opt/resolve/bin/resolve`) so Resolve appears correctly in the launcher (and avoids duplicate entries if the installer added one). Restow after changes: `stow .`.
 
 The **free Linux build ships without the H.264/H.265 and AAC decoders** (licensing), so camera mp4s import with no picture (`Codec (avc1) not Found in Repository` in `/opt/resolve/logs/rollinglog.txt`). Transcode first — ProRes and DNxHR both decode in the free version:
 
