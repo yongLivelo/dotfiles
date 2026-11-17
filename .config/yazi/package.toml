@@ -1,7 +1,0 @@
-[[plugin.deps]]
-use = "mihem/zoxide-add"
-rev = "fb8a7e5"
-hash = "191daf690be62f4bb39a3e71327476b9"
-
-[flavor]
-deps = []

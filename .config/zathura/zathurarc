@@ -5,7 +5,6 @@ set selection-clipboard clipboard
 set adjust-open "best-fit"
 set pages-per-row 1
 set scroll-page-aware "true"
-set smooth-scroll "true"
 set scroll-step 50
 set font "JetBrains Mono 11"
 
@@ -36,13 +35,6 @@ set completion-fg               "#c0caf5"
 
 set completion-highlight-bg     "#7aa2f7"
 set completion-highlight-fg     "#16161e"
-
-# Recolor (toggle dark mode with Ctrl+r)
-set recolor                     "false"
-set recolor-keephue             "true"
-set recolor-lightcolor          "#1a1b26"
-set recolor-darkcolor           "#c0caf5"
-set recolor-reverse-video       "true"
 
 # Keybindings
 map r reload
