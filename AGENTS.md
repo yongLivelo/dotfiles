@@ -9,7 +9,7 @@ stow .          # symlink everything into $HOME
 stow --delete . # remove symlinks
 ```
 
-`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, and `others/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
+`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `others/` and `tests/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
 
 ## Config layout
 
@@ -24,7 +24,7 @@ stow --delete . # remove symlinks
 | `.config/btop/`                               | Btop system monitor                                                                                                                                                                                                                       |
 | `.config/sesh/`                               | Sesh session manager config + window scripts                                                                                                                                                                                              |
 | `.config/opencode/`                           | OpenCode config (see below)                                                                                                                                                                                                               |
-| `.config/zathura/`                            | Zathura document viewer (Tokyo-Night theme, recolor mode)                                                                                                                                                                                 |
+| `.config/zathura/`                            | Zathura document viewer (Tokyo-Night theme)                                                                                                                                                                                               |
 | `.config/imv/`                                | imv image viewer (Tokyo-Night palette, vi binds)                                                                                                                                                                                          |
 | `.config/mpv/`                                | mpv media player (Wayland, hardware decoding, JetBrains Mono OSD)                                                                                                                                                                         |
 | `.config/environment.d/`                      | User session environment variables (`fzf.conf` sets Tokyo-Night `FZF_DEFAULT_OPTS` for portals/GUI-launched apps)                                                                                                                         |
@@ -45,7 +45,7 @@ stow --delete . # remove symlinks
 - `imv` aliases `imv-dir` (opens directory so arrow keys cycle images)
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
-- In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
+- In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` in normal, insert or visual mode saves and quits (`<cmd>wqa!<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
 - In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more (wallpaper path in `.config/noctalia/noctalia-config.toml` points to `others/backgrounds/`)
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
@@ -54,12 +54,13 @@ stow --delete . # remove symlinks
 ## OpenCode config
 
 - `.config/opencode/opencode.jsonc` configures the default model, plugins (superpowers, ponytail), and MCP servers (e.g. GitHub, Postgres) — no custom instructions, agents, or permission rules live here.
-- `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; only `opencode.jsonc`, `cli.json` and `themes/` are tracked.
+- `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; only `opencode.jsonc`, `cli.json`, `commands/` and the `.gitignore` itself are tracked.
+- The theme is the built-in `tokyonight` from `cli.json`; `opencode` is not in Noctalia's `theme.templates.community_ids`, so no theme file is generated here.
 - Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps `<C-o>`, `<C-x>`, `go` and `goo`, defined in `.config/nvim/lua/plugins/myplugins.lua`).
 
 ## Tests
 
-`tests/trash.sh` runs `trash-undo` / `trash-redo` against a throwaway trash (`XDG_DATA_HOME`/`XDG_STATE_HOME` under `$HOME/.cache`, since gio only trashes onto the home filesystem). It is not stowed (`^tests` in `.stow-local-ignore`).
+`tests/trash.sh` runs `trash-undo` / `trash-redo` against a throwaway trash (`XDG_DATA_HOME`/`XDG_STATE_HOME` under `$HOME/.cache`, since gio only trashes onto the home filesystem). `tests/to_resolve.sh` generates a one-second clip and checks the conversion, the skip path, `-d`, and the failure exit code. `tests/godot-nvim.sh` checks the external editor against a headless nvim, including a path with a quote and a backslash. None are stowed (`^tests` in `.stow-local-ignore`).
 
 ## Docs
 

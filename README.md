@@ -19,12 +19,12 @@ timedatectl  # verify NTP service: active
 ```bash
 # Desktop, terminal, shell & essentials
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk alacritty noctalia kitty nvim tmux opencode \
-  steam zoxide eza fzf fd git fish btop yazi stow docker
+  xdg-desktop-portal-gtk noctalia kitty nvim tmux opencode \
+  steam zoxide eza fzf fd git fish btop yazi stow docker kwallet
 
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
-  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip
+  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip pgformatter
 
 # Media, fonts & desktop apps
 sudo pacman -S ttf-jetbrains-mono noto-fonts noto-fonts-cjk noto-fonts-emoji \
@@ -33,10 +33,17 @@ sudo pacman -S ttf-jetbrains-mono noto-fonts noto-fonts-cjk noto-fonts-emoji \
   firefox firefoxpwa telegram-desktop discord libreoffice-still godot
 ```
 
+### Docker
+
+```bash
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER  # log out and back in to apply
+```
+
 ### AUR (`yay`)
 
 ```bash
-yay -S sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
+yay -S sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser gdscript-formatter
 ```
 
 ### Standalone Installers
@@ -59,7 +66,7 @@ stow .           # symlink configs to $HOME
 stow --delete .  # undo
 ```
 
-Ensure scripts in `.local/bin/` are executable (`chmod +x .local/bin/*`). Non-stowed assets (wallpapers, vimium theme) live in `others/` and are copied manually.
+`others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
 
 ## 4. Shell & Terminal
 
@@ -76,7 +83,7 @@ Install plugins (`C-a I` after cloning):
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-`extended-keys on` is set so modified keys (e.g. `Ctrl-Shift-C`) reach Neovim intact; in Neovim `Ctrl-C` quits and `Ctrl-Shift-C` saves and quits.
+`extended-keys on` is set so modified keys (e.g. `Ctrl-Shift-C`) reach Neovim intact; in Neovim `Ctrl-C` (normal mode) quits and `Ctrl-Shift-C` saves and quits.
 
 ## 5. App Setup
 
@@ -85,18 +92,20 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 2. **Service password:** Generated in `~/.config/opencode/service.json` on first run (or set via `opencode service set password <pass>`).
 3. **MCPs:** Configured in `.config/opencode/opencode.jsonc`. Add tokens (e.g. `GITHUB_PERSONAL_ACCESS_TOKEN`) to `~/.config/opencode/.env`. Check with `opencode mcp list`.
 4. **Graphify skill:** `uv tool install graphifyy && graphify install`.
+5. **Theme:** built-in `tokyonight` in `cli.json`; Noctalia does not generate an OpenCode theme.
 
 ### Godot
 In Editor → Editor Settings → **Text Editor → External**:
 - Enable **Use External Editor**
 - Exec Path: `~/.local/bin/godot-nvim`
-- Exec Flags: `{file} {line} {col}`
+- Exec Flags: `{file} {line}`
 
 Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance.
 
 ### Git & GitHub
 ```bash
-gh auth login  # SSH -> ~/.ssh/id_ed25519.pub -> paste token
+ssh-keygen -t ed25519 -C "<email>"  # skip if ~/.ssh/id_ed25519 exists
+gh auth login  # SSH -> uploads ~/.ssh/id_ed25519.pub -> paste token
 ```
 
 ### KDE Plasma (Fallback Session)
@@ -129,8 +138,8 @@ Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupporte
 ## 6. Rebuild Checklist
 
 1. Install OS defaults, timezone & NTP (§1).
-2. Stow dotfiles: `cd ~/dotfiles && stow .` (§3).
-3. Install packages via `pacman` and `yay` (§2).
+2. Install packages via `pacman` and `yay` (§2).
+3. Stow dotfiles: `cd ~/dotfiles && stow .` (§3).
 4. Run standalone installers (oh-my-posh, herdr) & set `chsh -s /usr/bin/fish` (§2, §4).
 5. Clone TPM and press `C-a I` in tmux (§4).
 6. Log in to Firefox sync.
@@ -138,3 +147,7 @@ Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupporte
 8. Authenticate GitHub CLI (`gh auth login`).
 9. Configure KDE Plasma settings (§5).
 10. Install & patch DaVinci Resolve (§5).
+
+## 7. Tests
+
+Run `tests/trash.sh`, `tests/to_resolve.sh`, and `tests/godot-nvim.sh` from the repo root.
