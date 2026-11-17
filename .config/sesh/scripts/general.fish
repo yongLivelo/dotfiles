@@ -1,9 +1,10 @@
 #!/usr/bin/fish
 
+set -l cwd (pwd)
 tmux rename-window console
-tmux split-window -h -p 50
-tmux new-window -n editor
-tmux split-window -h -p 40
+tmux split-window -h -p 50 -c "$cwd"
+tmux new-window -n editor -c "$cwd"
+tmux split-window -h -p 40 -c "$cwd"
 tmux select-pane -t 1
 if test -f project.godot
     tmux send-keys 'nvim -c "lua require[[persistence]].load()" -c GodotPin' C-m
