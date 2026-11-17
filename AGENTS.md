@@ -45,7 +45,7 @@ stow --delete . # remove symlinks
 - `imv` aliases `imv-dir` (opens directory so arrow keys cycle images)
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
-- In Neovim, `Ctrl-C` in normal mode quits (`<cmd>qa<cr>`)
+- In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
 - In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more (wallpaper path in `.config/noctalia/noctalia-config.toml` points to `others/backgrounds/`)
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
