@@ -2,7 +2,7 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
-vim.keymap.set({ "n", "i", "v" }, "<C-c>", "<cmd>qa<cr>", { desc = "Quit Neovim" })
+vim.keymap.set("n", "<C-c>", "<cmd>qa<cr>", { desc = "Quit Neovim" })
 vim.keymap.set({ "n", "i", "v" }, "<C-S-c>", "<cmd>wqa!<cr>", { desc = "Save and quit" })
 
 vim.keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h")
