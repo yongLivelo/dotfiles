@@ -25,5 +25,6 @@ if [ -z "$sock" ] || ! nvim --server "$sock" --remote-expr '1' >/dev/null 2>&1; 
 	exec kitty nvim "+$line" "$file"
 fi
 
+# --remote-expr evaluates Vim script: a quote is escaped by doubling it
 escaped=$(printf %s "$file" | sed "s/'/''/g")
 nvim --server "$sock" --remote-expr "execute('edit +$line ' . fnameescape('$escaped'))" >/dev/null

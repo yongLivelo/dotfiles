@@ -7,10 +7,12 @@ vim.g.root_spec = { ".git", "lsp", "cwd" }
 -- let external tools (Godot) open files in this instance; see ~/.local/bin/godot-nvim
 local runtime = vim.env.XDG_RUNTIME_DIR or "/tmp"
 local sock = ("%s/nvim-%d.sock"):format(runtime, vim.fn.getpid())
-pcall(vim.fn.serverstart, sock)
+local ok, started = pcall(vim.fn.serverstart, sock)
+local listening = ok and started ~= nil and started ~= 0
 
 -- register this instance for the current Godot project (or cwd), without hijacking a live owner
 local projects = runtime .. "/nvim-projects"
+local map
 local function project_root()
   local cwd = vim.fn.getcwd()
   return vim.fs.root(cwd, "project.godot") or cwd
@@ -21,7 +23,7 @@ local function is_alive(s)
     return false
   end
   if s == sock then
-    return true
+    return listening
   end
   if not vim.uv.fs_stat(s) then
     return false
@@ -36,12 +38,15 @@ end
 
 local function register(force)
   local root = project_root()
-  local map = ("%s/%s"):format(projects, vim.fn.sha256(root))
+  map = ("%s/%s"):format(projects, vim.fn.sha256(root))
   if not force then
     local ok, lines = pcall(vim.fn.readfile, map)
     if ok and is_alive(lines[1]) then
       return false, root
     end
+  end
+  if not listening then
+    return false, root
   end
   vim.fn.mkdir(projects, "p")
   pcall(vim.fn.writefile, { sock }, map)
@@ -54,7 +59,19 @@ vim.api.nvim_create_autocmd("DirChanged", {
     register(false)
   end,
 })
+vim.api.nvim_create_autocmd("VimLeave", {
+  callback = function()
+    local ok, lines = pcall(vim.fn.readfile, map)
+    if ok and lines[1] == sock then
+      vim.fn.delete(map)
+    end
+  end,
+})
 vim.api.nvim_create_user_command("GodotPin", function()
-  local _, root = register(true)
-  vim.notify("Godot pinned to this nvim (" .. root .. ")")
+  local pinned, root = register(true)
+  if pinned then
+    vim.notify("Godot pinned to this nvim (" .. root .. ")")
+  else
+    vim.notify("GodotPin failed: could not start the nvim socket (" .. root .. ")", vim.log.levels.ERROR)
+  end
 end, { desc = "Pin this nvim as the Godot target for the current project" })
