@@ -8,7 +8,8 @@ repo=$(dirname -- "$(readlink -f -- "$0")")/..
 work=$(mktemp -d "${TMPDIR:-/tmp}/godot-nvim-test.XXXXXX") || exit 1
 sock="$work/gd.sock"
 pid=
-trap 'test -n "$pid" && kill "$pid" 2>/dev/null; rm -rf -- "$work"' EXIT
+opid=
+trap 'test -n "$pid" && kill "$pid" 2>/dev/null; test -n "$opid" && kill "$opid" 2>/dev/null; rm -rf -- "$work"' EXIT
 
 if ! command -v nvim >/dev/null; then
   echo "skip: nvim not installed"
@@ -46,14 +47,28 @@ check 0 "$?" 'external editor exits 0'
 check "$root/main.gd" "$(nvim --server "$sock" --remote-expr 'bufname("%")')" 'opens the exact path'
 check 42 "$(nvim --server "$sock" --remote-expr 'line(".")')" 'jumps to the given line'
 
-# an nvim that owns a project map must drop it on exit, or Godot sees a dead socket
+# an nvim that owns a project map must register a live socket, then drop the map on exit
 other="$work/other"
 mkdir -p "$other"
 : >"$other/project.godot"
-(cd "$other" && nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" -c 'qa!') >/dev/null 2>&1
-check 0 "$?" 'options.lua exits cleanly'
+(cd "$other" && nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/other.pid")
+opid=$(cat "$work/other.pid")
 hash=$(printf %s "$other" | sha256sum | cut -d' ' -f1)
-check no "$(present "$work/rt/nvim-projects/$hash")" 'project map removed on exit'
+omap="$work/rt/nvim-projects/$hash"
+registered=no
+for _ in $(seq 1 50); do
+  [ -f "$omap" ] && registered=yes && break
+  sleep 0.1
+done
+check yes "$registered" 'running nvim registers the project socket'
+sock_path=$(cat "$omap" 2>/dev/null)
+check 1 "$(nvim --server "$sock_path" --remote-expr '1' 2>/dev/null)" 'registered socket is live'
+nvim --server "$sock_path" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
+for _ in $(seq 1 50); do
+  [ -e "$omap" ] || break
+  sleep 0.1
+done
+check no "$(present "$omap")" 'project map removed on exit'
 
 [ "$fails" = 0 ] && echo "ok: godot-nvim"
 exit "$fails"
