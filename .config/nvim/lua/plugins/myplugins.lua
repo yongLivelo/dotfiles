@@ -236,6 +236,9 @@ return {
     ---@type obsidian.config
     opts = {
       legacy_commands = false,
+      ui = {
+        enable = false,
+      },
       workspaces = {
         {
           name = "personal",
@@ -252,6 +255,19 @@ return {
       { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Obsidian vault" },
       { "<leader>ot", "<cmd>Obsidian today<cr>", desc = "Today's daily note" },
       { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Show backlinks" },
+    },
+  },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    opts = {
+      pipe_table = {
+        enabled = true,
+        preset = "round", -- Options: "none", "round", "double", "heavy"
+        style = "full", -- Draws top and bottom borders
+      },
+      checkbox = {
+        enabled = true, -- Re-enables checkboxes if using LazyVim's markdown extra
+      },
     },
   },
 }
