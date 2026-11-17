@@ -15,6 +15,10 @@ local projects = runtime .. "/nvim-projects"
 local map
 local function project_root()
   local cwd = vim.fn.getcwd()
+  -- getcwd() is empty when nvim starts in a directory that was deleted
+  if cwd == "" then
+    cwd = vim.env.HOME or "/"
+  end
   return vim.fs.root(cwd, "project.godot") or cwd
 end
 

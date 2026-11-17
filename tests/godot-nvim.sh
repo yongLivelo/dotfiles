@@ -70,5 +70,11 @@ for _ in $(seq 1 50); do
 done
 check no "$(present "$omap")" 'project map removed on exit'
 
+# a dead cwd must not break startup: vim.fs.root asserts when getcwd() is empty
+dead="$work/dead"
+mkdir -p "$dead"
+err=$(bash -c "cd '$dead' && rmdir '$dead' && exec nvim --headless --clean --cmd 'luafile $repo/.config/nvim/lua/config/options.lua' -c 'qa!'" 2>&1)
+check '' "$err" 'startup in a deleted cwd stays quiet'
+
 [ "$fails" = 0 ] && echo "ok: godot-nvim"
 exit "$fails"
