@@ -6,25 +6,26 @@
 delete=0
 while getopts ":d" opt; do
   case $opt in
-    d) delete=1 ;;
+  d) delete=1 ;;
   esac
 done
 
 shopt -s nocaseglob nullglob
+failed=0
 
 video_fmt() {
   case "${1,,}" in
-    mov|qt) echo mov ;;
-    mkv) echo matroska ;;
-    *) echo ;;
+  mov | qt) echo mov ;;
+  mkv) echo matroska ;;
+  *) echo ;;
   esac
 }
 
 audio_fmt() {
   case "${1,,}" in
-    wav) echo wav ;;
-    aiff|aif) echo aiff ;;
-    *) echo ;;
+  wav) echo wav ;;
+  aiff | aif) echo aiff ;;
+  *) echo ;;
   esac
 }
 
@@ -39,87 +40,85 @@ already_prores_pcm() {
 
 already_pcm_audio() {
   command -v ffprobe >/dev/null 2>&1 || return 1
-  local v bad
+  local v audio bad
   v=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
   [ -z "$v" ] || return 1
-  bad=$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1" | grep -v '^pcm_')
-  [ -n "$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")" ] && [ -z "$bad" ]
+  audio=$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
+  [ -n "$audio" ] || return 1
+  bad=$(printf '%s\n' "$audio" | grep -v '^pcm_')
+  [ -z "$bad" ]
+}
+
+# Encode into .part, then move it over the target. Any failure sets failed, so a
+# batch run exits non-zero and a caller can tell it did not finish.
+encode() { # <input> <output> <format> [ffmpeg args...]
+  local f=$1 out=$2 fmt=$3
+  shift 3
+  local part="$out.part"
+  rm -f -- "$part"
+  if ! ffmpeg -nostdin -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
+    rm -f -- "$part"
+    failed=1
+    return
+  fi
+  if mv -f -- "$part" "$out"; then
+    [ "$delete" = 1 ] && [ "$out" != "$f" ] && rm -- "$f"
+  else
+    rm -f -- "$part"
+    failed=1
+  fi
 }
 
 # Re-encode videos to ProRes 422 + PCM. Keep the same filename/extension when the
 # container supports ProRes (.mov, .mkv); otherwise write a .mov for Resolve compatibility.
 for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   [ -f "$f" ] || continue
-  ext="${f##*.}"
-  fmt=$(video_fmt "$ext")
+  # *.ts is also TypeScript: only treat it as video when ffprobe finds a video stream
+  case "${f,,}" in
+  *.ts)
+    if command -v ffprobe >/dev/null 2>&1 &&
+      [ -z "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$f" 2>/dev/null)" ]; then
+      echo "skip: $f (not a video)"
+      continue
+    fi
+    ;;
+  esac
+  fmt=$(video_fmt "${f##*.}")
   if [ -n "$fmt" ]; then
     if already_prores_pcm "$f"; then
       echo "skip: $f (already ProRes/PCM)"
       continue
     fi
     out="$f"
-    part="$f.part"
   else
-    base="${f%.*}"
-    out="${base}.mov"
-    part="$out.part"
+    out="${f%.*}.mov"
     if [ -e "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
     fi
   fi
-
-  rm -f -- "$part"
-  # .part hides the extension, so the muxer must be named explicitly
-  if ffmpeg -nostdin -n -i "$f" \
-    -c:v prores_ks -profile:v 2 -c:a pcm_s16le \
-    -f "${fmt:-mov}" "$part"; then
-    if mv -f -- "$part" "$out"; then
-      [ "$delete" = 1 ] && [ "$out" != "$f" ] && rm -- "$f"
-    else
-      rm -f -- "$part"
-    fi
-  else
-    rm -f -- "$part"
-  fi
+  encode "$f" "$out" "$fmt" -c:v prores_ks -profile:v 2 -c:a pcm_s16le
 done
 
 # Re-encode audio to PCM. Keep the same filename/extension when the container supports PCM;
 # otherwise write a .wav for Resolve compatibility.
 for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
   [ -f "$f" ] || continue
-  ext="${f##*.}"
-  fmt=$(audio_fmt "$ext")
+  fmt=$(audio_fmt "${f##*.}")
   if [ -n "$fmt" ]; then
     if already_pcm_audio "$f"; then
       echo "skip: $f (already PCM)"
       continue
     fi
     out="$f"
-    part="$f.part"
   else
-    base="${f%.*}"
-    out="${base}.wav"
-    part="$out.part"
+    out="${f%.*}.wav"
     if [ -e "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
     fi
   fi
-
-  rm -f -- "$part"
-  if ffmpeg -nostdin -n -i "$f" \
-    -vn -c:a pcm_s24le \
-    -f "${fmt:-wav}" "$part"; then
-    if mv -f -- "$part" "$out"; then
-      [ "$delete" = 1 ] && [ "$out" != "$f" ] && rm -- "$f"
-    else
-      rm -f -- "$part"
-    fi
-  else
-    rm -f -- "$part"
-  fi
+  encode "$f" "$out" "$fmt" -vn -c:a pcm_s24le
 done
 
-
-
+exit "$failed"
