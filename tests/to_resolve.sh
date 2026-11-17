@@ -60,6 +60,19 @@ check 0 "$status" 'TypeScript .ts skipped, run exits 0'
 check yes "$(present main.ts)" 'TypeScript .ts left alone'
 check no "$(present main.mov)" 'no mov made from TypeScript'
 
+# .ts must be skipped even when ffprobe is unavailable
+bin="$work/no-ffprobe-bin"
+mkdir -p "$bin" "$work/no-ffprobe"
+ln -s "$(command -v ffmpeg)" "$bin/ffmpeg"
+(
+  cd "$work/no-ffprobe" || exit 1
+  printf 'export const x = 2\n' >main.ts
+  PATH="$bin" "$repo/.local/bin/to_resolve" >/dev/null 2>&1
+)
+status=$?
+check 0 "$status" 'TypeScript skipped without ffprobe'
+check no "$(present "$work/no-ffprobe/main.mov")" 'no mov from TypeScript without ffprobe'
+
 # standalone audio: mp3 -> pcm_s24le wav, then skipped on the next run
 ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a libmp3lame -y tone.mp3
 "$repo/.local/bin/to_resolve" >/dev/null
@@ -79,6 +92,23 @@ status=$?
 check 1 "$status" 'failed conversion exits 1'
 check no "$(present bad.mov)" 'failed conversion leaves no output'
 check yes "$(present bad.mp4)" 'failed conversion keeps the original'
+
+# an unknown flag must not be silently ignored
+clip flag.mp4
+"$repo/.local/bin/to_resolve" -D >/dev/null 2>&1
+status=$?
+check 2 "$status" 'unknown flag exits 2'
+check no "$(present flag.mov)" 'unknown flag converts nothing'
+
+# a successful conversion must not dump ffmpeg's banner on stderr
+mkdir -p "$work/quiet"
+clip "$work/quiet/quiet.mp4"
+(
+  cd "$work/quiet" || exit 1
+  err=$("$repo/.local/bin/to_resolve" 2>&1 >/dev/null)
+  case $err in *"ffmpeg version"*) exit 1 ;; *) exit 0 ;; esac
+)
+check 0 "$?" 'conversion keeps ffmpeg quiet'
 
 [ "$fails" = 0 ] && echo "ok: to_resolve"
 exit "$fails"

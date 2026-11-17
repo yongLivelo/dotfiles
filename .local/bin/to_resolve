@@ -7,6 +7,7 @@ delete=0
 while getopts ":d" opt; do
   case $opt in
   d) delete=1 ;;
+  \?) printf 'usage: to_resolve [-d]\n' >&2; exit 2 ;;
   esac
 done
 
@@ -56,7 +57,7 @@ encode() { # <input> <output> <format> [ffmpeg args...]
   shift 3
   local part="$out.part"
   rm -f -- "$part"
-  if ! ffmpeg -nostdin -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
+  if ! ffmpeg -nostdin -loglevel error -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
     rm -f -- "$part"
     failed=1
     return
@@ -76,8 +77,11 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
   # *.ts is also TypeScript: only treat it as video when ffprobe finds a video stream
   case "${f,,}" in
   *.ts)
-    if command -v ffprobe >/dev/null 2>&1 &&
-      [ -z "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$f" 2>/dev/null)" ]; then
+    command -v ffprobe >/dev/null 2>&1 || {
+      echo "skip: $f (ffprobe unavailable)"
+      continue
+    }
+    if [ -z "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$f" 2>/dev/null)" ]; then
       echo "skip: $f (not a video)"
       continue
     fi
