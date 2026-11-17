@@ -19,25 +19,13 @@ wallpaper_scheme = "m3-content"
 
     [theme.templates]
     builtin_ids = [ "btop", "cava", "gtk3", "gtk4", "kitty", "niri", "qt" ]
-    community_ids = [ "opencode", "pywalfox", "lazygit", "yazi" ]
+    community_ids = [ "pywalfox", "lazygit", "yazi" ]
 
 [wallpaper]
-directory = "/home/julio/dotfiles/others/backgrounds"
+directory = "~/dotfiles/others/backgrounds"
 
     [wallpaper.default]
-    path = "/home/julio/dotfiles/others/backgrounds/tokyonight_original.png"
-
-    [wallpaper.last]
-    path = "/home/julio/dotfiles/others/backgrounds/tokyonight_original.png"
-
-    [wallpaper.monitors.DP-1]
-    path = "/home/julio/dotfiles/others/backgrounds/tokyonight_original.png"
-
-    [wallpaper.monitors.HDMI-A-1]
-    path = "/home/julio/dotfiles/others/backgrounds/tokyonight_original.png"
-
-    [wallpaper.monitors.eDP-1]
-    path = "/home/julio/dotfiles/others/backgrounds/tokyonight_original.png"
+    path = "~/dotfiles/others/backgrounds/tokyonight_original.png"
 
 [widget.Hibernate]
 glyph = "hibernate"
