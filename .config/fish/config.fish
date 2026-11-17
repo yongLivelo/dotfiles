@@ -1,16 +1,9 @@
 if status is-interactive
     set -gx JAVA_HOME /usr/lib/jvm/(archlinux-java get)
     fish_add_path $JAVA_HOME/bin
-    set -gx nvm_default_version latest
     set -gx EDITOR nvim
 
     set -g fish_greeting
-    set -gx FZF_DEFAULT_OPTS " \
-        --color=bg:#1a1b26,bg+:#292e42,fg:#c0caf5,fg+:#c0caf5 \
-        --color=hl:#2ac3de,hl+:#2ac3de,info:#545c7e,marker:#bb9af7 \
-        --color=prompt:#7aa2f7,spinner:#2ac3de,pointer:#bb9af7 \
-        --color=border:#3b4261,header:#9ece6a,gutter:#1a1b26 \
-        --color=query:#c0caf5,scrollbar:#3b4261"
     oh-my-posh init fish --config ~/.config/fish/theme.json | source
 
     set -g fish_key_bindings fish_vi_key_bindings
