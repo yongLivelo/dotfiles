@@ -1,6 +1,8 @@
 if status is-interactive
-    set -gx JAVA_HOME /usr/lib/jvm/(archlinux-java get)
-    fish_add_path $JAVA_HOME/bin
+    if type -q archlinux-java
+        set -gx JAVA_HOME /usr/lib/jvm/(archlinux-java get)
+        fish_add_path $JAVA_HOME/bin
+    end
     set -gx EDITOR nvim
 
     set -g fish_greeting
