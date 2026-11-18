@@ -25,11 +25,13 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
   nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip pgformatter \
-  texlive cairo pango python-matplotlib tk
+  texlive cairo pango python-matplotlib tk stylua
 
 # Media, fonts & desktop apps
-sudo pacman -S ttf-jetbrains-mono noto-fonts noto-fonts-cjk noto-fonts-emoji \
-  mpv ffmpeg easyeffects kdenlive audacity obs-studio haruna cava rnote \
+# ttf-jetbrains-mono-nerd supplies the Nerd Font icons used by the fish prompt
+# and LazyVim; the plain package is what kitty's font family resolves to.
+sudo pacman -S ttf-jetbrains-mono ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
+  mpv ffmpeg imagemagick easyeffects kdenlive audacity obs-studio haruna cava rnote \
   imv zathura zathura-pdf-mupdf wl-clipboard wl-clip-persist \
   firefox firefoxpwa telegram-desktop discord libreoffice-still godot
 ```
@@ -72,14 +74,19 @@ stow --delete .  # undo
 ## 4. Shell & Terminal
 
 ### Fish
+
 Set fish as login shell:
+
 ```bash
 chsh -s /usr/bin/fish
 ```
+
 Plugins (`fisher`, `nvm.fish`), prompt, and aliases are pre-configured in `.config/fish/`.
 
 ### Tmux
+
 Install plugins (`C-a I` after cloning):
+
 ```bash
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
@@ -89,37 +96,46 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ## 5. App Setup
 
 ### OpenCode
+
 1. **Authentication:** Run `opencode auth login` (or import via `opencode auth import < backup.json`). Environment keys go in `~/.config/opencode/.env`.
 2. **Service password:** Generated in `~/.config/opencode/service.json` on first run (or set via `opencode service set password <pass>`).
 3. **MCPs:** Configured in `.config/opencode/opencode.jsonc`. Add tokens (e.g. `GITHUB_PERSONAL_ACCESS_TOKEN`) to `~/.config/opencode/.env`. Check with `opencode mcp list`.
 4. **Graphify skill:** `uv tool install graphifyy && graphify install`.
 5. **Theme:** built-in `tokyonight` in `cli.json`; Noctalia does not generate an OpenCode theme.
+6. **Skills:** local skills live in `.config/opencode/skills/<name>/SKILL.md` (e.g. `socratic-tutor`); OpenCode loads one when its description matches the task.
 
 ### Godot
+
 In Editor → Editor Settings → **Text Editor → External**:
+
 - Enable **Use External Editor**
 - Exec Path: `~/.local/bin/godot-nvim`
 - Exec Flags: `{file} {line}`
 
-Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance.
+Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance until its next `:cd`.
 
 ### VS Code
+
 Run `.local/bin/vscode-task-gen [dir]` to create `.vscode/tasks.json` with a shell task; it prompts for the label, command, and working directory.
 
 ### Git & GitHub
+
 ```bash
 ssh-keygen -t ed25519 -C "<email>"  # skip if ~/.ssh/id_ed25519 exists
 gh auth login  # SSH -> uploads ~/.ssh/id_ed25519.pub -> paste token
 ```
 
 ### KDE Plasma (Fallback Session)
+
 Log into Plasma once to configure:
+
 1. **Login screen:** Select wallpaper from `others/backgrounds/`.
 2. **Theme:** Breeze Dark.
 3. **User:** Create standard account `user` / `password`.
 4. **Mouse:** Acceleration Profile: **Flat**, Speed: `0.4`.
 
 ### DaVinci Resolve Studio 21
+
 Download Linux `.zip` from Blackmagic support, then install with OpenCL support:
 
 ```bash
@@ -130,6 +146,7 @@ sudo pacman -S opencl-mesa
 ```
 
 Apply license bypass patches:
+
 ```bash
 cd /opt/resolve
 sudo perl -pi -e 's/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\x74\x11\x48\x8B\x45\xC8\x8B/\x03\x00\x89\x45\xFC\x83\x7D\xFC\x00\xEB\x11\x48\x8B\x45\xC8\x8B/g' bin/resolve
@@ -140,6 +157,7 @@ sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\
 Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`).
 
 ### Manim
+
 Install system dependencies, then create and verify a project with `uv`:
 
 ```bash
@@ -166,4 +184,4 @@ uv run manim checkhealth
 
 ## 7. Tests
 
-Run `tests/trash.sh`, `tests/to_resolve.sh`, and `tests/godot-nvim.sh` from the repo root.
+Run `tests/trash.sh`, `tests/to_resolve.sh`, `tests/godot-nvim.sh`, and `tests/vscode-task-gen.sh` from the repo root.
