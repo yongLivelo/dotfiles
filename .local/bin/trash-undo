@@ -32,8 +32,14 @@ while IFS= read -r date; do
       echo "exists, skipped: $path"
       continue
     fi
-    mkdir -p -- "$(dirname -- "$path")" || continue
-    mv -- "$trash/files/$name" "$path" || continue
+    mkdir -p -- "$(dirname -- "$path")" || {
+      echo "failed: $path" >&2
+      continue
+    }
+    mv -- "$trash/files/$name" "$path" || {
+      echo "failed: $path" >&2
+      continue
+    }
     rm -f -- "$info"
     echo "restored: $path"
     # shortcut: newline-delimited state, so a path containing a newline can't be redone

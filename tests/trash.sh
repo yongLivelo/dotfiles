@@ -7,7 +7,7 @@
 set -u
 repo=$(dirname -- "$(readlink -f -- "$0")")/..
 work=$(mktemp -d "$HOME/.cache/trash-test.XXXXXX") || exit 1
-trap 'rm -rf -- "$work"' EXIT
+trap 'chmod -R u+rwX -- "$work" 2>/dev/null; rm -rf -- "$work"' EXIT
 
 export XDG_DATA_HOME="$work/data"
 export XDG_STATE_HOME="$work/state"
@@ -16,14 +16,7 @@ state="$XDG_STATE_HOME/trash-redo"
 src="$work/src"
 mkdir -p "$trash/files" "$trash/info" "$src"
 
-fails=0
-check() { # <expected> <actual> <what>
-  [ "$1" = "$2" ] || {
-    echo "FAIL: $3: got '$2', want '$1'"
-    fails=$((fails + 1))
-  }
-}
-present() { [ -e "$1" ] || [ -L "$1" ] && echo yes || echo no; }
+source "$repo/tests/lib.sh"
 
 # fake a delete: file into Trash/files, spec-encoded path into Trash/info
 trash_one() { # <name> <encoded-path> <deletion-date>
@@ -84,6 +77,15 @@ check yes "$(present "$trash/info/blocked.txt.trashinfo")" 'blocked .trashinfo k
 "$repo/.local/bin/trash-redo" >/dev/null
 check no "$(present "$src/earlier.txt")" 'redo re-trashes earlier.txt'
 check 'nothing to redo' "$("$repo/.local/bin/trash-redo" 2>&1)" 'empty state reports nothing to redo'
+
+# a restore that cannot write must say so instead of looking successful
+mkdir -p "$src/ro"
+trash_one 'locked.txt' "$src/ro/locked.txt" '2099-01-03T00:00:00'
+chmod 500 "$src/ro"
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+chmod 700 "$src/ro"
+case $out in *"failed: $src/ro/locked.txt"*) ;; *) echo "FAIL: unwritable restore output: $out"; fails=$((fails + 1)) ;; esac
+check yes "$(present "$trash/info/locked.txt.trashinfo")" 'failed restore keeps the .trashinfo'
 
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
