@@ -253,7 +253,6 @@ return {
       { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New Obsidian note" },
       { "<leader>oo", "<cmd>Obsidian quick_switch<cr>", desc = "Open Obsidian note" },
       { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Obsidian vault" },
-      { "<leader>ot", "<cmd>Obsidian today<cr>", desc = "Today's daily note" },
       { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Show backlinks" },
     },
   },
