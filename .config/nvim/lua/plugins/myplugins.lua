@@ -270,4 +270,16 @@ return {
       end, {})
     end,
   },
+  {
+    "lewis6991/gitsigns.nvim",
+    opts = function(_, opts)
+      local orig = opts.on_attach
+      opts.on_attach = function(buf)
+        if orig then
+          orig(buf)
+        end
+        vim.keymap.set("n", "<leader>ghD", "<cmd>Gitsigns diff<cr>", { buffer = buf, desc = "Diff Repo", silent = true })
+      end
+    end,
+  },
 }
