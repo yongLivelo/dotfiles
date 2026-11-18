@@ -118,31 +118,11 @@ return {
   },
   {
     "ThePrimeagen/harpoon",
-    branch = "harpoon2",
-    opts = {
-      settings = {
-        save_on_toggle = true,
-      },
-    },
-    keys = function()
-      local keys = {
-        {
-          "<leader>h",
-          function()
-            local harpoon = require("harpoon")
-            harpoon.ui:toggle_quick_menu(harpoon:list())
-          end,
-          desc = "Harpoon Quick Menu",
-        },
-      }
+    -- LazyVim's harpoon2 extra already sets the plugin, opts and <leader>H/h/1-9;
+    -- a keys function inherits those, so only add the slot-replace maps here.
+    keys = function(_, keys)
+      keys = keys or {}
       for i = 1, 9 do
-        keys[#keys + 1] = {
-          "<leader>" .. i,
-          function()
-            require("harpoon"):list():select(i)
-          end,
-          desc = "Harpoon to File " .. i,
-        }
         keys[#keys + 1] = {
           "<leader>a" .. i,
           function()
@@ -251,7 +231,7 @@ return {
     },
     keys = {
       { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New Obsidian note" },
-      { "<leader>oo", "<cmd>Obsidian quick_switch<cr>", desc = "Open Obsidian note" },
+      { "<leader>oq", "<cmd>Obsidian quick_switch<cr>", desc = "Open Obsidian note" },
       { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Obsidian vault" },
       { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Show backlinks" },
     },
@@ -268,5 +248,26 @@ return {
         enabled = true, -- Re-enables checkboxes if using LazyVim's markdown extra
       },
     },
+  },
+
+  {
+    "stevearc/overseer.nvim",
+    keys = {
+      { "<leader>or", "<cmd>OverseerRun<cr>", desc = "Run task" },
+      { "<leader>ol", "<cmd>OverseerRestartLast<cr>", desc = "Restart last task" },
+    },
+    -- LazyVim's overseer extra already calls overseer.setup(); only add the custom command here.
+    init = function()
+      vim.api.nvim_create_user_command("OverseerRestartLast", function()
+        local overseer = require("overseer")
+        -- default sort is newest first; finished-first would restart an older task
+        local tasks = overseer.list_tasks()
+        if vim.tbl_isempty(tasks) then
+          vim.notify("No tasks found", vim.log.levels.WARN)
+        else
+          overseer.run_action(tasks[1], "restart")
+        end
+      end, {})
+    end,
   },
 }

@@ -3,7 +3,7 @@
 -- Add any additional keymaps here
 
 vim.keymap.set("n", "<C-c>", "<cmd>qa<cr>", { desc = "Quit Neovim" })
-vim.keymap.set({ "n", "i", "v" }, "<C-S-c>", "<cmd>wqa!<cr>", { desc = "Save and quit" })
+vim.keymap.set({ "n", "i", "v" }, "<C-S-c>", "<cmd>wqa<cr>", { desc = "Save and quit" })
 
 vim.keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h")
 vim.keymap.set("t", "<C-j>", "<C-\\><C-n><C-w>j")
