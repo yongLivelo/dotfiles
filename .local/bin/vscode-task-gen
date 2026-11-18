@@ -5,34 +5,40 @@ dir="${1:-.}"
 vscode_dir="$dir/.vscode"
 out="$vscode_dir/tasks.json"
 
-mkdir -p "$vscode_dir"
+# ask <prompt> <variable>; stop instead of leaving a half-written setup on EOF
+ask() {
+  printf '%s' "$1" >&2
+  if ! read -r "$2"; then
+    echo >&2
+    echo "Aborted." >&2
+    exit 1
+  fi
+}
 
 if [ -f "$out" ]; then
   printf "tasks.json already exists at %s\n" "$out" >&2
-  printf "Overwrite? [y/N] " >&2
-  read -r ans
+  ask "Overwrite? [y/N] " ans
   case "$ans" in
     [yY]*) ;;
     *) echo "Aborted." >&2; exit 1 ;;
   esac
 fi
 
-printf "Task label [Run command]: " >&2
-read -r label
+ask "Task label [Run command]: " label
 label="${label:-Run command}"
 
-printf "Command to run (required): " >&2
-read -r cmd
+ask "Command to run (required): " cmd
 if [ -z "$cmd" ]; then
   echo "Command cannot be empty." >&2
   exit 1
 fi
 
-printf "Working directory [\${workspaceFolder}]: " >&2
-read -r cwd
+ask "Working directory [\${workspaceFolder}]: " cwd
 [ -n "$cwd" ] || cwd='${workspaceFolder}'
 
-tmp="$out.tmp"
+mkdir -p "$vscode_dir"
+
+tmp="$out.tmp.$$"
 if python3 -c "
 import json, sys
 
@@ -54,8 +60,7 @@ data = {
 }
 json.dump(data, sys.stdout, indent=2)
 print()
-" "$label" "$cmd" "$cwd" > "$tmp"; then
-  mv "$tmp" "$out"
+" "$label" "$cmd" "$cwd" > "$tmp" && mv "$tmp" "$out"; then
   echo "Wrote $out"
 else
   rm -f "$tmp"

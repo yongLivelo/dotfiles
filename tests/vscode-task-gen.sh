@@ -26,6 +26,11 @@ printf 'foo\ncmd\n/tmp/x\n' | "$gen" p1 >/dev/null 2>&1
 check 0 "$?" 'typed cwd run exits 0'
 check /tmp/x "$(cwd_of p1/.vscode/tasks.json)" 'typed cwd preserved verbatim'
 
+# stdin at EOF must abort without leaving a .vscode folder behind
+"$gen" p5 </dev/null >/dev/null 2>&1
+check 1 "$?" 'EOF at a prompt exits 1'
+check no "$(present p5/.vscode)" 'EOF creates no .vscode folder'
+
 # a blank working directory falls back to ${workspaceFolder}
 printf 'foo\ncmd\n\n' | "$gen" p2 >/dev/null 2>&1
 check 0 "$?" 'blank cwd run exits 0'
@@ -43,6 +48,11 @@ printf 'n\n' | "$gen" p4 >/dev/null 2>&1
 check 1 "$?" 'declining overwrite exits 1'
 check "$before" "$(cat p4/.vscode/tasks.json)" 'declining overwrite keeps the file'
 
+# EOF at the overwrite prompt also aborts and keeps the file
+"$gen" p4 </dev/null >/dev/null 2>&1
+check 1 "$?" 'EOF at the overwrite prompt exits 1'
+check "$before" "$(cat p4/.vscode/tasks.json)" 'EOF at the overwrite prompt keeps the file'
+
 # a failing writer must not clobber the existing file
 bin="$work/bin"
 mkdir -p "$bin"
@@ -51,7 +61,7 @@ chmod +x "$bin/python3"
 printf 'y\nfoo\ncmd\n\n' | PATH="$bin:$PATH" "$gen" p4 >/dev/null 2>&1
 check 1 "$?" 'failing writer exits 1'
 check "$before" "$(cat p4/.vscode/tasks.json)" 'failing writer keeps the file'
-check no "$(present p4/.vscode/tasks.json.tmp)" 'failing writer leaves no temp file'
+check '' "$(compgen -G 'p4/.vscode/tasks.json.*')" 'failing writer leaves no temp file'
 
 [ "$fails" = 0 ] && echo "ok: vscode-task-gen"
 exit "$fails"
