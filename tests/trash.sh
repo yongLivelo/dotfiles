@@ -26,6 +26,12 @@ trash_one() { # <name> <encoded-path> <deletion-date>
     >"$trash/info/$1.trashinfo"
 }
 
+# metadata whose payload is already gone (some cleaner emptied Trash/files)
+trash_info_only() { # <name> <encoded-path> <deletion-date>
+  printf '[Trash Info]\nPath=%s\nDeletionDate=%s\n' "$2" "$3" \
+    >"$trash/info/$1.trashinfo"
+}
+
 new=2026-01-02T03:04:05
 old=2026-01-01T00:00:00
 trash_one 'a b.txt' "$src/a%20b.txt" "$new"
@@ -66,16 +72,25 @@ check no "$(present "$state/batch.ZZZ")" 'stale batch pruned'
 check no "$(present "$state/batch.AAA")" 'symlink batch consumed'
 case $out in *"trashed: $src/link"*) ;; *) echo "FAIL: redo output: $out"; fails=$((fails + 1)) ;; esac
 
-# an already-existing destination file must be skipped and allow walking back to earlier batch
+# a fully blocked newest batch must stop undo, not skip ahead to an older batch
 trash_one 'blocked.txt' "$src/blocked.txt" '2099-01-02T00:00:00'
 trash_one 'earlier.txt' "$src/earlier.txt" '2099-01-01T00:00:00'
 echo "pre-existing" >"$src/blocked.txt"
 "$repo/.local/bin/trash-undo" >/dev/null
-check yes "$(present "$src/earlier.txt")" 'undo walks back past skipped existing file'
+check no "$(present "$src/earlier.txt")" 'blocked newest batch does not restore older batch'
 check yes "$(present "$trash/info/blocked.txt.trashinfo")" 'blocked .trashinfo kept'
+check 0 "$(ls "$state"/batch.* 2>/dev/null | wc -l)" 'blocked batch records no redo'
+
+rm -- "$src/blocked.txt"
+"$repo/.local/bin/trash-undo" >/dev/null
+check yes "$(present "$src/blocked.txt")" 'unblocked newest batch restored'
+"$repo/.local/bin/trash-undo" >/dev/null
+check yes "$(present "$src/earlier.txt")" 'older batch restored after newest'
 
 "$repo/.local/bin/trash-redo" >/dev/null
 check no "$(present "$src/earlier.txt")" 'redo re-trashes earlier.txt'
+"$repo/.local/bin/trash-redo" >/dev/null
+check no "$(present "$src/blocked.txt")" 'redo re-trashes blocked.txt'
 check 'nothing to redo' "$("$repo/.local/bin/trash-redo" 2>&1)" 'empty state reports nothing to redo'
 
 # a restore that cannot write must say so instead of looking successful
@@ -83,9 +98,23 @@ mkdir -p "$src/ro"
 trash_one 'locked.txt' "$src/ro/locked.txt" '2099-01-03T00:00:00'
 chmod 500 "$src/ro"
 out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
 chmod 700 "$src/ro"
+check 1 "$status" 'unwritable restore exits 1'
 case $out in *"failed: $src/ro/locked.txt"*) ;; *) echo "FAIL: unwritable restore output: $out"; fails=$((fails + 1)) ;; esac
 check yes "$(present "$trash/info/locked.txt.trashinfo")" 'failed restore keeps the .trashinfo'
+check no "$(present "$src/blocked.txt")" 'failed restore does not walk back to blocked.txt'
+check no "$(present "$src/earlier.txt")" 'failed restore does not walk back to earlier.txt'
+
+# metadata whose payload is gone must be dropped, not block the batch behind it
+trash_info_only 'ghost.txt' "$src/ghost.txt" '2099-02-02T00:00:00'
+trash_one 'real.txt' "$src/real.txt" '2099-02-01T00:00:00'
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
+check 0 "$status" 'ghost entry does not fail undo'
+check yes "$(present "$src/real.txt")" 'undo restores the batch behind a ghost entry'
+check no "$(present "$trash/info/ghost.txt.trashinfo")" 'ghost metadata removed'
+case $out in *"missing: $src/ghost.txt"*) ;; *) echo "FAIL: ghost output: $out"; fails=$((fails + 1)) ;; esac
 
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
