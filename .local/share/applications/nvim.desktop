@@ -10,4 +10,4 @@ Keywords=Text;editor;
 Icon=nvim
 Categories=Utility;TextEditor;
 StartupNotify=false
-MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;
+MimeType=text/english;text/plain;text/markdown;text/x-markdown;text/x-log;text/x-makefile;text/x-c++hdr;text/x-c++src;
