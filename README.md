@@ -24,7 +24,8 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
 
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
-  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip pgformatter
+  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip pgformatter \
+  texlive cairo pango python-matplotlib tk
 
 # Media, fonts & desktop apps
 sudo pacman -S ttf-jetbrains-mono noto-fonts noto-fonts-cjk noto-fonts-emoji \
@@ -134,6 +135,18 @@ sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\
 ```
 
 Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`).
+
+### Manim
+Install system dependencies, then create and verify a project with `uv`:
+
+```bash
+sudo pacman -Syu base-devel cairo pango  # also in §2
+
+uv init manimations
+cd manimations
+uv add manim
+uv run manim checkhealth
+```
 
 ## 6. Rebuild Checklist
 
