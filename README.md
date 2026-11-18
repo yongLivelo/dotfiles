@@ -19,7 +19,7 @@ timedatectl  # verify NTP service: active
 ```bash
 # Desktop, terminal, shell & essentials
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
-  xdg-desktop-portal-gtk noctalia kitty nvim tmux opencode \
+  xdg-desktop-portal-gtk noctalia kitty neovim tmux opencode \
   steam zoxide eza fzf fd git fish btop yazi stow docker kwallet
 
 # Development & tools
@@ -65,9 +65,11 @@ Repo root mirrors `$HOME`. Symlink all configs:
 
 ```bash
 cd ~/dotfiles
-stow .           # symlink configs to $HOME
-stow --delete .  # undo
+stow --no-folding .           # symlink configs to $HOME
+stow --no-folding --delete .  # undo
 ```
+
+`--no-folding` links files, never a whole directory: without it, a fresh home gets `~/.local` as one symlink into the repo, and every program that writes there (Neovim plugins, the installers below) writes into git.
 
 `others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
 
@@ -81,7 +83,7 @@ Set fish as login shell:
 chsh -s /usr/bin/fish
 ```
 
-Plugins (`fisher`, `nvm.fish`), prompt, and aliases are pre-configured in `.config/fish/`.
+Plugins (`fisher`, `nvm.fish`) are vendored in `.config/fish/` so a fresh stow gives a working shell offline; `fisher update` writes through the symlink, so it edits tracked files (commit the result). The prompt and aliases are configured in `.config/fish/`.
 
 ### Tmux
 
@@ -100,9 +102,8 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 1. **Authentication:** Run `opencode auth login` (or import via `opencode auth import < backup.json`). Environment keys go in `~/.config/opencode/.env`.
 2. **Service password:** Generated in `~/.config/opencode/service.json` on first run (or set via `opencode service set password <pass>`).
 3. **MCPs:** Configured in `.config/opencode/opencode.jsonc`. Add tokens (e.g. `GITHUB_PERSONAL_ACCESS_TOKEN`) to `~/.config/opencode/.env`. Check with `opencode mcp list`.
-4. **Graphify skill:** `uv tool install graphifyy && graphify install`.
-5. **Theme:** built-in `tokyonight` in `cli.json`; Noctalia does not generate an OpenCode theme.
-6. **Skills:** local skills live in `.config/opencode/skills/<name>/SKILL.md` (e.g. `socratic-tutor`); OpenCode loads one when its description matches the task.
+4. **Theme:** built-in `tokyonight` in `cli.json`; Noctalia does not generate an OpenCode theme.
+5. **Skills:** local skills live in `.config/opencode/skills/<name>/SKILL.md` (e.g. `socratic-tutor`); OpenCode loads one when its description matches the task.
 
 ### Godot
 
@@ -154,7 +155,7 @@ sudo perl -pi -e 's/\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00
 sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\x00\xE8)/$1\x75$2/g' bin/resolve
 ```
 
-Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`).
+Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`). It works on the whole current folder; it refuses a filename argument.
 
 ### Manim
 
@@ -173,14 +174,14 @@ uv run manim checkhealth
 
 1. Install OS defaults, timezone & NTP (§1).
 2. Install packages via `pacman` and `yay` (§2).
-3. Stow dotfiles: `cd ~/dotfiles && stow .` (§3).
+3. Stow dotfiles: `cd ~/dotfiles && stow --no-folding .` (§3).
 4. Run standalone installers (oh-my-posh, herdr) & set `chsh -s /usr/bin/fish` (§2, §4).
 5. Clone TPM and press `C-a I` in tmux (§4).
 6. Log in to Firefox sync.
-7. Configure OpenCode credentials & Graphify (§5).
+7. Configure OpenCode credentials (§5).
 8. Authenticate GitHub CLI (`gh auth login`).
 9. Configure KDE Plasma settings (§5).
-10. Install & patch DaVinci Resolve (§5).
+10. Install DaVinci Resolve (§5).
 
 ## 7. Tests
 
