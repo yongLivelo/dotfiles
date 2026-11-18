@@ -1,6 +1,6 @@
 #!/bin/sh
 # Godot external editor: open the script in the nvim instance registered for that project.
-# Each nvim registers its socket for its cwd in $XDG_RUNTIME_DIR/nvim-projects/<sha256>.
+# Each nvim registers its socket for its cwd in $XDG_RUNTIME_DIR/nvim-projects-<uid>/<sha256>.
 file=$(realpath -m -- "${1:-.}")
 line=${2:-1}
 dir=${XDG_RUNTIME_DIR:-/tmp}
@@ -13,7 +13,7 @@ done
 
 sock=
 if [ -n "$root" ]; then
-	map="$dir/nvim-projects/$(printf %s "$root" | sha256sum | cut -d' ' -f1)"
+	map="$dir/nvim-projects-$(id -u)/$(printf %s "$root" | sha256sum | cut -d' ' -f1)"
 	[ -f "$map" ] && sock=$(cat "$map")
 fi
 

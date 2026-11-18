@@ -19,8 +19,10 @@ fi
 
 source "$repo/tests/lib.sh"
 
-mkdir -p "$work/rt/nvim-projects"
+mkdir -p "$work/rt"
 export XDG_RUNTIME_DIR="$work/rt"
+maps="$work/rt/nvim-projects-$(id -u)"
+mkdir -p "$maps"
 root="$work/Bob's back\\slash"
 mkdir -p "$root"
 : >"$root/project.godot"
@@ -34,7 +36,7 @@ for _ in $(seq 1 50); do
 done
 
 hash=$(printf %s "$root" | sha256sum | cut -d' ' -f1)
-printf '%s' "$sock" >"$work/rt/nvim-projects/$hash"
+printf '%s' "$sock" >"$maps/$hash"
 
 "$repo/.local/bin/godot-nvim" "$root/main.gd" 42 7
 check 0 "$?" 'external editor exits 0'
@@ -48,7 +50,7 @@ mkdir -p "$other"
 (cd "$other" && exec nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/other.pid")
 opid=$(cat "$work/other.pid")
 hash=$(printf %s "$other" | sha256sum | cut -d' ' -f1)
-omap="$work/rt/nvim-projects/$hash"
+omap="$maps/$hash"
 registered=no
 for _ in $(seq 1 50); do
   [ -f "$omap" ] && registered=yes && break
@@ -57,6 +59,7 @@ done
 check yes "$registered" 'running nvim registers the project socket'
 sock_path=$(cat "$omap" 2>/dev/null)
 check 1 "$(nvim --headless --server "$sock_path" --remote-expr '1' 2>/dev/null)" 'registered socket is live'
+check 700 "$(stat -c %a "$work/rt/nvim-$opid.sock" 2>/dev/null)" 'registered socket is owner-only'
 nvim --headless --server "$sock_path" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
 for _ in $(seq 1 50); do
   [ -e "$omap" ] || break
@@ -72,8 +75,8 @@ mkdir -p "$a" "$b"
 : >"$b/project.godot"
 (cd "$a" && exec nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/cd.pid")
 cpid=$(cat "$work/cd.pid")
-amap="$work/rt/nvim-projects/$(printf %s "$a" | sha256sum | cut -d' ' -f1)"
-bmap="$work/rt/nvim-projects/$(printf %s "$b" | sha256sum | cut -d' ' -f1)"
+amap="$maps/$(printf %s "$a" | sha256sum | cut -d' ' -f1)"
+bmap="$maps/$(printf %s "$b" | sha256sum | cut -d' ' -f1)"
 for _ in $(seq 1 50); do
   [ -f "$amap" ] && break
   sleep 0.1
@@ -87,7 +90,29 @@ done
 check no "$(present "$amap")" 'old project map removed on :cd'
 check "$asock" "$(cat "$bmap" 2>/dev/null)" ':cd registers the same socket'
 check 1 "$(nvim --headless --server "$asock" --remote-expr '1' 2>/dev/null)" 'socket survives :cd'
+
+# :GodotPin forces the map back when another instance or a crash lost it
+rm -f "$bmap"
+nvim --headless --server "$asock" --remote-expr 'execute("GodotPin")' >/dev/null 2>&1
+check "$asock" "$(cat "$bmap" 2>/dev/null)" ':GodotPin re-registers the live socket'
 nvim --headless --server "$asock" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
+
+# no registered instance: it must start the terminal editor in the project root
+fallback="$work/fallback"
+mkdir -p "$fallback/bin"
+: >"$fallback/project.godot"
+: >"$fallback/script.gd"
+cat >"$fallback/bin/kitty" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$PWD" >"$OUT/cwd"
+printf '%s\n' "$@" >"$OUT/args"
+EOF
+chmod +x "$fallback/bin/kitty"
+OUT="$fallback" PATH="$fallback/bin:$PATH" "$repo/.local/bin/godot-nvim" "$fallback/script.gd" 7
+check "$fallback" "$(cat "$fallback/cwd" 2>/dev/null)" 'fallback opens in the project root'
+check "nvim
++7
+$fallback/script.gd" "$(cat "$fallback/args" 2>/dev/null)" 'fallback starts nvim at the line'
 
 # a dead cwd must not break startup: vim.fs.root asserts when getcwd() is empty
 dead="$work/dead"
