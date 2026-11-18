@@ -57,20 +57,25 @@ local function register(force)
   return true, root
 end
 
+-- drop the map this instance owns, so :cd or exit leaves no stale socket file behind
+local function unregister()
+  if not map then
+    return
+  end
+  local ok, lines = pcall(vim.fn.readfile, map)
+  if ok and lines[1] == sock then
+    vim.fn.delete(map)
+  end
+end
+
 register(false)
 vim.api.nvim_create_autocmd("DirChanged", {
   callback = function()
+    unregister()
     register(false)
   end,
 })
-vim.api.nvim_create_autocmd("VimLeave", {
-  callback = function()
-    local ok, lines = pcall(vim.fn.readfile, map)
-    if ok and lines[1] == sock then
-      vim.fn.delete(map)
-    end
-  end,
-})
+vim.api.nvim_create_autocmd("VimLeave", { callback = unregister })
 vim.api.nvim_create_user_command("GodotPin", function()
   local pinned, root = register(true)
   if pinned then

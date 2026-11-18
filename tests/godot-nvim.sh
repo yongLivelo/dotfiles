@@ -9,21 +9,15 @@ work=$(mktemp -d "${TMPDIR:-/tmp}/godot-nvim-test.XXXXXX") || exit 1
 sock="$work/gd.sock"
 pid=
 opid=
-trap 'test -n "$pid" && kill "$pid" 2>/dev/null; test -n "$opid" && kill "$opid" 2>/dev/null; rm -rf -- "$work"' EXIT
+cpid=
+trap 'test -n "$pid" && kill "$pid" 2>/dev/null; test -n "$opid" && kill "$opid" 2>/dev/null; test -n "$cpid" && kill "$cpid" 2>/dev/null; rm -rf -- "$work"' EXIT
 
 if ! command -v nvim >/dev/null; then
   echo "skip: nvim not installed"
   exit 0
 fi
 
-fails=0
-check() { # <expected> <actual> <what>
-  [ "$1" = "$2" ] || {
-    echo "FAIL: $3: got '$2', want '$1'"
-    fails=$((fails + 1))
-  }
-}
-present() { [ -e "$1" ] || [ -L "$1" ] && echo yes || echo no; }
+source "$repo/tests/lib.sh"
 
 mkdir -p "$work/rt/nvim-projects"
 export XDG_RUNTIME_DIR="$work/rt"
@@ -35,7 +29,7 @@ printf 'extends Node\n%.0s' $(seq 1 60) >"$root/main.gd"
 nvim --headless --clean --listen "$sock" >/dev/null 2>&1 &
 pid=$!
 for _ in $(seq 1 50); do
-  nvim --server "$sock" --remote-expr '1' >/dev/null 2>&1 && break
+  nvim --headless --server "$sock" --remote-expr '1' >/dev/null 2>&1 && break
   sleep 0.1
 done
 
@@ -44,14 +38,14 @@ printf '%s' "$sock" >"$work/rt/nvim-projects/$hash"
 
 "$repo/.local/bin/godot-nvim" "$root/main.gd" 42 7
 check 0 "$?" 'external editor exits 0'
-check "$root/main.gd" "$(nvim --server "$sock" --remote-expr 'bufname("%")')" 'opens the exact path'
-check 42 "$(nvim --server "$sock" --remote-expr 'line(".")')" 'jumps to the given line'
+check "$root/main.gd" "$(nvim --headless --server "$sock" --remote-expr 'bufname("%")')" 'opens the exact path'
+check 42 "$(nvim --headless --server "$sock" --remote-expr 'line(".")')" 'jumps to the given line'
 
 # an nvim that owns a project map must register a live socket, then drop the map on exit
 other="$work/other"
 mkdir -p "$other"
 : >"$other/project.godot"
-(cd "$other" && nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/other.pid")
+(cd "$other" && exec nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/other.pid")
 opid=$(cat "$work/other.pid")
 hash=$(printf %s "$other" | sha256sum | cut -d' ' -f1)
 omap="$work/rt/nvim-projects/$hash"
@@ -62,13 +56,38 @@ for _ in $(seq 1 50); do
 done
 check yes "$registered" 'running nvim registers the project socket'
 sock_path=$(cat "$omap" 2>/dev/null)
-check 1 "$(nvim --server "$sock_path" --remote-expr '1' 2>/dev/null)" 'registered socket is live'
-nvim --server "$sock_path" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
+check 1 "$(nvim --headless --server "$sock_path" --remote-expr '1' 2>/dev/null)" 'registered socket is live'
+nvim --headless --server "$sock_path" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
 for _ in $(seq 1 50); do
   [ -e "$omap" ] || break
   sleep 0.1
 done
 check no "$(present "$omap")" 'project map removed on exit'
+
+# :cd must move the registration: old map gone, same live socket under the new root
+a="$work/proj-a"
+b="$work/proj-b"
+mkdir -p "$a" "$b"
+: >"$a/project.godot"
+: >"$b/project.godot"
+(cd "$a" && exec nvim --headless --clean --cmd "luafile $repo/.config/nvim/lua/config/options.lua" >/dev/null 2>&1 & echo $! >"$work/cd.pid")
+cpid=$(cat "$work/cd.pid")
+amap="$work/rt/nvim-projects/$(printf %s "$a" | sha256sum | cut -d' ' -f1)"
+bmap="$work/rt/nvim-projects/$(printf %s "$b" | sha256sum | cut -d' ' -f1)"
+for _ in $(seq 1 50); do
+  [ -f "$amap" ] && break
+  sleep 0.1
+done
+asock=$(cat "$amap" 2>/dev/null)
+nvim --headless --server "$asock" --remote-expr "execute('cd ' . fnameescape('$b'))" >/dev/null 2>&1
+for _ in $(seq 1 50); do
+  [ -f "$bmap" ] && [ ! -e "$amap" ] && break
+  sleep 0.1
+done
+check no "$(present "$amap")" 'old project map removed on :cd'
+check "$asock" "$(cat "$bmap" 2>/dev/null)" ':cd registers the same socket'
+check 1 "$(nvim --headless --server "$asock" --remote-expr '1' 2>/dev/null)" 'socket survives :cd'
+nvim --headless --server "$asock" --remote-send '<cmd>qa!<cr>' >/dev/null 2>&1
 
 # a dead cwd must not break startup: vim.fs.root asserts when getcwd() is empty
 dead="$work/dead"

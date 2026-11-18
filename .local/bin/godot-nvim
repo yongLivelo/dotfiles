@@ -17,7 +17,7 @@ if [ -n "$root" ]; then
 	[ -f "$map" ] && sock=$(cat "$map")
 fi
 
-if [ -z "$sock" ] || ! nvim --server "$sock" --remote-expr '1' >/dev/null 2>&1; then
+if [ -z "$sock" ] || ! nvim --headless --server "$sock" --remote-expr '1' >/dev/null 2>&1; then
 	# no registered instance: one started in the project root will register itself
 	if [ -n "$root" ]; then
 		cd "$root" || exit 1
@@ -27,4 +27,4 @@ fi
 
 # --remote-expr evaluates Vim script: a quote is escaped by doubling it
 escaped=$(printf %s "$file" | sed "s/'/''/g")
-nvim --server "$sock" --remote-expr "execute('edit +$line ' . fnameescape('$escaped'))" >/dev/null
+nvim --headless --server "$sock" --remote-expr "execute('edit +$line ' . fnameescape('$escaped'))" >/dev/null
