@@ -11,6 +11,12 @@ while getopts ":d" opt; do
   esac
 done
 
+# it works on the whole current folder; a filename would make it convert everything unseen
+if [ "$OPTIND" -le "$#" ]; then
+  printf 'usage: to_resolve [-d]\n' >&2
+  exit 2
+fi
+
 shopt -s nocaseglob nullglob
 failed=0
 
@@ -33,8 +39,10 @@ audio_fmt() {
 already_prores_pcm() {
   command -v ffprobe >/dev/null 2>&1 || return 1
   local v bad
-  v=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
-  [ "$v" = "prores" ] || return 1
+  v=$(ffprobe -v error -select_streams V -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
+  [ -n "$v" ] || return 1
+  bad=$(printf '%s\n' "$v" | grep -v '^prores$')
+  [ -z "$bad" ] || return 1
   bad=$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1" | grep -v '^pcm_')
   [ -z "$bad" ]
 }
@@ -42,7 +50,7 @@ already_prores_pcm() {
 already_pcm_audio() {
   command -v ffprobe >/dev/null 2>&1 || return 1
   local v audio bad
-  v=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
+  v=$(ffprobe -v error -select_streams V -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
   [ -z "$v" ] || return 1
   audio=$(ffprobe -v error -select_streams a -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$1")
   [ -n "$audio" ] || return 1
@@ -55,7 +63,7 @@ already_pcm_audio() {
 encode() { # <input> <output> <format> [ffmpeg args...]
   local f=$1 out=$2 fmt=$3
   shift 3
-  local part="$out.part"
+  local part="$out.part.$$"
   rm -f -- "$part"
   if ! ffmpeg -nostdin -loglevel error -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
     rm -f -- "$part"
@@ -63,7 +71,12 @@ encode() { # <input> <output> <format> [ffmpeg args...]
     return
   fi
   if mv -f -- "$part" "$out"; then
-    [ "$delete" = 1 ] && [ "$out" != "$f" ] && rm -- "$f"
+    if [ "$delete" = 1 ] && [ "$out" != "$f" ]; then
+      rm -- "$f" || {
+        echo "failed to delete: $f" >&2
+        failed=1
+      }
+    fi
   else
     rm -f -- "$part"
     failed=1
@@ -71,12 +84,12 @@ encode() { # <input> <output> <format> [ffmpeg args...]
 }
 
 # Re-encode videos to ProRes 422 + PCM. Keep the same filename/extension when the
-# container supports ProRes (.mov, .mkv); otherwise write a .mov for Resolve compatibility.
-for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv *.m2ts *.mts *.vob; do
+# container supports ProRes (.mov, .qt, .mkv); otherwise write a .mov for Resolve compatibility.
+for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv *.m2ts *.mts *.vob; do
   [ -f "$f" ] || continue
-  # *.ts is also TypeScript: only treat it as video when ffprobe finds a video stream
+  # *.ts and *.mts are also TypeScript: only treat them as video when ffprobe finds a video stream
   case "${f,,}" in
-  *.ts)
+  *.ts | *.mts)
     command -v ffprobe >/dev/null 2>&1 || {
       echo "skip: $f (ffprobe unavailable)"
       continue
@@ -89,7 +102,12 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv *.m2
   esac
   fmt=$(video_fmt "${f##*.}")
   if [ -n "$fmt" ]; then
-    if already_prores_pcm "$f"; then
+    if ! command -v ffprobe >/dev/null 2>&1; then
+      echo "skip: $f (ffprobe unavailable)"
+      continue
+    fi
+    # an audio-only .mov/.mkv is done once its audio is PCM
+    if already_prores_pcm "$f" || already_pcm_audio "$f"; then
       echo "skip: $f (already ProRes/PCM)"
       continue
     fi
@@ -101,7 +119,20 @@ for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv *.m2
       continue
     fi
   fi
-  encode "$f" "$out" "$fmt" -c:v prores_ks -profile:v 2 -c:a pcm_s16le
+  # -map keeps every video/audio track and the subtitles; the default mapping
+  # silently drops all but one video and audio track, subtitles and attachments
+  maps=(-map '0:V?' -map '0:a?' -map '0:s?')
+  if [ "$fmt" = matroska ]; then
+    maps+=(-map '0:t?' -c:s copy -c:t copy)
+  else
+    # mov can't store attachments; mov_text is the subtitle codec it accepts
+    # shortcut: bitmap subtitles (dvdsub, PGS) still fail loudly instead of being dropped
+    if [ -n "$(ffprobe -v error -select_streams t -show_entries stream=index -of csv=p=0 -- "$f" 2>/dev/null)" ]; then
+      echo "note: dropping attachments (mov cannot store them): $f" >&2
+    fi
+    maps+=(-c:s mov_text)
+  fi
+  encode "$f" "$out" "$fmt" "${maps[@]}" -c:v prores_ks -profile:v 2 -c:a pcm_s16le
 done
 
 # Re-encode audio to PCM. Keep the same filename/extension when the container supports PCM;
@@ -110,6 +141,10 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
   [ -f "$f" ] || continue
   fmt=$(audio_fmt "${f##*.}")
   if [ -n "$fmt" ]; then
+    if ! command -v ffprobe >/dev/null 2>&1; then
+      echo "skip: $f (ffprobe unavailable)"
+      continue
+    fi
     if already_pcm_audio "$f"; then
       echo "skip: $f (already PCM)"
       continue
@@ -124,7 +159,7 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
   fi
   # AIFF is big-endian, so the muxer rejects little-endian PCM
   [ "$fmt" = aiff ] && acodec=pcm_s24be || acodec=pcm_s24le
-  encode "$f" "$out" "$fmt" -vn -c:a "$acodec"
+  encode "$f" "$out" "$fmt" -map 0:a -c:a "$acodec"
 done
 
 exit "$failed"

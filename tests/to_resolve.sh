@@ -58,6 +58,78 @@ check pcm_s16le "$(codec a:0 same.mkv)" 'in-place mkv audio is PCM'
 check no "$(present same.mkv.part)" 'in-place mkv .part cleaned up'
 case $out in *"skip: same.mkv"*) echo "FAIL: in-place mkv was skipped"; fails=$((fails + 1)) ;; esac
 
+# in-place re-encode must keep every audio track (the default map keeps only one)
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -f lavfi -i sine=frequency=880:duration=1 \
+  -map 0:v -map 1:a -map 2:a -c:v libx264 -c:a aac -y multi.mov
+"$repo/.local/bin/to_resolve" >/dev/null
+status=$?
+check 0 "$status" 'multi-audio run exits 0'
+check 2 "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 multi.mov | wc -l)" \
+  'multi-audio mov keeps both audio tracks'
+
+# an in-place rewrite must keep subtitles, not silently drop them
+mkdir -p "$work/subs"
+clip "$work/subs/in.mkv"
+printf '1\n00:00:00,000 --> 00:00:00,500\nhi\n' >"$work/subs/s.srt"
+ffmpeg -v error -i "$work/subs/in.mkv" -i "$work/subs/s.srt" -map 0 -map 1 \
+  -c copy -c:s srt -y "$work/subs/sub.mkv"
+( cd "$work/subs" && "$repo/.local/bin/to_resolve" >/dev/null )
+status=$?
+check 0 "$status" 'subtitle run exits 0'
+check prores "$(codec v:0 "$work/subs/sub.mkv")" 'subtitle mkv video is ProRes'
+check subrip "$(ffprobe -v error -select_streams s:0 -show_entries stream=codec_name -of default=nw=1:nk=1 "$work/subs/sub.mkv")" \
+  'subtitle track survives in-place conversion'
+
+# every video track must survive, not just the first
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
+  -f lavfi -i color=c=red:size=64x64:rate=10:duration=1 \
+  -map 0:v -map 1:v -c:v libx264 -y two.mkv
+"$repo/.local/bin/to_resolve" >/dev/null
+status=$?
+check 0 "$status" 'multi-video run exits 0'
+check 2 "$(ffprobe -v error -select_streams v -show_entries stream=index -of csv=p=0 two.mkv | wc -l)" \
+  'multi-video mkv keeps both video tracks'
+check prores,prores "$(codec v:0 two.mkv),$(codec v:1 two.mkv)" 'multi-video mkv encodes both as ProRes'
+
+# mov cannot carry webvtt, so a .webm with subtitles must still convert to .mov
+printf '1\n00:00:00,000 --> 00:00:00,500\nhi\n' >web.srt
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -i web.srt \
+  -map 0:v -map 1:a -map 2:s -c:v libvpx-vp9 -c:a libvorbis -c:s webvtt -y web.webm
+"$repo/.local/bin/to_resolve" >/dev/null
+status=$?
+check 0 "$status" 'webm with webvtt run exits 0'
+check mov_text "$(codec s:0 web.mov)" 'webvtt subtitle converted to mov_text'
+
+# an mkv converted in place keeps its attachments
+printf 'x' >font.ttf
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -c:v libx264 -c:a aac \
+  -attach font.ttf -metadata:s:t mimetype=application/x-truetype-font -y attached.mkv
+"$repo/.local/bin/to_resolve" >/dev/null
+status=$?
+check 0 "$status" 'mkv with attachment run exits 0'
+check 1 "$(ffprobe -v error -select_streams t -show_entries stream=index -of csv=p=0 attached.mkv | wc -l)" \
+  'in-place mkv keeps attachments'
+
+# ...but a .mov target must not fail on the attachment it cannot store
+cp attached.mkv attached.flv
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+status=$?
+check 0 "$status" 'mkv with attachment converts to mov'
+check yes "$(present attached.mov)" 'mov output written despite attachment'
+case $out in *"dropping attachments"*) ;; *) echo "FAIL: attachment warning missing: $out"; fails=$((fails + 1)) ;; esac
+
+# an audio-only mov is Resolve-ready after one run and must not be re-encoded
+ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a aac -y podcast.mov
+"$repo/.local/bin/to_resolve" >/dev/null
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+status=$?
+check 0 "$status" 'audio-only mov second run exits 0'
+check pcm_s16le "$(codec a:0 podcast.mov)" 'audio-only mov is PCM'
+case $out in *"skip: podcast.mov (already ProRes/PCM)"*) ;; *) echo "FAIL: audio-only mov skip output: $out"; fails=$((fails + 1)) ;; esac
+
 clip del.mp4
 "$repo/.local/bin/to_resolve" -d >/dev/null
 status=$?
@@ -72,6 +144,22 @@ status=$?
 check 0 "$status" 'TypeScript .ts skipped, run exits 0'
 check yes "$(present main.ts)" 'TypeScript .ts left alone'
 check no "$(present main.mov)" 'no mov made from TypeScript'
+
+# TypeScript .mts is a module extension too: skip it like .ts
+printf 'export const x = 3\n' >main.mts
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+status=$?
+check 0 "$status" 'TypeScript .mts skipped, run exits 0'
+check yes "$(present main.mts)" 'TypeScript .mts left alone'
+check no "$(present main.mov)" 'no mov made from TypeScript .mts'
+case $out in *"skip: main.mts"*) ;; *) echo "FAIL: .mts skip output: $out"; fails=$((fails + 1)) ;; esac
+
+# a filename argument would convert the whole folder unseen, so it is refused
+clip arg.mp4
+out=$("$repo/.local/bin/to_resolve" arg.mp4 2>&1)
+status=$?
+check 2 "$status" 'filename argument exits 2'
+check no "$(present arg.mov)" 'filename argument converts nothing'
 
 # .ts must be skipped even when ffprobe is unavailable
 bin="$work/no-ffprobe-bin"
@@ -114,6 +202,15 @@ check 1 "$status" 'failed conversion exits 1'
 check no "$(present bad.mov)" 'failed conversion leaves no output'
 check yes "$(present bad.mp4)" 'failed conversion keeps the original'
 
+# an unreadable in-place container must fail, not be mistaken for an empty ProRes file
+mkdir -p corrupt
+printf 'not a video\n' >corrupt/bad.mov
+out=$( cd corrupt && "$repo/.local/bin/to_resolve" 2>&1 )
+status=$?
+check 1 "$status" 'corrupt in-place container exits 1'
+case $out in *"skip: bad.mov"*) echo "FAIL: corrupt mov was skipped: $out"; fails=$((fails + 1)) ;; esac
+check yes "$(present corrupt/bad.mov)" 'corrupt in-place container kept'
+
 # an unknown flag must not be silently ignored
 clip flag.mp4
 "$repo/.local/bin/to_resolve" -D >/dev/null 2>&1
@@ -130,6 +227,9 @@ clip "$work/quiet/quiet.mp4"
   case $err in *"ffmpeg version"*) exit 1 ;; *) exit 0 ;; esac
 )
 check 0 "$?" 'conversion keeps ffmpeg quiet'
+
+# a fixed .part name would let two runs corrupt each other
+check '' "$(compgen -G '*.part*')" 'no .part leftovers'
 
 [ "$fails" = 0 ] && echo "ok: to_resolve"
 exit "$fails"
