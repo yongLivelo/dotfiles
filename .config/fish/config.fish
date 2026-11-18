@@ -25,7 +25,7 @@ if status is-interactive
     alias imv imv-dir
 
     if type -q keychain
-        SHELL=(which fish) keychain --quiet --eval id_ed25519 | source
+        env SHELL=(command -s fish) keychain --quiet --eval id_ed25519 | source
     end
     zoxide init --cmd cd fish | source
     function y
