@@ -17,22 +17,23 @@ if [ -f "$out" ]; then
   esac
 fi
 
-printf "Task label [Run command]: "
+printf "Task label [Run command]: " >&2
 read -r label
 label="${label:-Run command}"
 
-printf "Command to run (required): "
+printf "Command to run (required): " >&2
 read -r cmd
 if [ -z "$cmd" ]; then
   echo "Command cannot be empty." >&2
   exit 1
 fi
 
-printf "Working directory [\${workspaceFolder}]: "
+printf "Working directory [\${workspaceFolder}]: " >&2
 read -r cwd
-cwd="${cwd:-\${workspaceFolder}}"
+[ -n "$cwd" ] || cwd='${workspaceFolder}'
 
-python3 -c "
+tmp="$out.tmp"
+if python3 -c "
 import json, sys
 
 label = sys.argv[1]
@@ -53,6 +54,11 @@ data = {
 }
 json.dump(data, sys.stdout, indent=2)
 print()
-" "$label" "$cmd" "$cwd" > "$out"
-
-echo "Wrote $out"
+" "$label" "$cmd" "$cwd" > "$tmp"; then
+  mv "$tmp" "$out"
+  echo "Wrote $out"
+else
+  rm -f "$tmp"
+  echo "Failed to write tasks.json; left existing file untouched." >&2
+  exit 1
+fi
