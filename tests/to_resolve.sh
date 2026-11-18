@@ -15,14 +15,7 @@ if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
   exit 0
 fi
 
-fails=0
-check() { # <expected> <actual> <what>
-  [ "$1" = "$2" ] || {
-    echo "FAIL: $3: got '$2', want '$1'"
-    fails=$((fails + 1))
-  }
-}
-present() { [ -e "$1" ] || [ -L "$1" ] && echo yes || echo no; }
+source "$repo/tests/lib.sh"
 codec() { ffprobe -v error -select_streams "$1" -show_entries stream=codec_name -of default=nw=1:nk=1 "$2"; }
 clip() { # <output>
   ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
@@ -44,6 +37,26 @@ check yes "$(present in.mp4)" 'original kept without -d'
 status=$?
 check 0 "$status" 'second run exits 0'
 check prores "$(codec v:0 in.mov)" 'already-converted file skipped'
+
+# in-place re-encode: a non-ProRes .mov is replaced through .part, keeping its name
+clip same.mov
+out=$("$repo/.local/bin/to_resolve")
+status=$?
+check 0 "$status" 'in-place run exits 0'
+check prores "$(codec v:0 same.mov)" 'in-place mov is ProRes'
+check pcm_s16le "$(codec a:0 same.mov)" 'in-place mov audio is PCM'
+check no "$(present same.mov.part)" 'in-place .part cleaned up'
+case $out in *"skip: same.mov"*) echo "FAIL: in-place mov was skipped"; fails=$((fails + 1)) ;; esac
+
+# in-place re-encode: a non-ProRes .mkv is replaced through .part, keeping its name
+clip same.mkv
+out=$("$repo/.local/bin/to_resolve")
+status=$?
+check 0 "$status" 'in-place mkv run exits 0'
+check prores "$(codec v:0 same.mkv)" 'in-place mkv is ProRes'
+check pcm_s16le "$(codec a:0 same.mkv)" 'in-place mkv audio is PCM'
+check no "$(present same.mkv.part)" 'in-place mkv .part cleaned up'
+case $out in *"skip: same.mkv"*) echo "FAIL: in-place mkv was skipped"; fails=$((fails + 1)) ;; esac
 
 clip del.mp4
 "$repo/.local/bin/to_resolve" -d >/dev/null
@@ -85,6 +98,14 @@ status=$?
 check 0 "$status" 'second audio run exits 0'
 check yes "$(present tone.mp3)" 'original audio kept'
 case $out in *"skip: tone.wav (already PCM)"*) ;; *) echo "FAIL: audio skip output: $out"; fails=$((fails + 1)) ;; esac
+
+# compressed AIFF must convert in place; AIFF needs big-endian PCM
+ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a adpcm_ima_qt -y tone.aiff
+"$repo/.local/bin/to_resolve" >/dev/null 2>&1
+status=$?
+check 0 "$status" 'compressed aiff run exits 0'
+check pcm_s24be "$(codec a:0 tone.aiff)" 'compressed aiff converted to PCM in place'
+check no "$(present tone.aiff.part)" 'aiff .part cleaned up'
 
 printf 'not a video\n' >bad.mp4
 "$repo/.local/bin/to_resolve" >/dev/null 2>&1

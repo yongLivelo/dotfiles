@@ -72,7 +72,7 @@ encode() { # <input> <output> <format> [ffmpeg args...]
 
 # Re-encode videos to ProRes 422 + PCM. Keep the same filename/extension when the
 # container supports ProRes (.mov, .mkv); otherwise write a .mov for Resolve compatibility.
-for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv; do
+for f in *.mp4 *.mov *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv *.m2ts *.mts *.vob; do
   [ -f "$f" ] || continue
   # *.ts is also TypeScript: only treat it as video when ffprobe finds a video stream
   case "${f,,}" in
@@ -122,7 +122,9 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
       continue
     fi
   fi
-  encode "$f" "$out" "$fmt" -vn -c:a pcm_s24le
+  # AIFF is big-endian, so the muxer rejects little-endian PCM
+  [ "$fmt" = aiff ] && acodec=pcm_s24be || acodec=pcm_s24le
+  encode "$f" "$out" "$fmt" -vn -c:a "$acodec"
 done
 
 exit "$failed"
