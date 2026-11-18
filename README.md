@@ -103,6 +103,9 @@ In Editor → Editor Settings → **Text Editor → External**:
 
 Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance.
 
+### VS Code
+Run `.local/bin/vscode-task-gen [dir]` to create `.vscode/tasks.json` with a shell task; it prompts for the label, command, and working directory.
+
 ### Git & GitHub
 ```bash
 ssh-keygen -t ed25519 -C "<email>"  # skip if ~/.ssh/id_ed25519 exists

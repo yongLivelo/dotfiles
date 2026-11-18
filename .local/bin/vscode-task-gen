@@ -1,0 +1,58 @@
+#!/bin/bash
+set -euo pipefail
+
+dir="${1:-.}"
+vscode_dir="$dir/.vscode"
+out="$vscode_dir/tasks.json"
+
+mkdir -p "$vscode_dir"
+
+if [ -f "$out" ]; then
+  printf "tasks.json already exists at %s\n" "$out" >&2
+  printf "Overwrite? [y/N] " >&2
+  read -r ans
+  case "$ans" in
+    [yY]*) ;;
+    *) echo "Aborted." >&2; exit 1 ;;
+  esac
+fi
+
+printf "Task label [Run command]: "
+read -r label
+label="${label:-Run command}"
+
+printf "Command to run (required): "
+read -r cmd
+if [ -z "$cmd" ]; then
+  echo "Command cannot be empty." >&2
+  exit 1
+fi
+
+printf "Working directory [\${workspaceFolder}]: "
+read -r cwd
+cwd="${cwd:-\${workspaceFolder}}"
+
+python3 -c "
+import json, sys
+
+label = sys.argv[1]
+cmd = sys.argv[2]
+cwd = sys.argv[3]
+
+data = {
+  \"version\": \"2.0.0\",
+  \"tasks\": [
+    {
+      \"label\": label,
+      \"type\": \"shell\",
+      \"command\": cmd,
+      \"options\": {\"cwd\": cwd},
+      \"problemMatcher\": []
+    }
+  ]
+}
+json.dump(data, sys.stdout, indent=2)
+print()
+" "$label" "$cmd" "$cwd" > "$out"
+
+echo "Wrote $out"
