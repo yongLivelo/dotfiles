@@ -182,6 +182,7 @@ uv init manimations
 cd manimations
 uv add manim
 uv run manim checkhealth
+source .venv/bin/activate.fish
 ```
 
 ## 6. Rebuild Checklist
