@@ -30,7 +30,7 @@ done
 dates=$(printf '%s\n' "${!batches[@]}" | sort -u -r)
 
 mkdir -p "$state"
-batch=$(mktemp "$state/batch.XXXXXX")
+batch=$(mktemp "$state/batch.XXXXXX") || exit 1
 failed=0
 
 while IFS= read -r date; do

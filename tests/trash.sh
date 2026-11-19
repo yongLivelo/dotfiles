@@ -116,5 +116,15 @@ check yes "$(present "$src/real.txt")" 'undo restores the batch behind a ghost e
 check no "$(present "$trash/info/ghost.txt.trashinfo")" 'ghost metadata removed'
 case $out in *"missing: $src/ghost.txt"*) ;; *) echo "FAIL: ghost output: $out"; fails=$((fails + 1)) ;; esac
 
+# an unwritable state dir must fail before restoring anything
+trash_one 'nostate.txt' "$src/nostate.txt" '2099-03-01T00:00:00'
+chmod 500 "$state"
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
+chmod 700 "$state"
+check 1 "$status" 'unwritable state exits 1'
+check no "$(present "$src/nostate.txt")" 'unwritable state restores nothing'
+check yes "$(present "$trash/info/nostate.txt.trashinfo")" 'unwritable state keeps the .trashinfo'
+
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
