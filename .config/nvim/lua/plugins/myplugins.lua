@@ -117,24 +117,6 @@ return {
     },
   },
   {
-    "ThePrimeagen/harpoon",
-    -- LazyVim's harpoon2 extra already sets the plugin, opts and <leader>H/h/1-9;
-    -- a keys function inherits those, so only add the slot-replace maps here.
-    keys = function(_, keys)
-      keys = keys or {}
-      for i = 1, 9 do
-        keys[#keys + 1] = {
-          "<leader>a" .. i,
-          function()
-            require("harpoon"):list():replace_at(i, { value = vim.fn.expand("%:p") })
-          end,
-          desc = "Harpoon current file to slot " .. i,
-        }
-      end
-      return keys
-    end,
-  },
-  {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
@@ -278,8 +260,21 @@ return {
         if orig then
           orig(buf)
         end
-        vim.keymap.set("n", "<leader>ghD", "<cmd>Gitsigns diff<cr>", { buffer = buf, desc = "Diff Repo", silent = true })
+        vim.keymap.set(
+          "n",
+          "<leader>ghD",
+          "<cmd>Gitsigns diff<cr>",
+          { buffer = buf, desc = "Diff Repo", silent = true }
+        )
       end
     end,
+  },
+  {
+    "sindrets/diffview.nvim",
+    cmd = { "DiffviewOpen", "DiffviewFileHistory" },
+    keys = {
+      { "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", desc = "File History (Diffview)" },
+      { "<leader>gv", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
+    },
   },
 }
