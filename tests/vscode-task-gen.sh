@@ -63,5 +63,10 @@ check 1 "$?" 'failing writer exits 1'
 check "$before" "$(cat p4/.vscode/tasks.json)" 'failing writer keeps the file'
 check '' "$(compgen -G 'p4/.vscode/tasks.json.*')" 'failing writer leaves no temp file'
 
+# a failing writer on a fresh project must not leave an empty .vscode folder
+printf 'foo\ncmd\n\n' | PATH="$bin:$PATH" "$gen" p6 >/dev/null 2>&1
+check 1 "$?" 'failing writer on a fresh dir exits 1'
+check no "$(present p6/.vscode)" 'failing writer creates no .vscode folder'
+
 [ "$fails" = 0 ] && echo "ok: vscode-task-gen"
 exit "$fails"
