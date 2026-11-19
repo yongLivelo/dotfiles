@@ -20,7 +20,7 @@ timedatectl  # verify NTP service: active
 # Desktop, terminal, shell & essentials
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
   xdg-desktop-portal-gtk noctalia kitty neovim tmux opencode \
-  steam zoxide eza fzf fd git fish btop yazi stow docker kwallet
+  steam zoxide eza fzf fd git fish btop yazi stow docker kwallet bluez bluez-utils
 
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
@@ -41,6 +41,12 @@ sudo pacman -S ttf-jetbrains-mono ttf-jetbrains-mono-nerd noto-fonts noto-fonts-
 ```bash
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER  # log out and back in to apply
+```
+
+### Bluetooth
+
+```bash
+sudo systemctl enable --now bluetooth
 ```
 
 ### AUR (`yay`)
