@@ -70,6 +70,7 @@ curl -fsSL https://herdr.dev/install.sh | sh
 Repo root mirrors `$HOME`. Symlink all configs:
 
 ```bash
+git clone git@github.com:yongLivelo/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 stow --no-folding .           # symlink configs to $HOME
 stow --no-folding --delete .  # undo
