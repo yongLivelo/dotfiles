@@ -56,7 +56,7 @@ stow --no-folding --delete .  # remove symlinks
 
 ## OpenCode config
 
-- `.config/opencode/opencode.jsonc` configures the default model, plugins (superpowers, ponytail), and MCP servers (e.g. GitHub, Postgres) — no custom instructions, agents, or permission rules live here.
+- `.config/opencode/opencode.jsonc` configures the default model and plugins (superpowers, ponytail) — no custom instructions, agents, or permission rules live here.
 - `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; `opencode.jsonc`, `cli.json`, `commands/`, `skills/` and the `.gitignore` itself are tracked.
 - `.config/opencode/skills/` holds local skills, one `<name>/SKILL.md` each (e.g. `socratic-tutor`), loaded on demand when their description matches the task.
 - The theme is the built-in `tokyonight` from `cli.json`; `opencode` is not in Noctalia's `theme.templates.community_ids`, so no theme file is generated here.
