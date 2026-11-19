@@ -3,6 +3,9 @@
 # Each nvim registers its socket for its cwd in $XDG_RUNTIME_DIR/nvim-projects-<uid>/<sha256>.
 file=$(realpath -m -- "${1:-.}")
 line=${2:-1}
+case $line in
+'' | *[!0-9]*) echo "invalid line: $line" >&2; exit 2 ;;
+esac
 dir=${XDG_RUNTIME_DIR:-/tmp}
 
 root=$(dirname -- "$file")

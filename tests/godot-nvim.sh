@@ -38,10 +38,16 @@ done
 hash=$(printf %s "$root" | sha256sum | cut -d' ' -f1)
 printf '%s' "$sock" >"$maps/$hash"
 
-"$repo/.local/bin/godot-nvim" "$root/main.gd" 42 7
+"$repo/.local/bin/godot-nvim" "$root/main.gd" 42
 check 0 "$?" 'external editor exits 0'
 check "$root/main.gd" "$(nvim --headless --server "$sock" --remote-expr 'bufname("%")')" 'opens the exact path'
 check 42 "$(nvim --headless --server "$sock" --remote-expr 'line(".")')" 'jumps to the given line'
+
+# a line that is not a number must not reach the Vim expression
+pwn="$work/pwned"
+"$repo/.local/bin/godot-nvim" "$root/main.gd" "1 | call writefile(['x'], '$pwn')" >/dev/null 2>&1
+check 2 "$?" 'non-numeric line exits 2'
+check no "$(present "$pwn")" 'line argument cannot run vim code'
 
 # an nvim that owns a project map must register a live socket, then drop the map on exit
 other="$work/other"
