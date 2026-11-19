@@ -52,7 +52,7 @@ sudo systemctl enable --now bluetooth
 ### AUR (`yay`)
 
 ```bash
-yay -S sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser gdscript-formatter
+yay -S google-chrome sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
 ```
 
 ### Standalone Installers
@@ -125,6 +125,14 @@ Instances register sockets per project; running `:GodotPin` locks focus to the c
 
 Run `.local/bin/vscode-task-gen [dir]` to create `.vscode/tasks.json` with a shell task; it prompts for the label, command, and working directory.
 
+### Canva (offline PWA)
+
+Open [canva.com](https://www.canva.com/) in Chrome and install it as an app: menu → **Cast, save, and share → Install page as app** (or the install icon in the address bar). With Firefox, use the PWAsForFirefox extension, or `firefoxpwa runtime install` then `firefoxpwa site install https://www.canva.com/`.
+
+Sign in, then mark designs for offline use: **Projects → Available offline → More → Make available offline** (also listed at `canva.com/offline-designs`). Offline editing works only for designs marked this way — you cannot create new ones — and needs Chrome, Edge, Safari, Firefox 152+, or the Canva desktop app (not private/incognito windows).
+
+While offline, edits save locally and sync when you reconnect. Work offline for at most 14 days, keep ~2 GB free, avoid adding video/audio, and stay signed in until **All changes synced** (signing out removes offline designs).
+
 ### Git & GitHub
 
 ```bash
@@ -187,7 +195,8 @@ uv run manim checkhealth
 7. Configure OpenCode credentials (§5).
 8. Authenticate GitHub CLI (`gh auth login`).
 9. Configure KDE Plasma settings (§5).
-10. Install DaVinci Resolve (§5).
+10. Install Canva as an offline PWA (§5).
+11. Install DaVinci Resolve (§5).
 
 ## 7. Tests
 
