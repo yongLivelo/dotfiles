@@ -20,6 +20,11 @@ if status is-interactive
         end
     end
     fish_config theme choose "Tomorrow Night Bright"
+    if test -d ~/.config/fish/secrets
+        for secret_file in ~/.config/fish/secrets/*.fish
+            source $secret_file
+        end
+    end
     fish_user_key_bindings
 
     alias n nvim
