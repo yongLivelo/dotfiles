@@ -105,11 +105,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ### OpenCode
 
-1. **Authentication:** Run `opencode auth login` (or import via `opencode auth import < backup.json`). Environment keys go in `~/.config/opencode/.env`.
-2. **Service password:** Generated in `~/.config/opencode/service.json` on first run (or set via `opencode service set password <pass>`).
-3. **MCPs:** Configured in `.config/opencode/opencode.jsonc`. Add tokens (e.g. `GITHUB_PERSONAL_ACCESS_TOKEN`) to `~/.config/opencode/.env`. Check with `opencode mcp list`.
-4. **Theme:** built-in `tokyonight` in `cli.json`; Noctalia does not generate an OpenCode theme.
-5. **Skills:** local skills live in `.config/opencode/skills/<name>/SKILL.md` (e.g. `socratic-tutor`); OpenCode loads one when its description matches the task.
+1. Run `opencode auth login`.
 
 ### Godot
 
