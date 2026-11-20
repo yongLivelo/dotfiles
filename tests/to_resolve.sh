@@ -38,6 +38,18 @@ status=$?
 check 0 "$status" 'second run exits 0'
 check prores "$(codec v:0 in.mov)" 'already-converted file skipped'
 
+# a newer source with the same name must replace its stale output
+clip stale.mp4
+"$repo/.local/bin/to_resolve" >/dev/null
+stale_at=$(stat -c %Y stale.mov)
+sleep 1
+clip stale.mp4
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+case $out in *"skip: stale.mp4"*) echo "FAIL: newer source skipped"; fails=$((fails + 1)) ;; esac
+new_at=$(stat -c %Y stale.mov)
+check yes "$([ "$new_at" -gt "$stale_at" ] && echo yes || echo no)" 'newer source replaces stale output'
+check no "$(present stale.mov.part)" 'stale replacement cleans up .part'
+
 # in-place re-encode: a non-ProRes .mov is replaced through .part, keeping its name
 clip same.mov
 out=$("$repo/.local/bin/to_resolve")
@@ -186,6 +198,17 @@ status=$?
 check 0 "$status" 'second audio run exits 0'
 check yes "$(present tone.mp3)" 'original audio kept'
 case $out in *"skip: tone.wav (already PCM)"*) ;; *) echo "FAIL: audio skip output: $out"; fails=$((fails + 1)) ;; esac
+
+# a newer audio source must replace its stale wav
+ffmpeg -v error -f lavfi -i sine=frequency=660:duration=1 -c:a libmp3lame -y oldtone.mp3
+"$repo/.local/bin/to_resolve" >/dev/null
+wav_at=$(stat -c %Y oldtone.wav)
+sleep 1
+ffmpeg -v error -f lavfi -i sine=frequency=220:duration=1 -c:a libmp3lame -y oldtone.mp3
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+case $out in *"skip: oldtone.mp3"*) echo "FAIL: newer audio source skipped"; fails=$((fails + 1)) ;; esac
+new_wav_at=$(stat -c %Y oldtone.wav)
+check yes "$([ "$new_wav_at" -gt "$wav_at" ] && echo yes || echo no)" 'newer audio source replaces stale wav'
 
 # compressed AIFF must convert in place; AIFF needs big-endian PCM
 ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a adpcm_ima_qt -y tone.aiff

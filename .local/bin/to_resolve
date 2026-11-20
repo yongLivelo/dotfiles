@@ -114,7 +114,7 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
     out="$f"
   else
     out="${f%.*}.mov"
-    if [ -e "$out" ]; then
+    if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
     fi
@@ -152,7 +152,7 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
     out="$f"
   else
     out="${f%.*}.wav"
-    if [ -e "$out" ]; then
+    if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
     fi
