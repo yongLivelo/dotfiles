@@ -62,15 +62,29 @@ check yes "$(present "$trash/files/a b.txt")" 'redo file landed in trash'
 
 # a stale batch must be pruned, not block the redo behind it
 ln -s "$work/gone" "$src/link"
-printf '%s\n' "$src/link" >"$state/batch.AAA"
-printf '%s\n' "$work/missing" >"$state/batch.ZZZ"
-touch -d '2020-01-01 00:00:01' "$state/batch.AAA"
-touch -d '2020-01-01 00:00:02' "$state/batch.ZZZ"
+printf '%s\n' "$src/link" >"$state/batch.1795171997000000001.aaaaaa"
+printf '%s\n' "$work/missing" >"$state/batch.1795171997000000002.bbbbbb"
+touch -d '2020-01-01 00:00:01' "$state/batch.1795171997000000001.aaaaaa"
+touch -d '2020-01-01 00:00:02' "$state/batch.1795171997000000002.bbbbbb"
 out=$("$repo/.local/bin/trash-redo")
 check no "$(present "$src/link")" 'dangling symlink re-trashed'
-check no "$(present "$state/batch.ZZZ")" 'stale batch pruned'
-check no "$(present "$state/batch.AAA")" 'symlink batch consumed'
+check no "$(present "$state/batch.1795171997000000002.bbbbbb")" 'stale batch pruned'
+check no "$(present "$state/batch.1795171997000000001.aaaaaa")" 'symlink batch consumed'
 case $out in *"trashed: $src/link"*) ;; *) echo "FAIL: redo output: $out"; fails=$((fails + 1)) ;; esac
+
+# redo must use creation order, not mtime: tied timestamps still pick the newest batch
+rm -f "$state"/batch.*
+ordered="$work/ordered"
+mkdir -p "$ordered"
+echo one >"$ordered/one.txt"
+echo two >"$ordered/two.txt"
+printf '%s\n' "$ordered/one.txt" >"$state/batch.1795171997000000001.aaaaaa"
+printf '%s\n' "$ordered/two.txt" >"$state/batch.1795171997000000002.bbbbbb"
+touch -d '2000-01-01 00:00:00' "$state/batch.1795171997000000001.aaaaaa" "$state/batch.1795171997000000002.bbbbbb"
+"$repo/.local/bin/trash-redo" >/dev/null
+check no "$(present "$ordered/two.txt")" 'redo picks the newest batch when mtimes tie'
+check yes "$(present "$ordered/one.txt")" 'redo leaves the older batch for next time'
+rm -f "$state"/batch.*
 
 # a fully blocked newest batch must stop undo, not skip ahead to an older batch
 trash_one 'blocked.txt' "$src/blocked.txt" '2099-01-02T00:00:00'
@@ -177,6 +191,69 @@ check 0 "$status" 'nested batch undo exits 0'
 check yes "$(present "$src/parent/child.txt")" 'nested child restored'
 check no "$(present "$trash/info/parent.trashinfo")" 'parent metadata consumed'
 case $out in *"exists, skipped: $src/parent"*) echo "FAIL: parent blocked by child: $out"; fails=$((fails + 1)) ;; esac
+
+# a partially failed redo must report failure, not success
+rm -f "$state"/batch.*
+real_gio=$(command -v gio)
+bin="$work/fail-gio-bin"
+mkdir -p "$bin"
+cat >"$bin/gio" <<EOF
+#!/bin/bash
+for a in "\$@"; do case "\$a" in */failme*) echo "mock gio failure" >&2; exit 1;; esac; done
+exec "$real_gio" "\$@"
+EOF
+chmod +x "$bin/gio"
+redo="$work/redo"
+mkdir -p "$redo"
+echo ok >"$redo/ok.txt"
+echo fail >"$redo/failme.txt"
+printf '%s\n%s\n' "$redo/ok.txt" "$redo/failme.txt" >"$state/batch.1795171997000000001.aaaaaa"
+out=$(PATH="$bin:$PATH" "$repo/.local/bin/trash-redo" 2>&1)
+status=$?
+check 1 "$status" 'partial redo exits 1'
+check no "$(present "$redo/ok.txt")" 'partial redo still trashes the good path'
+check yes "$(present "$redo/failme.txt")" 'partial redo keeps the failed path'
+check yes "$(present "$state/batch.1795171997000000001.aaaaaa")" 'partial redo keeps the batch for retry'
+
+# a stray file in the state dir is not a batch, and numeric names beat legacy ones
+rm -f "$state"/*
+statebin="$work/state-bin"
+mkdir -p "$statebin" "$work/state-targets"
+printf '#!/bin/sh\nprintf "%%s\\n" "$*" >>"%s"\nexit 0\n' "$work/gio-log" >"$statebin/gio"
+chmod +x "$statebin/gio"
+echo keep >"$work/state-targets/new.txt"
+printf '%s\n' "$work/state-targets/new.txt" >"$state/batch.1795171997000000001.aaaaaa"
+printf '%s\n' "$work/state-targets/new.txt" >"$state/batch.x7Kq2a"
+printf '%s\n' "$work/state-targets/new.txt" >"$state/z-notes.txt"
+: >"$work/gio-log"
+PATH="$statebin:$PATH" "$repo/.local/bin/trash-redo" >/dev/null 2>&1
+check 1 "$(wc -l <"$work/gio-log")" 'redo reads only the newest numeric batch'
+check yes "$(present "$state/z-notes.txt")" 'stray state file is left alone'
+check yes "$(present "$state/batch.x7Kq2a")" 'legacy batch is kept for later redo'
+
+# a legacy name starting with a digit must not sort ahead of a new batch
+rm -f "$state"/*
+echo old >"$work/state-targets/legacy.txt"
+echo new >"$work/state-targets/current.txt"
+printf '%s\n' "$work/state-targets/legacy.txt" >"$state/batch.7Kq2aX"
+printf '%s\n' "$work/state-targets/current.txt" >"$state/batch.1795171997537113686.kT9r7Y"
+: >"$work/gio-log"
+PATH="$statebin:$PATH" "$repo/.local/bin/trash-redo" >/dev/null 2>&1
+case $(cat "$work/gio-log") in *current.txt*) ;; *)
+  echo "FAIL: legacy digit batch won: $(cat "$work/gio-log")"; fails=$((fails + 1)) ;;
+esac
+check yes "$(present "$state/batch.7Kq2aX")" 'legacy digit batch kept for later redo'
+
+# undo must fail cleanly when it cannot allocate a redo batch
+rm -f "$state"/*
+allocbin="$work/alloc-bin"
+mkdir -p "$allocbin"
+printf '#!/bin/sh\nexit 1\n' >"$allocbin/mktemp"
+chmod +x "$allocbin/mktemp"
+trash_one 'alloc.txt' "$src/alloc.txt" '2099-07-01T00:00:00'
+PATH="$allocbin:$PATH" "$repo/.local/bin/trash-undo" >/dev/null 2>&1
+check 1 "$?" 'failed batch allocation exits 1'
+check no "$(present "$src/alloc.txt")" 'failed allocation restores nothing'
 
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"

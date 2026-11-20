@@ -34,7 +34,8 @@ done
 dates=$(printf '%s\n' "${!batches[@]}" | sort -u -r)
 
 mkdir -p "$state"
-batch=$(mktemp "$state/batch.XXXXXX") || exit 1
+# mktemp is atomic; the timestamp prefix sorts newest first for redo
+batch=$(mktemp "$state/batch.$(date +%s%N).XXXXXX") || exit 1
 failed=0
 
 while IFS= read -r date; do

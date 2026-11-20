@@ -6,8 +6,10 @@
 state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 
 while :; do
-  # shellcheck disable=SC2012 # batch files are mktemp names, never weird
-  batch=$(ls -t "$state" 2>/dev/null | head -1)
+  # only batch files are state; the new shape has a digit prefix and a second dot
+  batch=$(ls -r "$state"/batch.[0-9]*.?????? 2>/dev/null | head -1)
+  [ -n "$batch" ] || batch=$(ls -r "$state"/batch.* 2>/dev/null | head -1)
+  batch=${batch##*/}
   [ -n "$batch" ] || {
     echo "nothing to redo"
     exit 1
@@ -29,7 +31,7 @@ while :; do
   if [ "$failed" = 0 ]; then
     rm -f "$state/$batch" || exit 1
   fi
+  [ "$failed" = 0 ] || exit 1
   [ "$trashed" -gt 0 ] && exit 0
   # nothing left to move: a stale batch is gone now, walk back to the next one
-  [ "$failed" = 0 ] || exit 1
 done
