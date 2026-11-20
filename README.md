@@ -32,6 +32,7 @@ sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
 # and LazyVim; the plain package is what kitty's font family resolves to.
 sudo pacman -S ttf-jetbrains-mono ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
   mpv ffmpeg imagemagick easyeffects kdenlive audacity obs-studio haruna cava rnote \
+  handbrake handbrake-cli \
   imv gwenview zathura zathura-pdf-mupdf wl-clipboard wl-clip-persist \
   firefox firefoxpwa telegram-desktop discord libreoffice-still godot
 ```
