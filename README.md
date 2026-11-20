@@ -25,7 +25,7 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
   nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip \
-  texlive cairo pango python-matplotlib tk stylua
+  texlive cairo pango python-matplotlib tk
 
 # Media, fonts & desktop apps
 # ttf-jetbrains-mono-nerd supplies the Nerd Font icons used by the fish prompt
