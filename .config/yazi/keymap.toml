@@ -1,9 +1,24 @@
 [[mgr.prepend_keymap]]
-on   = "u"
-run  = "shell -- trash-undo"
+on = "u"
+run = "shell -- trash-undo"
 desc = "Restore the last trashed batch"
 
 [[mgr.prepend_keymap]]
-on   = "U"
-run  = "shell -- trash-redo"
+on = "U"
+run = "shell -- trash-redo"
 desc = "Re-trash the batch just restored"
+
+[[mgr.prepend_keymap]]
+on = "y"
+run = ["yank", "plugin clipboard -- --action=copy"]
+desc = "Yank selected files (copy)"
+
+[[mgr.prepend_keymap]]
+on = "x"
+run = ["yank --cut", "plugin clipboard -- --action=copy"]
+desc = "Yank selected files (cut)"
+
+[[mgr.prepend_keymap]]
+on = "<C-p>"
+run = ["plugin clipboard -- --action=paste"]
+desc = "Paste yanked system clipboard files"
