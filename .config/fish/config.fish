@@ -17,7 +17,6 @@ if status is-interactive
             bind -M $mode \cn down-or-search
             bind -M $mode \cf forward-char
             bind -M $mode \ca sesh-term
-            bind -M $mode \cy 'y; commandline -f repaint'
         end
     end
     fish_config theme choose "Tomorrow Night Bright"
