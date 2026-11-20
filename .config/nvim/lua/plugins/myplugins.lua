@@ -117,6 +117,7 @@ return {
     },
   },
   {
+
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
@@ -145,6 +146,17 @@ return {
     config = function()
       require("competitest").setup()
     end,
+  },
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      ensure_installed = {
+        "gdscript-formatter",
+        "gdtoolkit",
+        "pgformatter",
+        "postgres-language-server",
+      },
+    },
   },
   {
     "neovim/nvim-lspconfig",
@@ -275,6 +287,16 @@ return {
     keys = {
       { "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", desc = "File History (Diffview)" },
       { "<leader>gv", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
+    },
+  },
+  {
+    {
+      "neovim/nvim-lspconfig",
+      opts = {
+        servers = {
+          gdscript = {},
+        },
+      },
     },
   },
 }
