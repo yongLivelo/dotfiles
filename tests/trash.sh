@@ -93,6 +93,23 @@ check no "$(present "$src/earlier.txt")" 'redo re-trashes earlier.txt'
 check no "$(present "$src/blocked.txt")" 'redo re-trashes blocked.txt'
 check 'nothing to redo' "$("$repo/.local/bin/trash-redo" 2>&1)" 'empty state reports nothing to redo'
 
+# a failed redo-state write must not lose the record of an already restored file
+bin="$work/fail-bin"
+mkdir -p "$bin"
+cat >"$bin/mv" <<'EOF'
+#!/bin/bash
+/bin/mv "$@" || exit $?
+chmod 400 "$XDG_STATE_HOME"/trash-redo/batch.* 2>/dev/null
+EOF
+chmod +x "$bin/mv"
+trash_one 'record.txt' "$src/record.txt" '2099-04-01T00:00:00'
+PATH="$bin:$PATH" "$repo/.local/bin/trash-undo" >/dev/null 2>&1
+check yes "$(present "$src/record.txt")" 'failed state write still restores the file'
+chmod 600 "$state"/batch.* 2>/dev/null
+"$repo/.local/bin/trash-redo" >/dev/null 2>&1
+check no "$(present "$src/record.txt")" 'redo uses the record written before the move'
+check yes "$(present "$trash/files/record.txt")" 'redo puts the file back in trash'
+
 # a restore that cannot write must say so instead of looking successful
 mkdir -p "$src/ro"
 trash_one 'locked.txt' "$src/ro/locked.txt" '2099-01-03T00:00:00'
@@ -125,6 +142,25 @@ chmod 700 "$state"
 check 1 "$status" 'unwritable state exits 1'
 check no "$(present "$src/nostate.txt")" 'unwritable state restores nothing'
 check yes "$(present "$trash/info/nostate.txt.trashinfo")" 'unwritable state keeps the .trashinfo'
+
+# reading Path= must not fork one sed per trashed file
+real_sed=$(command -v sed)
+bin="$work/count-sed-bin"
+mkdir -p "$bin"
+cat >"$bin/sed" <<EOF
+#!/bin/bash
+printf 'x' >>"$work/sed-count"
+exec "$real_sed" "\$@"
+EOF
+chmod +x "$bin/sed"
+trash_one 'noseda.txt' "$src/noseda.txt" '2099-05-01T00:00:00'
+trash_one 'nosedb.txt' "$src/nosedb.txt" '2099-05-01T00:00:00'
+: >"$work/sed-count"
+PATH="$bin:$PATH" "$repo/.local/bin/trash-undo" >/dev/null 2>&1
+count=$(wc -c <"$work/sed-count")
+check 0 "$count" 'undo does not fork sed per trashed file'
+check yes "$(present "$src/noseda.txt")" 'undo still restores without sed'
+check yes "$(present "$src/nosedb.txt")" 'undo still restores the whole batch without sed'
 
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"

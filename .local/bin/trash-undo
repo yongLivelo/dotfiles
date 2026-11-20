@@ -10,15 +10,13 @@ state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 # shortcut: a batch is one DeletionDate second, so deletes a second apart undo separately
 
 # group the .trashinfo files by DeletionDate in one pass, without a process per file
-declare -A batches
+declare -A batches paths
 for info in "$trash"/info/*.trashinfo; do
   [ -f "$info" ] || continue
   while IFS= read -r line; do
     case $line in
-    DeletionDate=*)
-      batches[${line#DeletionDate=}]+="$info"$'\n'
-      break
-      ;;
+    Path=*) paths["$info"]=${line#Path=} ;;
+    DeletionDate=*) batches[${line#DeletionDate=}]+="$info"$'\n' ;;
     esac
   done <"$info"
 done
@@ -42,8 +40,7 @@ while IFS= read -r date; do
     name=${name%.trashinfo}
     # undo the percent-encoding the trash spec applies to the original path
     # shortcut: %b also eats a literal backslash in the name; encode paths manually if that ever matters
-    raw=$(sed -n 's/^Path=//p' "$info")
-    printf -v path '%b' "${raw//%/\\x}"
+    printf -v path '%b' "${paths[$info]//%/\\x}"
     # a payload removed out of band leaves metadata that must not block older batches
     if [ ! -e "$trash/files/$name" ] && [ ! -L "$trash/files/$name" ]; then
       echo "missing: $path" >&2
@@ -61,6 +58,12 @@ while IFS= read -r date; do
       failed=1
       continue
     }
+    # record before moving, so a failed state write cannot lose an undo we just did
+    # shortcut: newline-delimited state, so a path containing a newline can't be redone
+    printf '%s\n' "$path" >>"$batch" || {
+      echo "failed to record for redo: $path" >&2
+      exit 1
+    }
     mv -- "$trash/files/$name" "$path" || {
       echo "failed: $path" >&2
       failed=1
@@ -68,11 +71,6 @@ while IFS= read -r date; do
     }
     rm -f -- "$info"
     echo "restored: $path"
-    # shortcut: newline-delimited state, so a path containing a newline can't be redone
-    printf '%s\n' "$path" >>"$batch" || {
-      echo "failed to record for redo: $path" >&2
-      exit 1
-    }
   done <<<"${batches[$date]}"
   # stop at the newest batch that did anything (restored, blocked or failed);
   # a failure must not quietly restore the older batch instead
