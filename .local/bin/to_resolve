@@ -19,6 +19,7 @@ fi
 
 shopt -s nocaseglob nullglob
 failed=0
+declare -A written
 
 video_fmt() {
   case "${1,,}" in
@@ -58,6 +59,25 @@ already_pcm_audio() {
   [ -z "$bad" ]
 }
 
+# Pick the derived output, skipping a source that already has a good output.
+choose_output() { # <source> <extension>; leaves the path in out, returns 1 when skipped
+  local src=$1 ext=$2
+  local candidate="${src%.*}.$ext"
+  [ -z "${written["$candidate"]+set}" ] || candidate="$src.$ext"
+  if [ "$delete" = 1 ] && [ -e "$candidate" ]; then
+    echo "skip: $src (-d with existing output $candidate)" >&2
+  elif command -v ffprobe >/dev/null 2>&1 && [ -e "$candidate" ] &&
+    ! { already_prores_pcm "$candidate" || already_pcm_audio "$candidate"; }; then
+    echo "skip: $src (same-name source not converted: $candidate)" >&2
+  elif [ -e "$candidate" ] && [ ! "$src" -nt "$candidate" ]; then
+    echo "skip: $src (already converted to $candidate)"
+  else
+    out=$candidate
+    return 0
+  fi
+  return 1
+}
+
 # Encode into .part, then move it over the target. Any failure sets failed, so a
 # batch run exits non-zero and a caller can tell it did not finish.
 encode() { # <input> <output> <format> [ffmpeg args...]
@@ -77,6 +97,7 @@ encode() { # <input> <output> <format> [ffmpeg args...]
   fi
   if mv -f -- "$part" "$out"; then
     trap - EXIT INT TERM
+    written["$out"]=1
     [ -z "$mode" ] || chmod "$mode" -- "$out" || failed=1
     if [ "$delete" = 1 ] && [ "$out" != "$f" ]; then
       rm -- "$f" || {
@@ -121,17 +142,7 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
     fi
     out="$f"
   else
-    out="${f%.*}.mov"
-    # an existing same-name file still needing work is a source, not a stale output
-    if command -v ffprobe >/dev/null 2>&1 && [ -e "$out" ] &&
-      ! { already_prores_pcm "$out" || already_pcm_audio "$out"; }; then
-      echo "skip: $f (same-name source not converted: $out)" >&2
-      continue
-    fi
-    if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
-      echo "skip: $f (already converted to $out)"
-      continue
-    fi
+    choose_output "$f" mov || continue
   fi
   # -map keeps every video/audio track and the subtitles; the default mapping
   # silently drops all but one video and audio track, subtitles and attachments
@@ -165,17 +176,7 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
     fi
     out="$f"
   else
-    out="${f%.*}.wav"
-    # an existing same-name file still needing work is a source, not a stale output
-    if command -v ffprobe >/dev/null 2>&1 && [ -e "$out" ] &&
-      ! { already_prores_pcm "$out" || already_pcm_audio "$out"; }; then
-      echo "skip: $f (same-name source not converted: $out)" >&2
-      continue
-    fi
-    if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
-      echo "skip: $f (already converted to $out)"
-      continue
-    fi
+    choose_output "$f" wav || continue
   fi
   # AIFF is big-endian, so the muxer rejects little-endian PCM
   [ "$fmt" = aiff ] && acodec=pcm_s24be || acodec=pcm_s24le

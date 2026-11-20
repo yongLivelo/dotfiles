@@ -169,6 +169,44 @@ check 0 "$status" '-d run exits 0'
 check yes "$(present del.mov)" '-d still writes the mov'
 check no "$(present del.mp4)" '-d removes the original'
 
+# -d must not overwrite an existing ProRes output from a different, newer source
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -c:v prores_ks -profile:v 2 -c:a pcm_s16le -y keep.mov
+ffmpeg -v error -f lavfi -i color=c=red:size=32x32:rate=5:duration=1 -c:v libx264 -y keep.mp4
+sleep 1
+keep_hash=$(sha256sum keep.mov | cut -d' ' -f1)
+out=$("$repo/.local/bin/to_resolve" -d 2>&1)
+check 0 "$?" '-d with existing output exits 0'
+check "$keep_hash" "$(sha256sum keep.mov | cut -d' ' -f1)" '-d leaves an existing ProRes output untouched'
+check yes "$(present keep.mp4)" '-d keeps the source behind an existing output'
+case $out in *"-d with existing output keep.mov"*) ;; *) echo "FAIL: -d collision output: $out"; fails=$((fails + 1)) ;; esac
+
+# -d must not overwrite an existing PCM wav from a different, newer source
+ffmpeg -v error -f lavfi -i 'sine=frequency=440:sample_rate=44100:duration=1' -ac 1 \
+  -c:a pcm_s24le -y keepaudio.wav
+ffmpeg -v error -f lavfi -i 'sine=frequency=880:sample_rate=44100:duration=1' -ac 2 \
+  -c:a libmp3lame -y keepaudio.mp3
+sleep 1
+audio_hash=$(sha256sum keepaudio.wav | cut -d' ' -f1)
+out=$("$repo/.local/bin/to_resolve" -d 2>&1)
+check 0 "$?" '-d audio with existing output exits 0'
+check "$audio_hash" "$(sha256sum keepaudio.wav | cut -d' ' -f1)" '-d leaves an existing PCM wav untouched'
+check yes "$(present keepaudio.mp3)" '-d keeps the audio source behind an existing output'
+case $out in *"-d with existing output keepaudio.wav"*) ;; *) echo "FAIL: -d audio collision output: $out"; fails=$((fails + 1)) ;; esac
+
+# two sources with the same base name must both be converted
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -c:v libx264 -c:a aac -y dual.mp4
+ffmpeg -v error -f lavfi -i color=c=blue:size=32x32:rate=5:duration=1 \
+  -c:v libvpx-vp9 -y dual.webm
+"$repo/.local/bin/to_resolve" >/dev/null
+status=$?
+check 0 "$status" 'same-base sources run exits 0'
+check prores "$(codec v:0 dual.mov)" 'first same-base source converted'
+check prores "$(codec v:0 dual.webm.mov)" 'second same-base source converted to a distinct name'
+check 32 "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 dual.webm.mov)" \
+  'distinct output holds the second source'
+
 printf 'export const x = 1\n' >main.ts
 clip ts.mp4
 "$repo/.local/bin/to_resolve" >/dev/null
@@ -326,6 +364,10 @@ check '' "$(compgen -G "$work/interrupt/*.part*")" 'interrupted encode leaves no
 
 # a fixed .part name would let two runs corrupt each other
 check '' "$(compgen -G '*.part*')" 'no .part leftovers'
+
+# the output-selection rules must live in one helper, not two drifting copies
+check 1 "$(grep -c 'same-name source not converted' "$repo/.local/bin/to_resolve")" \
+  'collision rule defined once for video and audio'
 
 [ "$fails" = 0 ] && echo "ok: to_resolve"
 exit "$fails"
