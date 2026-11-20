@@ -255,5 +255,15 @@ PATH="$allocbin:$PATH" "$repo/.local/bin/trash-undo" >/dev/null 2>&1
 check 1 "$?" 'failed batch allocation exits 1'
 check no "$(present "$src/alloc.txt")" 'failed allocation restores nothing'
 
+# a file name containing a newline must restore, not be split into two metadata paths
+nlname=$'line\nbreak.txt'
+trash_one "$nlname" "$src/line%0Abreak.txt" '2099-08-01T00:00:00'
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
+check 0 "$status" 'newline name undo exits 0'
+check yes "$(present "$src/$nlname")" 'newline name restored'
+check no "$(present "$trash/info/$nlname.trashinfo")" 'newline name metadata consumed'
+case $out in *"missing:"*) echo "FAIL: newline name reported missing: $out"; fails=$((fails + 1)) ;; esac
+
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"

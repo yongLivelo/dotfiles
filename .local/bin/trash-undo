@@ -10,7 +10,7 @@ state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 # shortcut: a batch is one DeletionDate second, so deletes a second apart undo separately
 
 # group the .trashinfo files by DeletionDate in one pass, without a process per file
-declare -A batches paths
+declare -A when paths
 for info in "$trash"/info/*.trashinfo; do
   [ -f "$info" ] || continue
   while IFS= read -r line; do
@@ -22,16 +22,16 @@ for info in "$trash"/info/*.trashinfo; do
       printf -v path '%b' "${encoded//%/\\x}"
       paths["$info"]=$path
       ;;
-    DeletionDate=*) batches[${line#DeletionDate=}]+="$info"$'\n' ;;
+    DeletionDate=*) when["$info"]=${line#DeletionDate=} ;;
     esac
   done <"$info"
 done
 
-[ "${#batches[@]}" -gt 0 ] || {
+[ "${#when[@]}" -gt 0 ] || {
   echo "trash is empty"
   exit 1
 }
-dates=$(printf '%s\n' "${!batches[@]}" | sort -u -r)
+dates=$(printf '%s\n' "${when[@]}" | sort -u -r)
 
 mkdir -p "$state"
 # mktemp is atomic; the timestamp prefix sorts newest first for redo
@@ -42,18 +42,10 @@ while IFS= read -r date; do
   [ -n "$date" ] || continue
   blocked=0
   # restore shallower paths first, so a directory exists before its contents
-  sorted=''
-  while IFS= read -r info; do
-    [ -n "$info" ] || continue
-    path=${paths[$info]}
-    slashes=${path//[^\/]/}
-    sorted+="${#slashes}"$'\t'"$info"$'\n'
-  done <<<"${batches[$date]}"
-  while IFS=$'\t' read -r _ info; do
-    [ -n "$info" ] || continue
+  while IFS= read -r -d '' info; do
     name=${info##*/}
     name=${name%.trashinfo}
-    path=${paths[$info]}
+    path=${paths["$info"]}
     # a payload removed out of band leaves metadata that must not block older batches
     if [ ! -e "$trash/files/$name" ] && [ ! -L "$trash/files/$name" ]; then
       echo "missing: $path" >&2
@@ -84,7 +76,14 @@ while IFS= read -r date; do
     }
     rm -f -- "$info"
     echo "restored: $path"
-  done <<<"$(printf '%s' "$sorted" | sort -t $'\t' -k1,1n)"
+  done < <(
+    for info in "${!paths[@]}"; do
+      [ "${when["$info"]}" = "$date" ] || continue
+      path=${paths["$info"]}
+      slashes=${path//[^\/]/}
+      printf '%s\t%s\0' "${#slashes}" "$info"
+    done | sort -z -t $'\t' -k1,1n | cut -z -f2-
+  )
   # stop at the newest batch that did anything (restored, blocked or failed);
   # a failure must not quietly restore the older batch instead
   { [ -s "$batch" ] || [ "$blocked" = 1 ] || [ "$failed" = 1 ]; } && break

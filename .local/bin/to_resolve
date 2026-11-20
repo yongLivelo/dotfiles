@@ -7,7 +7,10 @@ delete=0
 while getopts ":d" opt; do
   case $opt in
   d) delete=1 ;;
-  \?) printf 'usage: to_resolve [-d]\n' >&2; exit 2 ;;
+  \?)
+    printf 'usage: to_resolve [-d]\n' >&2
+    exit 2
+    ;;
   esac
 done
 
@@ -63,7 +66,9 @@ already_pcm_audio() {
 choose_output() { # <source> <extension>; leaves the path in out, returns 1 when skipped
   local src=$1 ext=$2
   local candidate="${src%.*}.$ext"
-  [ -z "${written["$candidate"]+set}" ] || candidate="$src.$ext"
+  if [ -e "$src.$ext" ] || [ -n "${written["$candidate"]+set}" ]; then
+    candidate="$src.$ext"
+  fi
   if [ "$delete" = 1 ] && [ -e "$candidate" ]; then
     echo "skip: $src (-d with existing output $candidate)" >&2
   elif command -v ffprobe >/dev/null 2>&1 && [ -e "$candidate" ] &&
@@ -83,13 +88,14 @@ choose_output() { # <source> <extension>; leaves the path in out, returns 1 when
 encode() { # <input> <output> <format> [ffmpeg args...]
   local f=$1 out=$2 fmt=$3
   shift 3
-  part="$out.part.$$"
+  local part="$out.part.$$"
   local mode=''
-  [ "$out" = "$f" ] && mode=$(stat -c %a -- "$f" 2>/dev/null)
+  [ "$out" = "$f" ] && mode=$(stat -c %a -- "$f" 2>/dev/null || stat -f %Lp -- "$f" 2>/dev/null)
   rm -f -- "$part"
   # a signal must not leave a media file behind for Resolve to pick up
   trap 'rm -f -- "$part"; exit 1' EXIT INT TERM
-  if ! ffmpeg -nostdin -loglevel error -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
+  printf 'encoding: %s -> %s\n' "$f" "$out"
+  if ! ffmpeg -nostdin -loglevel error -stats -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
     rm -f -- "$part"
     trap - EXIT INT TERM
     failed=1
@@ -123,7 +129,7 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
       echo "skip: $f (ffprobe unavailable)"
       continue
     }
-    if [ -z "$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$f" 2>/dev/null)" ]; then
+    if [ -z "$(ffprobe -v error -select_streams V:0 -show_entries stream=codec_name -of default=nw=1:nk=1 -- "$f" 2>/dev/null)" ]; then
       echo "skip: $f (not a video)"
       continue
     fi
@@ -144,9 +150,23 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
   else
     choose_output "$f" mov || continue
   fi
-  # -map keeps every video/audio track and the subtitles; the default mapping
-  # silently drops all but one video and audio track, subtitles and attachments
-  maps=(-map '0:V?' -map '0:a?' -map '0:s?')
+
+  # Map video and subtitles, then test-decode each audio stream into PCM so undecodable
+  # tracks (like Apple Spatial Audio / apple_apac) are cleanly dropped.
+  maps=(-map '0:V?' -map '0:s?')
+  if command -v ffprobe >/dev/null 2>&1; then
+    audio_count=$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 -- "$f" 2>/dev/null | wc -l)
+    for ((i = 0; i < audio_count; i++)); do
+      if ffmpeg -nostdin -v error -i "$f" -map "0:a:$i" -t 0.001 -c:a pcm_s16le -f null - >/dev/null 2>&1; then
+        maps+=(-map "0:a:$i")
+      else
+        echo "note: dropping undecodable audio track #a:$i: $f" >&2
+      fi
+    done
+  else
+    maps+=(-map '0:a?')
+  fi
+
   if [ "$fmt" = matroska ]; then
     maps+=(-map '0:t?' -c:s copy -c:t copy)
   else
@@ -157,7 +177,7 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
     fi
     maps+=(-c:s mov_text)
   fi
-  encode "$f" "$out" "$fmt" "${maps[@]}" -c:v prores_ks -profile:v 2 -c:a pcm_s16le
+  encode "$f" "$out" "$fmt" "${maps[@]}" -pix_fmt yuv422p10le -c:v prores_aw -profile:v 2 -c:a pcm_s16le
 done
 
 # Re-encode audio to PCM. Keep the same filename/extension when the container supports PCM;

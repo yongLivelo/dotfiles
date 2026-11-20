@@ -100,6 +100,27 @@ check 0 "$status" 'multi-audio run exits 0'
 check 2 "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 multi.mov | wc -l)" \
   'multi-audio mov keeps both audio tracks'
 
+# an audio track that fails the decode probe must be dropped, not fail the whole file
+mkdir -p "$work/bad-audio/bin"
+real_ffmpeg=$(command -v ffmpeg)
+cat >"$work/bad-audio/bin/ffmpeg" <<EOF
+#!/bin/bash
+for a in "\$@"; do
+  [ "\$a" = "0:a:1" ] && exit 1
+done
+exec "$real_ffmpeg" "\$@"
+EOF
+chmod +x "$work/bad-audio/bin/ffmpeg"
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -f lavfi -i sine=frequency=880:duration=1 \
+  -map 0:v -map 1:a -map 2:a -c:v libx264 -c:a aac -y "$work/bad-audio/tracks.mp4"
+( cd "$work/bad-audio" && PATH="$work/bad-audio/bin:$PATH" "$repo/.local/bin/to_resolve" >/dev/null 2>&1 )
+status=$?
+check 0 "$status" 'undecodable audio run exits 0'
+check 1 "$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$work/bad-audio/tracks.mov" | wc -l)" \
+  'undecodable audio track is dropped'
+check pcm_s16le "$(codec a:0 "$work/bad-audio/tracks.mov")" 'good audio track survives'
+
 # an in-place rewrite must keep subtitles, not silently drop them
 mkdir -p "$work/subs"
 clip "$work/subs/in.mkv"
@@ -206,6 +227,20 @@ check prores "$(codec v:0 dual.mov)" 'first same-base source converted'
 check prores "$(codec v:0 dual.webm.mov)" 'second same-base source converted to a distinct name'
 check 32 "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 dual.webm.mov)" \
   'distinct output holds the second source'
+
+# a stale derived output must be refreshed instead of writing a new same-base name
+mkdir -p "$work/derived"
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 \
+  -f lavfi -i sine=frequency=440:duration=1 -c:v libx264 -c:a aac -y "$work/derived/stale.mp4"
+ffmpeg -v error -f lavfi -i color=c=blue:size=32x32:rate=5:duration=1 \
+  -c:v prores_ks -profile:v 2 -y "$work/derived/stale.mp4.mov"
+touch -d '2020-01-01 00:00:00' "$work/derived/stale.mp4.mov"
+( cd "$work/derived" && "$repo/.local/bin/to_resolve" >/dev/null )
+status=$?
+check 0 "$status" 'stale derived output run exits 0'
+check 64 "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$work/derived/stale.mp4.mov")" \
+  'existing derived output is refreshed'
+check no "$(present "$work/derived/stale.mov")" 'no same-base mov is created'
 
 printf 'export const x = 1\n' >main.ts
 clip ts.mp4
