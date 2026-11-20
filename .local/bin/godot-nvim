@@ -14,10 +14,19 @@ while [ "$root" != "/" ] && [ ! -f "$root/project.godot" ]; do
 done
 [ -f "$root/project.godot" ] || root=
 
+# the Neovim side refuses a planted map dir; apply the same care on this side
+maps="$dir/nvim-projects-$(id -u)"
 sock=
-if [ -n "$root" ]; then
-	map="$dir/nvim-projects-$(id -u)/$(printf %s "$root" | sha256sum | cut -d' ' -f1)"
-	[ -f "$map" ] && sock=$(cat "$map")
+if [ -n "$root" ] && [ -d "$maps" ] && [ ! -L "$maps" ] && [ -O "$maps" ]; then
+	map="$maps/$(printf %s "$root" | sha256sum | cut -d' ' -f1)"
+	if [ -f "$map" ] && [ ! -L "$map" ] && [ -O "$map" ]; then
+		candidate=$(cat "$map")
+		case $candidate in
+		"$dir"/nvim-*.sock)
+			[ -S "$candidate" ] && [ ! -L "$candidate" ] && [ -O "$candidate" ] && sock=$candidate
+			;;
+		esac
+	fi
 fi
 
 if [ -z "$sock" ] || ! nvim --headless --server "$sock" --remote-expr '1' >/dev/null 2>&1; then

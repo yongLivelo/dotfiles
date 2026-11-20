@@ -116,7 +116,7 @@ In Editor → Editor Settings → **Text Editor → External**:
 - Exec Path: `~/.local/bin/godot-nvim`
 - Exec Flags: `{file} {line}`
 
-Instances register sockets per project; running `:GodotPin` locks focus to the current Neovim instance until its next `:cd`.
+Instances register sockets per project (startup config in `.config/nvim/lua/plugins/godot.lua`); running `:GodotPin` locks focus to the current Neovim instance until its next `:cd`.
 
 ### VS Code
 
