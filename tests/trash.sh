@@ -162,5 +162,21 @@ check 0 "$count" 'undo does not fork sed per trashed file'
 check yes "$(present "$src/noseda.txt")" 'undo still restores without sed'
 check yes "$(present "$src/nosedb.txt")" 'undo still restores the whole batch without sed'
 
+# a child trashed before its parent in the same second must not block the parent
+mkdir -p "$src/parent"
+echo child >"$src/parent/child.txt"
+mv -- "$src/parent/child.txt" "$trash/files/child.txt"
+mv -- "$src/parent" "$trash/files/parent"
+printf '[Trash Info]\nPath=%s\nDeletionDate=2099-06-01T00:00:00\n' "$src/parent/child.txt" \
+  >"$trash/info/child.txt.trashinfo"
+printf '[Trash Info]\nPath=%s\nDeletionDate=2099-06-01T00:00:00\n' "$src/parent" \
+  >"$trash/info/parent.trashinfo"
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
+check 0 "$status" 'nested batch undo exits 0'
+check yes "$(present "$src/parent/child.txt")" 'nested child restored'
+check no "$(present "$trash/info/parent.trashinfo")" 'parent metadata consumed'
+case $out in *"exists, skipped: $src/parent"*) echo "FAIL: parent blocked by child: $out"; fails=$((fails + 1)) ;; esac
+
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
