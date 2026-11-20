@@ -170,11 +170,9 @@ Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupporte
 
 ### Manim
 
-Install system dependencies, then create and verify a project with `uv`:
+Create and verify a project with `uv` (system dependencies are in §2):
 
 ```bash
-sudo pacman -Syu base-devel cairo pango  # also in §2
-
 uv init manimations
 cd manimations
 uv add manim
