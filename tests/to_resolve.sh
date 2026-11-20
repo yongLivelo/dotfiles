@@ -50,6 +50,20 @@ new_at=$(stat -c %Y stale.mov)
 check yes "$([ "$new_at" -gt "$stale_at" ] && echo yes || echo no)" 'newer source replaces stale output'
 check no "$(present stale.mov.part)" 'stale replacement cleans up .part'
 
+# a same-name source must not be replaced by a different source's derived output
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 \
+  -c:v libx264 -y collide.mp4
+ffmpeg -v error -f lavfi -i color=c=blue:size=32x32:rate=5:duration=1 \
+  -c:v libx264 -y collide.mov
+touch -d '2020-01-01 00:00:00' collide.mov
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+status=$?
+check 0 "$status" 'same-name source run exits 0'
+check 32 "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 collide.mov)" \
+  'unconverted same-name source keeps its own content'
+check yes "$(present collide.mp4)" 'source behind the collision is kept'
+case $out in *"same-name source"*) ;; *) echo "FAIL: collision warning missing: $out"; fails=$((fails + 1)) ;; esac
+
 # in-place re-encode: a non-ProRes .mov is replaced through .part, keeping its name
 clip same.mov
 out=$("$repo/.local/bin/to_resolve")
@@ -59,6 +73,12 @@ check prores "$(codec v:0 same.mov)" 'in-place mov is ProRes'
 check pcm_s16le "$(codec a:0 same.mov)" 'in-place mov audio is PCM'
 check no "$(present same.mov.part)" 'in-place .part cleaned up'
 case $out in *"skip: same.mov"*) echo "FAIL: in-place mov was skipped"; fails=$((fails + 1)) ;; esac
+
+# an in-place rewrite must keep the original file's permissions
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 -c:v libx264 -y perm.mov
+chmod 660 perm.mov
+"$repo/.local/bin/to_resolve" >/dev/null 2>&1
+check 660 "$(stat -c %a perm.mov)" 'in-place conversion keeps permissions'
 
 # in-place re-encode: a non-ProRes .mkv is replaced through .part, keeping its name
 clip same.mkv
@@ -186,6 +206,24 @@ status=$?
 check 0 "$status" 'TypeScript skipped without ffprobe'
 check no "$(present "$work/no-ffprobe/main.mov")" 'no mov from TypeScript without ffprobe'
 
+# without ffprobe, a converted same-name output must still be refreshed by mtime
+ln -s "$(command -v mv)" "$bin/mv"
+ln -s "$(command -v rm)" "$bin/rm"
+guard="$work/no-ffprobe-guard"
+mkdir -p "$guard"
+clip "$guard/guard.mp4"
+ffmpeg -v error -f lavfi -i testsrc=size=32x32:rate=5:duration=1 \
+  -c:v prores_ks -profile:v 2 -y "$guard/guard.mov"
+touch -d '2020-01-01 00:00:00' "$guard/guard.mov"
+(
+  cd "$guard" || exit 1
+  out=$(PATH="$bin" "$repo/.local/bin/to_resolve" 2>&1)
+  case $out in *"same-name source"*) echo "FAIL: false collision without ffprobe: $out" >&2; exit 1 ;; esac
+)
+check 0 "$?" 'no-ffprobe guard does not mislabel converted output'
+check 64 "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$guard/guard.mov")" \
+  'no-ffprobe run still refreshes converted output'
+
 # standalone audio: mp3 -> pcm_s24le wav, then skipped on the next run
 ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a libmp3lame -y tone.mp3
 "$repo/.local/bin/to_resolve" >/dev/null
@@ -209,6 +247,19 @@ out=$("$repo/.local/bin/to_resolve" 2>&1)
 case $out in *"skip: oldtone.mp3"*) echo "FAIL: newer audio source skipped"; fails=$((fails + 1)) ;; esac
 new_wav_at=$(stat -c %Y oldtone.wav)
 check yes "$([ "$new_wav_at" -gt "$wav_at" ] && echo yes || echo no)" 'newer audio source replaces stale wav'
+
+# a same-name unconverted wav must not be replaced by another source's output
+ffmpeg -v error -f lavfi -i 'sine=frequency=440:sample_rate=44100:duration=1' -ac 1 \
+  -c:a libmp3lame -y collide.mp3
+ffmpeg -v error -f lavfi -i 'sine=frequency=880:sample_rate=44100:duration=1' -ac 2 \
+  -c:a adpcm_ima_wav -y collide.wav
+touch -d '2020-01-01 00:00:00' collide.wav
+out=$("$repo/.local/bin/to_resolve" 2>&1)
+status=$?
+check 0 "$status" 'same-name audio source run exits 0'
+check 2 "$(ffprobe -v error -select_streams a:0 -show_entries stream=channels -of default=nw=1:nk=1 collide.wav)" \
+  'unconverted same-name audio source keeps its own content'
+case $out in *"same-name source"*) ;; *) echo "FAIL: audio collision warning missing: $out"; fails=$((fails + 1)) ;; esac
 
 # compressed AIFF must convert in place; AIFF needs big-endian PCM
 ffmpeg -v error -f lavfi -i sine=frequency=440:duration=1 -c:a adpcm_ima_qt -y tone.aiff
@@ -250,6 +301,28 @@ clip "$work/quiet/quiet.mp4"
   case $err in *"ffmpeg version"*) exit 1 ;; *) exit 0 ;; esac
 )
 check 0 "$?" 'conversion keeps ffmpeg quiet'
+
+# an interrupted encode must clean up its .part file
+mkdir -p "$work/interrupt/bin"
+cat >"$work/interrupt/bin/ffmpeg" <<'EOF'
+#!/bin/bash
+for a in "$@"; do last=$a; done
+printf data >"$last"
+sleep 2
+EOF
+chmod +x "$work/interrupt/bin/ffmpeg"
+printf x >"$work/interrupt/clip.mp4"
+(
+  cd "$work/interrupt" || exit 1
+  PATH="$work/interrupt/bin:$PATH" "$repo/.local/bin/to_resolve" >/dev/null 2>&1 &
+  pid=$!
+  sleep 0.3
+  kill -TERM "$pid" 2>/dev/null
+  wait "$pid" 2>/dev/null
+  exit 0
+)
+sleep 2.5
+check '' "$(compgen -G "$work/interrupt/*.part*")" 'interrupted encode leaves no .part'
 
 # a fixed .part name would let two runs corrupt each other
 check '' "$(compgen -G '*.part*')" 'no .part leftovers'

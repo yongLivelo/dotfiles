@@ -63,14 +63,21 @@ already_pcm_audio() {
 encode() { # <input> <output> <format> [ffmpeg args...]
   local f=$1 out=$2 fmt=$3
   shift 3
-  local part="$out.part.$$"
+  part="$out.part.$$"
+  local mode=''
+  [ "$out" = "$f" ] && mode=$(stat -c %a -- "$f" 2>/dev/null)
   rm -f -- "$part"
+  # a signal must not leave a media file behind for Resolve to pick up
+  trap 'rm -f -- "$part"; exit 1' EXIT INT TERM
   if ! ffmpeg -nostdin -loglevel error -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
     rm -f -- "$part"
+    trap - EXIT INT TERM
     failed=1
     return
   fi
   if mv -f -- "$part" "$out"; then
+    trap - EXIT INT TERM
+    [ -z "$mode" ] || chmod "$mode" -- "$out" || failed=1
     if [ "$delete" = 1 ] && [ "$out" != "$f" ]; then
       rm -- "$f" || {
         echo "failed to delete: $f" >&2
@@ -79,6 +86,7 @@ encode() { # <input> <output> <format> [ffmpeg args...]
     fi
   else
     rm -f -- "$part"
+    trap - EXIT INT TERM
     failed=1
   fi
 }
@@ -114,6 +122,12 @@ for f in *.mp4 *.mov *.qt *.mkv *.webm *.avi *.m4v *.ts *.flv *.mpg *.mpeg *.wmv
     out="$f"
   else
     out="${f%.*}.mov"
+    # an existing same-name file still needing work is a source, not a stale output
+    if command -v ffprobe >/dev/null 2>&1 && [ -e "$out" ] &&
+      ! { already_prores_pcm "$out" || already_pcm_audio "$out"; }; then
+      echo "skip: $f (same-name source not converted: $out)" >&2
+      continue
+    fi
     if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
@@ -152,6 +166,12 @@ for f in *.mp3 *.aac *.m4a *.ogg *.opus *.flac *.wma *.wav *.aiff *.aif; do
     out="$f"
   else
     out="${f%.*}.wav"
+    # an existing same-name file still needing work is a source, not a stale output
+    if command -v ffprobe >/dev/null 2>&1 && [ -e "$out" ] &&
+      ! { already_prores_pcm "$out" || already_pcm_audio "$out"; }; then
+      echo "skip: $f (same-name source not converted: $out)" >&2
+      continue
+    fi
     if [ -e "$out" ] && [ ! "$f" -nt "$out" ]; then
       echo "skip: $f (already converted to $out)"
       continue
