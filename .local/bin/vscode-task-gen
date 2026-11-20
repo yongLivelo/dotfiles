@@ -42,7 +42,11 @@ if [ ! -d "$vscode_dir" ]; then
   created=1
 fi
 
-tmp=$(mktemp "$vscode_dir/tasks.json.tmp.XXXXXX")
+tmp=$(mktemp "$vscode_dir/tasks.json.tmp.XXXXXX") || {
+  [ "$created" = 1 ] && rmdir "$vscode_dir" 2>/dev/null || true
+  echo "Failed to write tasks.json; left existing file untouched." >&2
+  exit 1
+}
 if python3 -c "
 import json, sys
 

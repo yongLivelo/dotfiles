@@ -68,6 +68,15 @@ printf 'foo\ncmd\n\n' | PATH="$bin:$PATH" "$gen" p6 >/dev/null 2>&1
 check 1 "$?" 'failing writer on a fresh dir exits 1'
 check no "$(present p6/.vscode)" 'failing writer creates no .vscode folder'
 
+# a failing mktemp must not leave an empty .vscode folder behind
+bin3="$work/mktemp-bin"
+mkdir -p "$bin3"
+printf '#!/bin/sh\nexit 1\n' >"$bin3/mktemp"
+chmod +x "$bin3/mktemp"
+printf 'foo\ncmd\n\n' | PATH="$bin3:$PATH" "$gen" p8 >/dev/null 2>&1
+check 1 "$?" 'failing mktemp exits 1'
+check no "$(present p8/.vscode)" 'failing mktemp leaves no .vscode folder'
+
 # a predictable temp name must not let a planted symlink redirect the write
 victim="$work/victim"
 echo precious >"$victim"
