@@ -169,6 +169,7 @@ return {
             },
           },
         },
+        gdscript = {},
       },
     },
   },
@@ -287,16 +288,6 @@ return {
     keys = {
       { "<leader>gH", "<cmd>DiffviewFileHistory %<cr>", desc = "File History (Diffview)" },
       { "<leader>gv", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
-    },
-  },
-  {
-    {
-      "neovim/nvim-lspconfig",
-      opts = {
-        servers = {
-          gdscript = {},
-        },
-      },
     },
   },
 }
