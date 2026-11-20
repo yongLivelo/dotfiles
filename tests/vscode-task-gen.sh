@@ -68,5 +68,22 @@ printf 'foo\ncmd\n\n' | PATH="$bin:$PATH" "$gen" p6 >/dev/null 2>&1
 check 1 "$?" 'failing writer on a fresh dir exits 1'
 check no "$(present p6/.vscode)" 'failing writer creates no .vscode folder'
 
+# a predictable temp name must not let a planted symlink redirect the write
+victim="$work/victim"
+echo precious >"$victim"
+bin2="$work/symlink-bin"
+mkdir -p "$bin2"
+cat >"$bin2/mkdir" <<'EOF'
+#!/bin/bash
+/bin/mkdir "$@"
+for d in "$@"; do
+  case $d in */.vscode) ln -s "$VICTIM" "$d/tasks.json.tmp.$PPID" ;; esac
+done
+EOF
+chmod +x "$bin2/mkdir"
+printf 'foo\ncmd\n\n' | VICTIM="$victim" PATH="$bin2:$PATH" "$gen" p7 >/dev/null 2>&1
+check 0 "$?" 'generator exits 0 with planted symlink'
+check precious "$(cat "$victim")" 'predictable temp symlink does not clobber victim'
+
 [ "$fails" = 0 ] && echo "ok: vscode-task-gen"
 exit "$fails"

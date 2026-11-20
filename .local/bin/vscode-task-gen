@@ -42,7 +42,7 @@ if [ ! -d "$vscode_dir" ]; then
   created=1
 fi
 
-tmp="$out.tmp.$$"
+tmp=$(mktemp "$vscode_dir/tasks.json.tmp.XXXXXX")
 if python3 -c "
 import json, sys
 
