@@ -41,6 +41,7 @@ stow --no-folding --delete .  # remove symlinks
 
 - Tmux prefix is `C-a` (not `C-b`); press `C-a C-a` to open the sesh+fzf session picker
 - Outside tmux, Ctrl-A in fish also opens the sesh picker
+- In fish vi modes, `Ctrl-Y` runs `y` (yazi, auto-cd on exit) and `Ctrl-Z` runs zoxide's interactive `cdi` picker; both repaint the oh-my-posh prompt afterwards
 - Sesh sessions are defined in `.config/sesh/sesh.toml`; window layouts are fish scripts in `.config/sesh/scripts/*.fish`
 - Godot socket pinning lives in a virtual lazy.nvim spec at `.config/nvim/lua/plugins/godot.lua` (no repo, runs at startup); `options.lua` only sets `vim.g.root_spec`
 - `n` aliases `nvim`; `y` opens yazi and auto-cds on exit

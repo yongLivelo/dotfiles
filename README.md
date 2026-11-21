@@ -91,7 +91,7 @@ Set fish as login shell:
 chsh -s /usr/bin/fish
 ```
 
-Plugins (`fisher`, `nvm.fish`) are vendored in `.config/fish/` so a fresh stow gives a working shell offline; `fisher update` writes through the symlink, so it edits tracked files (commit the result). The prompt and aliases are configured in `.config/fish/`.
+Plugins (`fisher`, `nvm.fish`) are vendored in `.config/fish/` so a fresh stow gives a working shell offline; `fisher update` writes through the symlink, so it edits tracked files (commit the result). The prompt and aliases are configured in `.config/fish/`. In all vi modes, `Ctrl-Y` runs `y` (yazi, auto-cd on exit) and `Ctrl-Z` runs zoxide's interactive `cdi` picker; both repaint the prompt afterwards.
 
 ### Tmux
 

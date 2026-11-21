@@ -17,6 +17,8 @@ if status is-interactive
             bind -M $mode \cn down-or-search
             bind -M $mode \cf forward-char
             bind -M $mode \ca sesh-term
+            bind -M $mode \cy 'y; functions -q omp_repaint_prompt && omp_repaint_prompt; commandline -f force-repaint'
+            bind -M $mode \cz 'cdi; functions -q omp_repaint_prompt && omp_repaint_prompt; commandline -f force-repaint'
         end
     end
     fish_config theme choose "Tomorrow Night Bright"
