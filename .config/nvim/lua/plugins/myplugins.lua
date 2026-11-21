@@ -155,6 +155,7 @@ return {
         "gdtoolkit",
         "pgformatter",
         "postgres-language-server",
+        "badness",
       },
     },
   },
