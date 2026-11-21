@@ -109,6 +109,10 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 1. Run `opencode auth login`.
 
+### Yazi
+
+`y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes clipboard files into the current directory (`clipboard.yazi`, needs `wl-copy`/`wl-paste` from `wl-clipboard`). `d` trashes and `D` deletes permanently; `u` restores the last trashed batch and `U` re-trashes it.
+
 ### Godot
 
 In Editor → Editor Settings → **Text Editor → External**:

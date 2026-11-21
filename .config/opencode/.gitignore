@@ -6,5 +6,5 @@ bun.lockb
 service.json
 herdr-opencode/
 herdr-tui-session.js
-plugins/
+plugins/herdr-agent-state.js
 tui.jsonc

@@ -51,14 +51,14 @@ stow --no-folding --delete .  # remove symlinks
 - In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` in normal, insert or visual mode saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
 - In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more (wallpaper path in `.config/noctalia/noctalia-config.toml` points to `others/backgrounds/`)
-- In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash
+- In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u` restores the last deleted batch and `U` re-trashes it, so repeated `u` walks further back through the trash; `y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes them (`clipboard.yazi`, needs `wl-copy`/`wl-paste`)
 - `fisher` and `nvm.fish` are vendored in `.config/fish/` (`fish_plugins` lists them) so a fresh stow gives a working shell offline; `fisher update` rewrites those tracked files — shortcut: the vendored copies go stale, delete them and let `fisher update` install on rebuild if that becomes a problem
 - Resolve's free Linux build can't decode H.264/H.265/AAC, so `to_resolve` re-encodes media for Resolve (video to ProRes 422 + PCM in place for `.mov/.qt/.mkv`, otherwise to a same-base `.mov`; audio to PCM in place for `.wav/.aiff`, otherwise to a same-base `.wav`, with `-d` removing the original in that case) before importing; keep backups because originals may be replaced on success
 
 ## OpenCode config
 
 - `.config/opencode/opencode.jsonc` configures the default model and plugins (superpowers, ponytail) — no custom instructions, agents, or permission rules live here.
-- `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr-installed files out of git; `opencode.jsonc`, `cli.json`, `commands/`, `skills/` and the `.gitignore` itself are tracked.
+- `.config/opencode/.gitignore` intentionally keeps `node_modules/`, package manifests (`package.json`, lockfiles), `service.json`, and herdr's own files out of git; custom plugins added under `plugins/` are tracked, as are `opencode.jsonc`, `cli.json`, `commands/`, `skills/` and the `.gitignore` itself.
 - `.config/opencode/skills/` holds local skills, one `<name>/SKILL.md` each (e.g. `socratic-tutor`), loaded on demand when their description matches the task.
 - The theme is the built-in `tokyonight` from `cli.json`; `opencode` is not in Noctalia's `theme.templates.community_ids`, so no theme file is generated here.
 - Neovim integrates with OpenCode via `nickjvandyke/opencode.nvim` (keymaps `<C-o>`, `<C-x>`, `go` and `goo`, defined in `.config/nvim/lua/plugins/myplugins.lua`).
