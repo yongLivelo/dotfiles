@@ -171,6 +171,12 @@ sudo perl -pi -e 's/\x74\x11\x48\x8B\x45\xC8\x8B\x55\xFC\x89\x50\x58\xB8\x00\x00
 sudo perl -0777 -pi -e 's/(\x40\x84\xED)\x74(.\xBF\x16\x00\x00\x00\xBE.\x01\x00\x00\xE8)/$1\x75$2/g' bin/resolve
 ```
 
+Set up the Resolve MCP server (for external scripting) with:
+
+```bash
+npx davinci-resolve-mcp setup
+```
+
 Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`). It works on the whole current folder; it refuses a filename argument.
 
 ### Manim
