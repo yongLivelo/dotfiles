@@ -111,7 +111,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ### Yazi
 
-`y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes clipboard files into the current directory (`clipboard.yazi`, needs `wl-copy`/`wl-paste` from `wl-clipboard`). `d` trashes and `D` deletes permanently; `u` restores the last trashed batch and `U` re-trashes it.
+`y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes clipboard files into the current directory (`sys-clipboard.yazi`, needs `wl-copy`/`wl-paste` from `wl-clipboard`). `d` trashes and `D` deletes permanently; `u` restores the last trashed batch and `U` re-trashes it.
 
 ### Godot
 

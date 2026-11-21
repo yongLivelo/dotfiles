@@ -10,15 +10,15 @@ desc = "Re-trash the batch just restored"
 
 [[mgr.prepend_keymap]]
 on = "y"
-run = ["yank", "plugin clipboard -- --action=copy"]
+run = ["yank", "plugin sys-clipboard -- --action=copy"]
 desc = "Yank selected files (copy)"
 
 [[mgr.prepend_keymap]]
 on = "x"
-run = ["yank --cut", "plugin clipboard -- --action=copy"]
+run = ["yank --cut", "plugin sys-clipboard -- --action=copy"]
 desc = "Yank selected files (cut)"
 
 [[mgr.prepend_keymap]]
 on = "<C-p>"
-run = ["plugin clipboard -- --action=paste"]
+run = ["plugin sys-clipboard -- --action=paste"]
 desc = "Paste yanked system clipboard files"
