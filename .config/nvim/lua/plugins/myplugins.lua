@@ -152,7 +152,7 @@ return {
     end,
   },
   {
-    "mason-org/mason.nvim",
+    "williamboman/mason.nvim",
     opts = {
       ensure_installed = {
         "gdscript-formatter",

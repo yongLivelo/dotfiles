@@ -13,7 +13,7 @@ state="${XDG_STATE_HOME:-$HOME/.local/state}/trash-redo"
 declare -A when paths
 for info in "$trash"/info/*.trashinfo; do
   [ -f "$info" ] || continue
-  while IFS= read -r line; do
+  while IFS= read -r line || [ -n "$line" ]; do
     case $line in
     Path=*)
       # undo the percent-encoding the trash spec applies to the original path
@@ -37,6 +37,13 @@ mkdir -p "$state"
 # mktemp is atomic; the timestamp prefix sorts newest first for redo
 batch=$(mktemp "$state/batch.$(date +%s%N).XXXXXX") || exit 1
 failed=0
+
+# keep at most 50 newest redo batches to prevent unbounded state growth
+# shortcut: 50 undo batches is well past normal undo depth
+mapfile -t old_batches < <(ls -1t "$state"/batch.* 2>/dev/null | tail -n +51)
+if [ "${#old_batches[@]}" -gt 0 ]; then
+  rm -f -- "${old_batches[@]}"
+fi
 
 while IFS= read -r date; do
   [ -n "$date" ] || continue

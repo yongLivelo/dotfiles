@@ -1,17 +1,24 @@
-if status is-interactive
-    if type -q archlinux-java
-        set -gx JAVA_HOME /usr/lib/jvm/(archlinux-java get)
-        fish_add_path $JAVA_HOME/bin
-    end
-    set -gx EDITOR nvim
+set -gx EDITOR nvim
+fish_add_path -g "$HOME/.local/bin/"
 
+if type -q archlinux-java
+    set -l jvm (archlinux-java get 2>/dev/null)
+    if test -n "$jvm" -a -d "/usr/lib/jvm/$jvm"
+        set -gx JAVA_HOME /usr/lib/jvm/$jvm
+        fish_add_path -g $JAVA_HOME/bin
+    end
+end
+
+if status is-interactive
     set -g fish_greeting
-    oh-my-posh init fish --config ~/.config/fish/theme.json | source
+    if type -q oh-my-posh
+        oh-my-posh init fish --config ~/.config/fish/theme.json | source
+    end
 
     set -g fish_key_bindings fish_vi_key_bindings
-    fzf_key_bindings
-    bind -M insert -m default jk backward-char force-repaint
     function fish_user_key_bindings
+        fzf_key_bindings
+        bind -M insert -m default jk backward-char force-repaint
         for mode in insert default visual
             bind -M $mode \cp up-or-search
             bind -M $mode \cn down-or-search
@@ -22,7 +29,6 @@ if status is-interactive
         end
     end
     fish_config theme choose "Tomorrow Night Bright"
-    fish_user_key_bindings
 
     alias n nvim
     alias ls eza
@@ -40,6 +46,4 @@ if status is-interactive
         end
         rm -f -- "$tmp"
     end
-
-    fish_add_path "$HOME/.local/bin/"
 end

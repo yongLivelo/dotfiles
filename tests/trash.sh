@@ -265,5 +265,24 @@ check yes "$(present "$src/$nlname")" 'newline name restored'
 check no "$(present "$trash/info/$nlname.trashinfo")" 'newline name metadata consumed'
 case $out in *"missing:"*) echo "FAIL: newline name reported missing: $out"; fails=$((fails + 1)) ;; esac
 
+# a .trashinfo file without a trailing newline must be parsed completely
+echo nonl >"$src/nonl.txt"
+mv -- "$src/nonl.txt" "$trash/files/nonl.txt"
+printf '[Trash Info]\nPath=%s\nDeletionDate=%s' "$src/nonl.txt" '2099-09-01T00:00:00' \
+  >"$trash/info/nonl.txt.trashinfo"
+out=$("$repo/.local/bin/trash-undo" 2>&1)
+status=$?
+check 0 "$status" 'no-trailing-newline trashinfo undo exits 0'
+check yes "$(present "$src/nonl.txt")" 'no-trailing-newline file restored'
+
+# trash-undo must prune old batch state files beyond 50
+rm -f "$state"/batch.*
+for i in $(seq 1 55); do
+  touch -d "2020-01-01 00:00:$i" "$state/batch.$i.mock"
+done
+trash_one 'prune.txt' "$src/prune.txt" '2099-10-01T00:00:00'
+"$repo/.local/bin/trash-undo" >/dev/null 2>&1
+check 50 "$(ls -1 "$state"/batch.* 2>/dev/null | wc -l)" 'state pruned to 50 newest batches'
+
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
