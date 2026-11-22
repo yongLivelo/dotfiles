@@ -143,6 +143,10 @@ return {
   {
     "xeluxee/competitest.nvim",
     dependencies = "MunifTanjim/nui.nvim",
+    keys = {
+      { "<leader>Cp", "<cmd>CompetiTest receive problem<cr>", desc = "Receive problem (competitest)" },
+      { "<leader>Cr", "<cmd>CompetiTest run<cr>", desc = "Run testcases (competitest)" },
+    },
     config = function()
       require("competitest").setup()
     end,
