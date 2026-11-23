@@ -103,6 +103,10 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 `extended-keys on` is set so modified keys (e.g. `Ctrl-Shift-C`) reach Neovim intact; in Neovim `Ctrl-C` (normal mode) quits and `Ctrl-Shift-C` saves and quits.
 
+### GUI-launched terminals
+
+`.config/environment.d/terminal.conf` sets `TERMINAL=kitty` explicitly so Noctalia opens `.desktop` entries with `Terminal=true` (e.g. the system Neovim entry) in kitty without relying on auto-detection. Log out and back in after changing it. The yazi file picker likewise uses `$TERMINAL` (falling back to kitty) via `.config/xdg-desktop-portal-termfilechooser/config`.
+
 ## 5. App Setup
 
 ### OpenCode
