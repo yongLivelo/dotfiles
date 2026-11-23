@@ -72,12 +72,14 @@ while IFS= read -r date; do
     }
     # record before moving, so a failed state write cannot lose an undo we just did
     # shortcut: newline-delimited state, so a path containing a newline can't be redone
+    before=$(wc -c <"$batch")
     printf '%s\n' "$path" >>"$batch" || {
       echo "failed to record for redo: $path" >&2
       exit 1
     }
     mv -- "$trash/files/$name" "$path" || {
       echo "failed: $path" >&2
+      truncate -s "$before" "$batch" || echo "failed to drop redo record: $path" >&2
       failed=1
       continue
     }

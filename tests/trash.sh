@@ -284,5 +284,21 @@ trash_one 'prune.txt' "$src/prune.txt" '2099-10-01T00:00:00'
 "$repo/.local/bin/trash-undo" >/dev/null 2>&1
 check 50 "$(ls -1 "$state"/batch.* 2>/dev/null | wc -l)" 'state pruned to 50 newest batches'
 
+# a failed restore must not leave a redo record that trashes a later file
+rm -f "$state"/batch.*
+trash_one 'retry.txt' "$src/retry.txt" '2099-12-01T00:00:00'
+chmod 500 "$src"
+"$repo/.local/bin/trash-undo" >/dev/null 2>&1
+status=$?
+chmod 700 "$src"
+check 1 "$status" 'failed retry restore exits 1'
+"$repo/.local/bin/trash-undo" >/dev/null 2>&1
+check yes "$(present "$src/retry.txt")" 'retry restores after permission fix'
+"$repo/.local/bin/trash-redo" >/dev/null 2>&1
+check no "$(present "$src/retry.txt")" 'newest redo re-trashes the retry'
+printf 'new\n' >"$src/retry.txt"
+"$repo/.local/bin/trash-redo" >/dev/null 2>&1
+check yes "$(present "$src/retry.txt")" 'stale redo record does not trash a later file'
+
 [ "$fails" = 0 ] && echo "ok: trash undo/redo"
 exit "$fails"
