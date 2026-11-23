@@ -18,5 +18,7 @@ f = fullscreen
 d = overlay
 c = center
 r = reset
+<Ctrl+r> = rotate by 90
+<Ctrl+Shift+r> = rotate by -90
 <Shift+J> = next
 <Shift+K> = prev

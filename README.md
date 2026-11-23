@@ -117,6 +117,10 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 `y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes clipboard files into the current directory (`sys-clipboard.yazi`, needs `wl-copy`/`wl-paste` from `wl-clipboard`). `d` trashes and `D` deletes permanently; `u` restores the last trashed batch and `U` re-trashes it.
 
+### imv
+
+`Ctrl-r` rotates the image 90° clockwise, `Ctrl-Shift-r` 90° counter-clockwise.
+
 ### Godot
 
 In Editor → Editor Settings → **Text Editor → External**:
