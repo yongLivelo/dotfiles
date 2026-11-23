@@ -88,14 +88,21 @@ choose_output() { # <source> <extension>; leaves the path in out, returns 1 when
 encode() { # <input> <output> <format> [ffmpeg args...]
   local f=$1 out=$2 fmt=$3
   shift 3
+  # replacing a symlink would leave its target unconverted and split the library
+  if [ -L "$out" ]; then
+    echo "skip: $f (output is a symlink: $out)" >&2
+    return
+  fi
   local part="$out.part.$$"
+  local outarg=$part
+  case $outarg in /*) ;; *) outarg=./$outarg ;; esac # ffmpeg needs ./ for leading-dash names
   local mode=''
   [ "$out" = "$f" ] && mode=$(stat -c %a -- "$f" 2>/dev/null || stat -f %Lp -- "$f" 2>/dev/null)
   rm -f -- "$part"
   # a signal must not leave a media file behind for Resolve to pick up
   trap 'rm -f -- "$part"; exit 1' EXIT INT TERM
   printf 'encoding: %s -> %s\n' "$f" "$out"
-  if ! ffmpeg -nostdin -loglevel error -stats -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$part"; then
+  if ! ffmpeg -nostdin -loglevel error -stats -n -i "$f" "$@" -f "${fmt:-${out##*.}}" "$outarg"; then
     rm -f -- "$part"
     trap - EXIT INT TERM
     failed=1

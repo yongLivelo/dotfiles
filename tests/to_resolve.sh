@@ -90,6 +90,17 @@ check pcm_s16le "$(codec a:0 same.mkv)" 'in-place mkv audio is PCM'
 check no "$(present same.mkv.part)" 'in-place mkv .part cleaned up'
 case $out in *"skip: same.mkv"*) echo "FAIL: in-place mkv was skipped"; fails=$((fails + 1)) ;; esac
 
+# a symlinked in-place source must not be replaced by a regular file
+mkdir -p "$work/link/real"
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 -c:v libx264 -y "$work/link/real/clip.mov"
+ln -s real/clip.mov "$work/link/clip.mov"
+out=$( cd "$work/link" && "$repo/.local/bin/to_resolve" 2>&1 )
+status=$?
+check 0 "$status" 'symlinked in-place run exits 0'
+check yes "$([ -L "$work/link/clip.mov" ] && echo yes || echo no)" 'in-place symlink is kept'
+check h264 "$(codec v:0 "$work/link/real/clip.mov")" 'symlink target is left alone'
+case $out in *"symlink"*) ;; *) echo "FAIL: symlink warning missing: $out"; fails=$((fails + 1)) ;; esac
+
 # in-place re-encode must keep every audio track (the default map keeps only one)
 ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=1 \
   -f lavfi -i sine=frequency=440:duration=1 -f lavfi -i sine=frequency=880:duration=1 \
@@ -265,6 +276,13 @@ out=$("$repo/.local/bin/to_resolve" arg.mp4 2>&1)
 status=$?
 check 2 "$status" 'filename argument exits 2'
 check no "$(present arg.mov)" 'filename argument converts nothing'
+
+# a leading-dash filename must still convert
+ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=5:duration=1 -c:v libx264 -y ./-dash.mp4
+"$repo/.local/bin/to_resolve" >/dev/null 2>&1
+status=$?
+check 0 "$status" 'leading-dash source exits 0'
+check yes "$(present ./-dash.mov)" 'leading-dash source is converted'
 
 # .ts must be skipped even when ffprobe is unavailable
 bin="$work/no-ffprobe-bin"

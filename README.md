@@ -185,7 +185,7 @@ Set up the Resolve MCP server (for external scripting) with:
 npx davinci-resolve-mcp setup
 ```
 
-Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`). It works on the whole current folder; it refuses a filename argument.
+Before importing media, run `.local/bin/to_resolve [-d]` to transcode unsupported video/audio to ProRes 422 + PCM (`.mov` / `.wav`). It works on the whole current folder; it refuses a filename argument and skips symlinks so their targets stay untouched.
 
 ### Manim
 
