@@ -26,6 +26,11 @@ printf 'foo\ncmd\n/tmp/x\n' | "$gen" p1 >/dev/null 2>&1
 check 0 "$?" 'typed cwd run exits 0'
 check /tmp/x "$(cwd_of p1/.vscode/tasks.json)" 'typed cwd preserved verbatim'
 
+# a project directory starting with '-' must get a tasks.json too
+printf 'foo\ncmd\n\n' | "$gen" -dashproj >/dev/null 2>&1
+check 0 "$?" 'dash-named project dir exits 0'
+check '${workspaceFolder}' "$(cwd_of ./-dashproj/.vscode/tasks.json)" 'dash-named project dir gets tasks.json'
+
 # stdin at EOF must abort without leaving a .vscode folder behind
 "$gen" p5 </dev/null >/dev/null 2>&1
 check 1 "$?" 'EOF at a prompt exits 1'

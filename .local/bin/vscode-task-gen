@@ -38,12 +38,12 @@ ask "Working directory [\${workspaceFolder}]: " cwd
 
 created=0
 if [ ! -d "$vscode_dir" ]; then
-  mkdir -p "$vscode_dir"
+  mkdir -p -- "$vscode_dir"
   created=1
 fi
 
-tmp=$(mktemp "$vscode_dir/tasks.json.tmp.XXXXXX") || {
-  [ "$created" = 1 ] && rmdir "$vscode_dir" 2>/dev/null || true
+tmp=$(mktemp -- "$vscode_dir/tasks.json.tmp.XXXXXX") || {
+  [ "$created" = 1 ] && rmdir -- "$vscode_dir" 2>/dev/null || true
   echo "Failed to write tasks.json; left existing file untouched." >&2
   exit 1
 }
@@ -68,11 +68,11 @@ data = {
 }
 json.dump(data, sys.stdout, indent=2)
 print()
-" "$label" "$cmd" "$cwd" > "$tmp" && mv "$tmp" "$out"; then
+" "$label" "$cmd" "$cwd" > "$tmp" && mv -- "$tmp" "$out"; then
   echo "Wrote $out"
 else
-  rm -f "$tmp"
-  [ "$created" = 1 ] && rmdir "$vscode_dir" 2>/dev/null || true
+  rm -f -- "$tmp"
+  [ "$created" = 1 ] && rmdir -- "$vscode_dir" 2>/dev/null || true
   echo "Failed to write tasks.json; left existing file untouched." >&2
   exit 1
 fi
