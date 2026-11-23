@@ -46,7 +46,7 @@ stow --no-folding --delete .  # remove symlinks
 - Godot socket pinning lives in a virtual lazy.nvim spec at `.config/nvim/lua/plugins/godot.lua` (no repo, runs at startup); `options.lua` only sets `vim.g.root_spec`
 - `n` aliases `nvim`; `y` opens yazi and auto-cds on exit
 - `ls` aliases `eza`
-- `imv` aliases `imv-dir` (opens directory so arrow keys cycle images); `Ctrl-r` rotates 90° clockwise and `Ctrl-Shift-r` 90° counter-clockwise
+- `imv` aliases `imv-dir` (opens directory so arrow keys cycle images); `Ctrl-r` rotates 90° clockwise and `Ctrl-Shift-R` 90° counter-clockwise
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
 - In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` in normal, insert or visual mode saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives

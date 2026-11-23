@@ -119,7 +119,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ### imv
 
-`Ctrl-r` rotates the image 90° clockwise, `Ctrl-Shift-r` 90° counter-clockwise.
+`Ctrl-r` rotates the image 90° clockwise, `Ctrl-Shift-R` 90° counter-clockwise.
 
 ### Godot
 
