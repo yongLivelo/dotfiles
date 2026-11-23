@@ -143,13 +143,17 @@ return {
   {
     "xeluxee/competitest.nvim",
     dependencies = "MunifTanjim/nui.nvim",
+    cmd = "CompetiTest",
     keys = {
-      { "<leader>Cp", "<cmd>CompetiTest receive problem<cr>", desc = "Receive problem (competitest)" },
-      { "<leader>Cr", "<cmd>CompetiTest run<cr>", desc = "Run testcases (competitest)" },
+      { "<leader>Crp", "<cmd>CompetiTest receive problem<cr>", desc = "Receive Problem" },
+      { "<leader>Crc", "<cmd>CompetiTest receive contest<cr>", desc = "Receive Contest" },
+      { "<leader>Ct", "<cmd>CompetiTest run<cr>", desc = "Run Testcases" },
     },
-    config = function()
-      require("competitest").setup()
-    end,
+    opts = {
+      received_problems_path = "$(HOME)/CompetitiveProgramming/$(JUDGE)/$(PROBLEM)/$(PROBLEM).$(FEXT)",
+      received_contests_directory = "$(HOME)/CompetitiveProgramming/$(JUDGE)/$(CONTEST)",
+      received_contests_problems_path = "$(PROBLEM)/$(PROBLEM).$(FEXT)",
+    },
   },
   {
     "mason-org/mason.nvim",
@@ -180,11 +184,7 @@ return {
   },
   {
     "nickjvandyke/opencode.nvim",
-    -- Defaults to "main", supporting OpenCode v2.
-    -- Uncomment to pull the latest stable release, supporting OpenCode v1.
-    -- version = "*",
     config = function()
-      ---@type opencode.Opts
       vim.g.opencode_opts = {}
 
       -- Recommended/example keymaps
