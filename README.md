@@ -79,7 +79,7 @@ stow --no-folding --delete .  # undo
 
 `--no-folding` links files, never a whole directory: without it, a fresh home gets `~/.local` as one symlink into the repo, and every program that writes there (Neovim plugins, the installers below) writes into git.
 
-`others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
+`.stow-local-ignore` keeps `others/`, `tests/` and the scratch `dotfiles_development_todo_list.md` out of `$HOME`. `others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
 
 ## 4. Shell & Terminal
 

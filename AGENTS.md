@@ -11,7 +11,7 @@ stow --no-folding --delete .  # remove symlinks
 
 `--no-folding` matters: without it, a fresh home with no `~/.local` gets that whole directory as one symlink into the repo, and program state (Neovim plugins, installers) then lands in git.
 
-`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `others/` and `tests/` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
+`.stow-local-ignore` excludes `.git`, `.gitignore`, `AGENTS.md`, `README.md`, `others/`, `tests/` and `dotfiles_development_todo_list.md` — anything there is **not** symlinked into `$HOME` (e.g. `others/` holds backgrounds and misc files, never stowed).
 
 ## Config layout
 
