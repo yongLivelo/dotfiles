@@ -21,6 +21,12 @@ if [ "$OPTIND" -le "$#" ]; then
 fi
 
 shopt -s nocaseglob nullglob
+# SIGKILL cannot run encode's cleanup trap, so drop parts whose owning PID is gone
+for part in *.part.[0-9]*; do
+  [ -f "$part" ] || continue
+  pid=${part##*.}
+  kill -0 "$pid" 2>/dev/null || rm -f -- "$part"
+done
 failed=0
 declare -A written
 

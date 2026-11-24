@@ -415,6 +415,35 @@ printf x >"$work/interrupt/clip.mp4"
 sleep 2.5
 check '' "$(compgen -G "$work/interrupt/*.part*")" 'interrupted encode leaves no .part'
 
+# SIGKILL cannot run the cleanup trap; the next run must remove its leftover .part
+mkdir -p "$work/killed/bin"
+cat >"$work/killed/bin/ffmpeg" <<'EOF'
+#!/bin/bash
+for a in "$@"; do last=$a; done
+printf data >"$last"
+exec sleep 2
+EOF
+chmod +x "$work/killed/bin/ffmpeg"
+printf x >"$work/killed/clip.mp4"
+(
+  cd "$work/killed" || exit 1
+  PATH="$work/killed/bin:$PATH" "$repo/.local/bin/to_resolve" >/dev/null 2>&1 &
+  echo $! >"$work/killed/pid"
+  wait
+) &
+runner=$!
+for _ in $(seq 1 50); do
+  [ -n "$(compgen -G "$work/killed/*.part.*")" ] && break
+  sleep 0.1
+done
+kill -9 "$(cat "$work/killed/pid")" 2>/dev/null
+wait "$runner" 2>/dev/null
+check yes "$([ -n "$(compgen -G "$work/killed/*.part.*")" ] && echo yes || echo no)" 'killed run leaves a .part'
+clip "$work/killed/clip.mp4"
+( cd "$work/killed" && "$repo/.local/bin/to_resolve" >/dev/null 2>&1 )
+check 0 "$?" 'next run exits 0'
+check '' "$(compgen -G "$work/killed/*.part.*")" 'next run removes the stale .part'
+
 # a fixed .part name would let two runs corrupt each other
 check '' "$(compgen -G '*.part*')" 'no .part leftovers'
 
