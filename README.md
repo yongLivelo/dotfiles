@@ -53,7 +53,7 @@ sudo systemctl enable --now bluetooth
 ### AUR (`yay`)
 
 ```bash
-yay -S google-chrome sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser
+yay -S google-chrome sesh-bin python-pywalfox claude-code antigravity-cli zoom xdg-desktop-portal-termfilechooser peaclock
 ```
 
 ### Standalone Installers
