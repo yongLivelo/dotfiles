@@ -1,13 +1,13 @@
 # Mode & View
 view digital
 mode clock
-set hour-24 on
+set hour-24 off
 set seconds on
 set date on
 set auto-size on
 
 # Alarm command (must be wrapped in single quotes)
-timer-exec 'mpv --no-video /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga && notify-send -u critical "Peaclock" "Timer finished!"'
+timer-exec 'nohup mpv --no-video --no-terminal /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga >/dev/null 2>&1 & notify-send -u critical "Peaclock" "Timer finished!"'
 
 # Tokyo Night Palette
 style background clear

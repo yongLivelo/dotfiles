@@ -24,7 +24,7 @@ sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome \
 
 # Development & tools
 sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
-  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip \
+  nodejs npm go rust zig clang jdk-openjdk uv dbeaver mariadb zed unzip zip\
   texlive cairo pango python-matplotlib tk stylua
 
 # Media, fonts & desktop apps
@@ -33,7 +33,7 @@ sudo pacman -S base-devel pacman-contrib github-cli lazygit keychain \
 sudo pacman -S ttf-jetbrains-mono ttf-jetbrains-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji \
   mpv ffmpeg imagemagick easyeffects kdenlive audacity obs-studio haruna cava rnote \
   handbrake handbrake-cli \
-  imv gwenview zathura zathura-pdf-mupdf okular wl-clipboard wl-clip-persist \
+  imv gwenview zathura zathura-pdf-mupdf okular wl-clipboard wl-clip-persist satty grim slurp\
   firefox firefoxpwa telegram-desktop discord libreoffice-still godot
 ```
 
@@ -79,7 +79,7 @@ stow --no-folding --delete .  # undo
 
 `--no-folding` links files, never a whole directory: without it, a fresh home gets `~/.local` as one symlink into the repo, and every program that writes there (Neovim plugins, the installers below) writes into git.
 
-`.stow-local-ignore` keeps `others/`, `tests/` and the scratch `dotfiles_development_todo_list.md` out of `$HOME`. `others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
+`.stow-local-ignore` keeps `others/`, `tests/`, `dotfiles_development_todo_list.md`, and `development_dotfiles_todo_list.md` out of `$HOME`. `others/` (wallpapers, vimium theme) is tracked but not stowed; configs point at `~/dotfiles/others/` directly.
 
 ## 4. Shell & Terminal
 
@@ -109,9 +109,16 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 ## 5. App Setup
 
-### OpenCode
+### OpenCode & Antigravity (`agy`)
 
 1. Run `opencode auth login`.
+2. `agy` is configured in `.gemini/antigravity-cli/` with Vim mode (`editorMode: "vim"`, `vimInsertFirst: true`) and `ctrl+e` bound to `edit.open_editor`.
+3. In Neovim, `<leader>a` (`:AIToggle`, `:AISend`, `:AISwitch`, `:AIInline`, `:AICommand`) integrates `agy`, `claude`, and `opencode` with a dedicated prompt buffer, `/command`/`@file` completion, and lualine status.
+
+### Yazi
+
+- `u`/`U` run unified undo/redo (`action-history.yazi`, falling back to `trash-undo`/`trash-redo`) across tracked file creation (`a`), rename, move, paste, and trash.
+- `<C-p>` (`sys-clipboard.yazi`) pastes files or clipboard images (via `wl-paste`, `xclip`, or `pngpaste`) into the active directory.
 
 ### Godot
 
