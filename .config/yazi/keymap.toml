@@ -1,12 +1,17 @@
 [[mgr.prepend_keymap]]
 on = "u"
-run = "shell -- trash-undo"
-desc = "Restore the last trashed batch"
+run = "plugin action-history -- --action=undo"
+desc = "Undo last file operation"
 
 [[mgr.prepend_keymap]]
 on = "U"
-run = "shell -- trash-redo"
-desc = "Re-trash the batch just restored"
+run = "plugin action-history -- --action=redo"
+desc = "Redo last undone file operation"
+
+[[mgr.prepend_keymap]]
+on = "a"
+run = "plugin action-history -- --action=create"
+desc = "Create a file or directory (tracked)"
 
 [[mgr.prepend_keymap]]
 on = "y"
@@ -22,3 +27,9 @@ desc = "Yank selected files (cut)"
 on = "<C-p>"
 run = ["plugin sys-clipboard -- --action=paste"]
 desc = "Paste yanked system clipboard files"
+
+
+[[mgr.prepend_keymap]]
+on = ["c", "a", "a"]
+run = "plugin compress"
+desc = "Archive selected files"

@@ -323,7 +323,7 @@ function M:paste()
 		return self:notify_error("Paste failed: " .. err)
 	end
 	if not paths or #paths == 0 then
-		return self:notify_error("No files in clipboard")
+		return self:paste_image()
 	end
 
 	ya.dbg("Clipboard", "paste paths", paths)
@@ -331,6 +331,7 @@ function M:paste()
 	local cwd_url = Url(get_cwd())
 	local copied = 0
 	local skipped = 0
+	local created_paths = {}
 	local errors = {}
 	local apply_all = nil
 	for _, src in ipairs(paths) do
@@ -357,12 +358,22 @@ function M:paste()
 			local ok, copy_err = self:copy_path(src, dest)
 			if ok then
 				copied = copied + 1
+				table.insert(created_paths, dest)
 			else
 				ya.err("Clipboard", "copy failed", src, tostring(copy_err))
 				table.insert(errors, name .. ": " .. tostring(copy_err))
 			end
 			::continue::
 		end
+	end
+
+	if #created_paths > 0 then
+		ya.emit("plugin", {
+			"action-history",
+			"--action=record",
+			"--kind=paste",
+			"--paths=" .. table.concat(created_paths, "\n"),
+		})
 	end
 
 	if not self.disable_paste_notifications and (copied > 0 or skipped > 0) then
@@ -644,6 +655,145 @@ function M:path_to_file_uri(path)
 		return string.format("%%%02X", string.byte(c))
 	end)
 	return "file://" .. encoded
+end
+
+local IMAGE_MIME_EXTS = {
+	{ mime = "image/png", ext = "png" },
+	{ mime = "image/jpeg", ext = "jpg" },
+	{ mime = "image/jpg", ext = "jpg" },
+	{ mime = "image/webp", ext = "webp" },
+	{ mime = "image/gif", ext = "gif" },
+	{ mime = "image/bmp", ext = "bmp" },
+	{ mime = "image/tiff", ext = "tiff" },
+}
+
+---@param targets_text string
+---@return string? mime
+---@return string? ext
+function M:match_image_mime(targets_text)
+	for _, entry in ipairs(IMAGE_MIME_EXTS) do
+		for line in targets_text:gmatch("[^\r\n]+") do
+			if line:gsub("^%s+", ""):gsub("%s+$", "") == entry.mime then
+				return entry.mime, entry.ext
+			end
+		end
+	end
+	return nil, nil
+end
+
+---@return string? backend
+---@return string? mime
+---@return string? ext
+function M:detect_clipboard_image()
+	local os_name = ya.target_os()
+	if os_name == "linux" then
+		local ds = self:linux_display_server()
+		if ds == "wayland" then
+			local out = self:run_command("wl-paste", { "--list-types" }, { allow_failure = true })
+			if out and out.status and out.status.success then
+				local mime, ext = self:match_image_mime(out.stdout or "")
+				if mime then
+					return "wayland", mime, ext
+				end
+			end
+		elseif ds == "x11" then
+			local out = self:run_command(
+				"xclip",
+				{ "-selection", "clipboard", "-t", "TARGETS", "-o" },
+				{ allow_failure = true }
+			)
+			if out and out.status and out.status.success then
+				local mime, ext = self:match_image_mime(out.stdout or "")
+				if mime then
+					return "x11", mime, ext
+				end
+			end
+		end
+	elseif os_name == "macos" then
+		local out = self:run_command("pngpaste", { "-" }, { allow_failure = true })
+		if out and out.status and out.status.success then
+			return "macos", "image/png", "png"
+		end
+	end
+	return nil, nil, nil
+end
+
+---@param backend string
+---@param mime string
+---@param dest string
+---@return boolean ok
+---@return string? err
+function M:save_clipboard_image(backend, mime, dest)
+	local cmd_str, args
+	if backend == "wayland" then
+		cmd_str = [[wl-paste -t "$1" > "$2"]]
+		args = { "-c", cmd_str, "--", mime, dest }
+	elseif backend == "x11" then
+		cmd_str = [[xclip -o -selection clipboard -t "$1" > "$2"]]
+		args = { "-c", cmd_str, "--", mime, dest }
+	elseif backend == "macos" then
+		local _, err = self:run_command("pngpaste", { dest })
+		return err == nil, err
+	else
+		return false, "Unsupported image paste backend"
+	end
+	local _, err = self:run_command("sh", args)
+	return err == nil, err
+end
+
+---@return nil
+function M:paste_image()
+	local backend, mime, ext = self:detect_clipboard_image()
+	if not backend then
+		return self:notify_error("No files or image in clipboard")
+	end
+
+	local default_name = os.date("clipboard_%Y%m%d_%H%M%S") .. "." .. ext
+	local value, event = ya.input({
+		title = "Save clipboard image as:",
+		value = default_name,
+		pos = { "center", w = 50 },
+	})
+	if event ~= 1 then
+		return
+	end
+	local filename = (value and value ~= "") and value or default_name
+	if not filename:match("%.[^./\\]+$") then
+		filename = filename .. "." .. ext
+	end
+
+	local cwd_url = Url(get_cwd())
+	local dest_url = cwd_url:join(filename)
+	local dest = tostring(dest_url)
+
+	if fs.cha(dest_url) then
+		local choice = self:ask_conflict(filename, false)
+		if choice == "skip" then
+			return
+		elseif choice == "rename" then
+			dest = self:unique_name(cwd_url, filename)
+		end
+	end
+
+	local ok, err = self:save_clipboard_image(backend, mime, dest)
+	if not ok then
+		return self:notify_error("Image paste failed: " .. tostring(err))
+	end
+
+	ya.emit("plugin", {
+		"action-history",
+		"--action=record",
+		"--kind=paste",
+		"--paths=" .. dest,
+	})
+	if not self.disable_paste_notifications then
+		ya.notify({
+			title = "Clipboard",
+			content = "Saved image: " .. (dest:match("[^/\\]+$") or filename),
+			timeout = 3,
+			level = "info",
+		})
+	end
 end
 
 ---@param msg string
