@@ -581,9 +581,15 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
+    Print {
+        spawn "sh" "-c" "grim -g \"$(slurp)\" - | satty --filename -"
+    }
+    Shift+Print {
+        spawn "sh" "-c" "grim - | satty --filename -"
+    }
+   Ctrl+Print {
+        spawn "sh" "-c" "grim -o \"$(niri msg focused-output | head -n1 | sed -E 's/.*\\(([^)]+)\\).*/\\1/')\" - | satty --filename -"
+    }
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
