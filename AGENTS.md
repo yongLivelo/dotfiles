@@ -51,7 +51,7 @@ stow --no-folding --delete .  # remove symlinks
 - `imv` aliases `imv-dir` (opens directory so arrow keys cycle images); `Ctrl-r` rotates 90° clockwise and `Ctrl-Shift-R` 90° counter-clockwise
 - `cd` aliases `zoxide`
 - `EDITOR` is `nvim`
-- In Neovim, `Ctrl-C` in normal mode quits and `Ctrl-Shift-C` in normal, insert or visual mode saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
+- In Neovim, `Ctrl-C` in normal mode quits, `Ctrl-Alt-C` quits without saving (`<cmd>q<cr>`), and `Ctrl-Shift-C` in normal, insert or visual mode saves and quits (`<cmd>wqa<cr>`); Kitty unbinds its `kitty_mod+c` copy shortcut and tmux sets `extended-keys on` so the shift modifier survives
 - In Neovim, `snacks.image` is enabled for inline image previews in markdown/buffers via Kitty graphics
 - Noctalia applies Tokyo-Night themes to btop, kitty, niri, yazi, GTK, Qt, and more (wallpaper path in `.config/noctalia/noctalia-config.toml` points to `others/backgrounds/`)
 - In yazi, `d` trashes (recoverable) and `D` deletes permanently; `u`/`U` run unified undo/redo (`action-history.yazi`, falling back to `trash-undo`/`trash-redo`) across create (`a`), rename, move, paste, and trash; `y`/`x` copy yanked files to the system clipboard and `<C-p>` pastes files or clipboard images (`sys-clipboard.yazi`, needs `wl-copy`/`wl-paste` or `xclip`/`pngpaste`)

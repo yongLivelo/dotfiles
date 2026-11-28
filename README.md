@@ -101,7 +101,7 @@ Install plugins (`C-a I` after cloning):
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```
 
-`extended-keys on` is set so modified keys (e.g. `Ctrl-Shift-C`) reach Neovim intact; in Neovim `Ctrl-C` (normal mode) quits and `Ctrl-Shift-C` saves and quits.
+`extended-keys on` is set so modified keys (e.g. `Ctrl-Shift-C`) reach Neovim intact; in Neovim `Ctrl-C` (normal mode) quits, `Ctrl-Alt-C` quits without saving, and `Ctrl-Shift-C` saves and quits.
 
 ### GUI-launched terminals
 
